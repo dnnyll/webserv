@@ -2,13 +2,6 @@
                 RÉPARTITION DÉTAILLÉE (ÉQUIPE DE 3 - WEBSERV 42)
 ================================================================================
 
-Objectif :
-Découper clairement les responsabilités pour éviter :
-- conflits Git
-- dépendances bloquantes
-- zones floues
-- intégration tardive difficile
-
 ================================================================================
 PERSONNE 1 — CONFIGURATION / PARSING / VALIDATION
 ================================================================================

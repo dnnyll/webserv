@@ -1,4 +1,3 @@
-
 ================================================================================
                 PLAN DE DÉVELOPPEMENT COMPLET - WEBSERV 42
 ================================================================================
@@ -12,11 +11,30 @@ Créer un serveur HTTP non-bloquant capable de :
 - utiliser poll() (ou équivalent),
 - parser un fichier de configuration type nginx.
 
+Contraintes imposées par le sujet :
+- C++98 obligatoire (pas d'auto, lambdas, threads, range-for).
+- Un seul poll() (ou équivalent) pour TOUS les fd (sockets + pipes CGI).
+- Interdiction d'execve() un autre serveur web.
+- Le serveur ne doit jamais bloquer, même en cas de client lent ou mort.
+- Compatible navigateur réel (Firefox, Chrome).
+- Accepter un fichier de config en argument, ou charger un défaut si absent.
+
 Architecture recommandée :
 - séparation claire des modules,
-- machine d’état pour chaque client,
+- machine d'état pour chaque client,
 - boucle événementielle unique,
 - aucune opération bloquante.
+
+Répartition du travail :
+- Personne 1 : parsing, config, routes, validation.
+- Personne 2 : réseau, poll, clients, buffers, state machine.
+- Personne 3 : HTTP, réponses, CGI, autoindex.
+- Tous       : intégration, debugging, tests.
+
+Point de synchronisation critique :
+- Personne 1 définit les structs en premier (ServerConfig, LocationConfig).
+- Personnes 2 et 3 mockent ces structs en attendant si nécessaire.
+- Intégration continue dès que les interfaces sont stables.
 
 ================================================================================
 PHASE 1 : PARSING ET VALIDATION DE LA CONFIGURATION
