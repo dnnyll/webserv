@@ -50,7 +50,7 @@ re: fclean all
 
 # git log
 log:
-	git log --oneline --graph --decorate 
+	git log --oneline --graph --decorate --all
 
 # git commit + push
 push: fclean
