@@ -46,9 +46,11 @@ fclean: clean
 
 re: fclean all
 
-
-
 # git
+
+# git log
+log:
+	git log --oneline --graph --decorate 
 
 # git commit + push
 push: fclean
@@ -69,7 +71,7 @@ fetch:
 	git fetch
 	make -s pull
 
-# =========================
+
 # PHONY
-# =========================
+
 .PHONY: all clean fclean re push pull fetch
