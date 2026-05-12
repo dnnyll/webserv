@@ -55,11 +55,12 @@ log:
 # git commit + push
 push: fclean
 	@DATE=$$(date "+%Y-%m-%d %Hh%Mm%S -"); \
+	USER=$$(whoami)" -"; \
 	printf "enter commit message > "; \
 	read MSG; \
 	MSG=$${MSG:-update}; \
 	git add -A; \
-	git commit -m "$$DATE $$MSG" || echo "nothing to commit"; \
+	git commit -m "$$USER $$DATE $$MSG" || echo "nothing to commit"; \
 	git push
 
 # git pull
