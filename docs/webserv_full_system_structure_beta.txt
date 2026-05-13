@@ -1,0 +1,138 @@
+FULL SYSTEM STRUCTURE
+
+main()
+│
+├── CONFIGURATION PHASE (PRE-EVENT LOOP)
+│   │
+│   ├── ConfigParser
+│   │     ├── parses server blocks
+│   │     ├── parses routes/locations
+│   │     └── parses CGI / upload limits / root paths
+│   │
+│   ├── ServerConfig
+│   │     ├── ports (8080, 8081...)
+│   │     ├── host bindings
+│   │     ├── routes map
+│   │     └── error pages
+│   │
+│   ├── RouteConfig
+│   │     ├── allowed methods (GET/POST/DELETE)
+│   │     ├── root / alias
+│   │     ├── CGI rules
+│   │     └── upload rules
+│   │
+│   └── MimeTypeRegistry
+│         └── extension → Content-Type mapping
+│
+│
+├── SERVER INITIALIZATION PHASE
+│   │
+│   ├── ListeningSocket :8080
+│   ├── ListeningSocket :8081
+│   │     ├── create socket()
+│   │     ├── bind()
+│   │     ├── listen()
+│   │     └── ready for epoll
+│   │
+│   ├── EventLoop
+│   │     ├── epoll_fd
+│   │     ├── fd_registry (fd → handler mapping)
+│   │     └── timeout manager
+│   │
+│   └── Global Resources
+│         ├── Logger
+│         ├── SignalHandler (SIGINT, SIGCHLD)
+│         └── Temp file manager (uploads/CGI)
+│
+│
+└── RUNTIME PHASE (EPOLL LOOP STARTS)
+    │
+    ├── EventLoop (RUNNING)
+    │     │
+    │     ├── fd_registry
+    │     │     ├── fd 3  → ListeningSocket :8080
+    │     │     ├── fd 4  → ListeningSocket :8081
+    │     │     ├── fd 42 → Connection
+    │     │     ├── fd 43 → Connection
+    │     │     ├── fd 90 → CGIPipe (stdout)
+    │     │     └── fd 91 → CGIPipe (stdin)
+    │     │
+    │     └── timeout_heap / timer_list
+    │
+    │
+    ├── ListeningSocket (multiple)
+    │     ├── accept new clients
+    │     ├── create Connection
+    │     └── register fd in epoll
+    │
+    │
+    ├── Connection (ONE PER CLIENT)
+    │     ├── socket fd
+    │     ├── ReadBuffer
+    │     ├── WriteBuffer
+    │     ├── ConnectionState
+    │     │     ├── READING_REQUEST
+    │     │     ├── PROCESSING
+    │     │     ├── SENDING_RESPONSE
+    │     │     └── CLOSED
+    │     │
+    │     ├── HttpRequest
+    │     │     ├── method
+    │     │     ├── path
+    │     │     ├── headers
+    │     │     └── body
+    │     │
+    │     ├── HttpResponse
+    │     │     ├── status_code
+    │     │     ├── headers
+    │     │     └── body
+    │     │
+    │     ├── RequestRouter result
+    │     │     ├── matched RouteConfig
+    │     │     └── selected handler type
+    │     │
+    │     ├── IRequestHandler (ACTIVE TASK)
+    │     │     ├── StaticFileHandler
+    │     │     │     ├── file descriptor
+    │     │     │     ├── file offset
+    │     │     │     └── send progress
+    │     │     │
+    │     │     ├── CGIHandler
+    │     │     │     ├── pid
+    │     │     │     ├── stdin pipe
+    │     │     │     ├── stdout pipe
+    │     │     │     ├── CGI state machine
+    │     │     │     └── partial output buffer
+    │     │     │
+    │     │     ├── UploadHandler
+    │     │     │     ├── temp file fd
+    │     │     │     ├── received bytes
+    │     │     │     └── content-length tracking
+    │     │     │
+    │     │     └── DeleteHandler
+    │     │           ├── filesystem operation
+    │     │           └── response builder
+    │     │
+    │     └── Timeout metadata
+    │           ├── last_activity_time
+    │           └── keep-alive flag
+    │
+    │
+    ├── CGI PROCESS WORLD (WHEN ACTIVE)
+    │     ├── child process (execve)
+    │     ├── stdin pipe  (written by server)
+    │     ├── stdout pipe (read by server)
+    │     └── registered in epoll via EventLoop
+    │
+    │
+    ├── FILE SYSTEM OPERATIONS
+    │     ├── static file reads
+    │     ├── upload writes
+    │     └── delete operations
+    │
+    │
+    └── EVENT DISPATCH MECHANISM
+          ├── epoll_wait()
+          ├── fd → EventLoop lookup
+          ├── dispatch to Connection or ListeningSocket
+          └── handler-driven processing
