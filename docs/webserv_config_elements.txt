@@ -1,0 +1,136 @@
+NGINX style config elements
+
+SERVER LEVEL:
+- listen
+- server_name
+- root
+- index
+- error_page
+- client_max_body_size
+
+LOCATION LEVEL:
+- methods (GET/POST/DELETE)
+- root (override)
+- index (override)
+- autoindex
+- return (redirect)
+- upload_store
+- cgi (extension + interpreter)
+
+
+
+WEBSERV CONFIG REQUIREMENTS
+===========================
+
+
+===========================
+REQUIRED FEATURES (MANDATORY)
+===========================
+
+SERVER CORE
+-----------
+server
+│
+├── Defines a virtual server (block with limiters {})
+├── Used to host one website or service
+└── Must support multiple servers per config
+
+
+listen
+│
+├── Defines interface:port (e.g. 8080 or 127.0.0.1:8080)
+├── Multiple ports and ips are allowed for a single server
+├── Used to bind sockets
+└── Required for running the server
+
+
+server_name
+│
+├── Matches Host header from HTTP request
+├── Used for virtual hosting
+└── Allows multiple websites on same port
+
+
+root
+│
+├── Base filesystem directory (FOLDER) for requested files
+├── Maps URL → disk path
+└── Required for serving static content
+
+
+index
+│
+├── Default file for directory requests
+├── Example: default_page.html
+└── Used when URL points to a folder directory
+
+
+error_page
+│
+├── Maps HTTP error codes to custom files
+├── Example: 404 → /404.html
+└── Required for proper HTTP error handling
+
+
+client_max_body_size
+│
+├── Limits request body size
+├── Prevents oversized uploads
+└── Must return 413 if exceeded
+
+
+------------------------------------------------------------
+
+LOCATION RULES (MANDATORY CORE FEATURE)
+------------------------------------------------------------
+
+location <path>
+│
+├── Matches URL prefix (no regex required)
+├── Selects rule set for request handling
+└── Most specific match wins
+
+
+methods
+│
+├── Allowed HTTP methods per route
+├── Example: GET POST DELETE
+└── Must return 405 if method not allowed
+
+
+return (redirect)
+│
+├── HTTP redirection
+├── Example: 301 /new-page
+└── Sends client to another URL
+
+
+root (override)
+│
+├── Overrides server root for a location
+└── Used for per-route filesystem mapping
+
+
+index (override)
+│
+├── Default file inside directory (per location)
+└── Overrides server-level index
+
+
+autoindex
+│
+├── Enables/disables directory listing
+└── If enabled → show files in folder
+
+
+upload_store
+│
+├── Defines upload directory for POST requests
+└── Stores client-uploaded files
+
+
+cgi
+│
+├── Executes external program based on file extension
+├── Example: .py → python3 / .php -> php
+└── Must support environment + I/O handling

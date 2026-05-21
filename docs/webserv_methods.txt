@@ -1,0 +1,100 @@
+HTTP METHODS — QUICK CHEATSHEET (WEBSERV CONTEXT)
+=================================================
+
+
+GENERAL IDEA
+────────────
+HTTP methods define WHAT ACTION the client wants to perform
+on a URL path.
+
+
+=================================================
+GET
+=================================================
+
+MEANING:
+    Read / retrieve a resource
+
+WHAT IT DOES:
+    - Reads file from disk
+    - Returns content to client
+
+EXAMPLE:
+    GET /index.html
+
+SERVER BEHAVIOR:
+    1. map URL → filesystem (root + path)
+    2. check file exists
+    3. read file
+    4. return 200 OK + content
+
+RESULTS:
+    ✔ 200 OK → file returned
+    ✘ 404 Not Found → file missing
+    ✘ 403 Forbidden → no access
+
+IMPORTANT:
+    - DOES NOT modify server data
+    - SAFE method (no side effects)
+
+
+=================================================
+POST
+=================================================
+
+MEANING:
+    Send data to server (create / process data)
+
+WHAT IT DOES:
+    - Sends request body (data)
+    - Server decides what to do with it
+
+EXAMPLE:
+    POST /upload/file.txt
+
+SERVER BEHAVIOR:
+    1. read request body
+    2. validate size (client_max_body_size)
+    3. find matching location
+    4. if upload enabled → store data in file system
+
+RESULTS:
+    ✔ 200 OK / 201 Created → data stored/processed
+    ✘ 405 Method Not Allowed → POST not allowed
+    ✘ 413 Payload Too Large → body too big
+
+IMPORTANT:
+    - Can create files (uploads)
+    - Can trigger CGI execution
+    - NOT automatically file storage (needs config)
+
+
+=================================================
+DELETE
+=================================================
+
+MEANING:
+    Remove a resource from server
+
+WHAT IT DOES:
+    - Deletes file or directory on disk
+
+EXAMPLE:
+    DELETE /data/file.txt
+
+SERVER BEHAVIOR:
+    1. map URL → filesystem path
+    2. check file exists
+    3. check permissions
+    4. remove file (unlink)
+    5. return response
+
+RESULTS:
+    ✔ 200 OK / 204 No Content → deleted
+    ✘ 404 Not Found → file doesn't exist
+    ✘ 403 Forbidden → no permission
+    ✘ 405 Method Not Allowed → not allowed in config
+
+IMPORTANT:
+    - Physically removes server data
+    - Dangerous → must be explicitly allowed
