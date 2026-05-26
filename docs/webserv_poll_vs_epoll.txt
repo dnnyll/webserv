@@ -1,24 +1,5 @@
-+----------------------+------------------------------+----------------------------------+
-|        poll          |   level-triggered epoll      |            Notes                 |
-+----------------------+------------------------------+----------------------------------+
-| level-triggered      | level-triggered              | both retrigger if data remains   |
-| pass fds every call  | register fds once            | epoll keeps kernel state         |
-| O(n) scan            | near O(active fds)           | epoll scales much better         |
-| simpler API          | more setup                   | epoll needs create/ctl/wait      |
-| poll()               | epoll_wait()                 |                                  |
-| portable/POSIX-ish   | Linux-only                   |                                  |
-| good for small sets  | good for many connections    |                                  |
-| no errno needed      | no errno needed              | fits project restriction         |
-+----------------------+------------------------------+----------------------------------+
-
 poll:
     poll(fds, nfds, timeout);
-
-epoll:
-    epoll_create1(...)
-    epoll_ctl(...)
-    epoll_wait(...)
-
 
 
 struct pollfd
