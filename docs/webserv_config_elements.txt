@@ -40,6 +40,7 @@ listen
 │
 ├── Defines interface:port (e.g. 8080 or 127.0.0.1:8080)
 ├── Multiple ports and ips are allowed for a single server
+	manage duplicated ports/ips!!!!
 ├── Used to bind sockets
 └── Required for running the server
 
@@ -56,6 +57,7 @@ root
 ├── Base filesystem directory (FOLDER) for requested files
 ├── Maps URL → disk path
 └── Required for serving static content
+	listing/auto index requires both relative and absolute paths to be managed (rememberNoes example about traveling throught your directory in the browser)
 
 
 index
@@ -134,3 +136,4 @@ cgi
 ├── Executes external program based on file extension
 ├── Example: .py → python3 / .php -> php
 └── Must support environment + I/O handling
+	check for "status word", if found you need to remove it to send the message back to the client
