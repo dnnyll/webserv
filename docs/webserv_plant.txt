@@ -1,0 +1,165 @@
+@startuml
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+title poll() HTTP/1.0 WebServer — Architecture + 3 Dev Split
+
+' =========================
+' CORE RUNTIME LAYER
+' =========================
+
+package "🟢 Developer A — Core / Reactor / Config" {
+
+class Reactor {
+  +poll_loop()
+  +register(fd, handler)
+  +unregister(fd)
+}
+
+interface IEventHandler {
+  +handle_input()
+  +handle_output()
+  +handle_close()
+}
+
+class AcceptHandler {
+  +accept_connection()
+}
+
+class ConfigParser {
+  +parse()
+}
+
+class ServerConfig
+class LocationConfig
+class ListenEntry
+
+Reactor --> IEventHandler
+AcceptHandler ..|> IEventHandler
+
+Reactor --> AcceptHandler
+AcceptHandler --> Reactor
+
+ConfigParser --> ServerConfig
+ServerConfig --> LocationConfig
+ServerConfig --> ListenEntry
+}
+
+' =========================
+' HTTP LAYER
+' =========================
+
+package "🟠 Developer B — HTTP / Routing / Logic" {
+
+class HttpRequest {
+  +method
+  +uri
+  +headers
+  +body
+  +state
+}
+
+class Router {
+  +route(req, config)
+}
+
+interface IRequestHandler {
+  +execute(req, res)
+}
+
+class StaticFileHandler
+class UploadHandler
+class DeleteHandler
+
+IRequestHandler <|-- StaticFileHandler
+IRequestHandler <|-- UploadHandler
+IRequestHandler <|-- DeleteHandler
+
+Router --> HttpRequest
+Router --> ServerConfig
+Router --> LocationConfig
+Router --> IRequestHandler
+
+}
+
+' =========================
+' IO + CGI LAYER
+' =========================
+
+package "🟣 Developer C — IO / Files / CGI" {
+
+class HttpResponse {
+  +statusCode
+  +headers
+  +body
+  +serialize()
+}
+
+class CGIHandler {
+  +fork_exec()
+  +handle_pipes()
+}
+
+class StaticFileHandler_IO {
+  +read_file()
+}
+
+class UploadFS {
+  +write_file()
+}
+
+class DeleteFS {
+  +remove()
+}
+
+CGIHandler --> HttpResponse
+StaticFileHandler_IO --> HttpResponse
+UploadFS --> HttpResponse
+DeleteFS --> HttpResponse
+
+}
+
+' =========================
+' CLIENT CONNECTION FLOW
+' =========================
+
+package "Runtime Flow" {
+
+class ClientHandler {
+  +recv()
+  +process()
+  +send()
+}
+
+Reactor --> ClientHandler
+AcceptHandler --> ClientHandler
+
+ClientHandler --> HttpRequest
+ClientHandler --> Router
+ClientHandler --> HttpResponse
+ClientHandler --> CGIHandler
+
+}
+
+' =========================
+' DEPENDENCY RULES
+' =========================
+
+note right of Reactor
+A owns runtime loop.
+No HTTP knowledge.
+end note
+
+note right of Router
+B owns decision logic.
+Pure function style preferred.
+end note
+
+note right of CGIHandler
+C owns all OS interaction:
+fork, execve, pipes, FS.
+end note
+
+@enduml

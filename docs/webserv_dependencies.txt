@@ -1,0 +1,207 @@
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         SHARED STARTUP CONTRACTS                              │
+│                (MUST EXIST BEFORE ANY DEVELOPER STARTS WORK)                 │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────┐
+│ HTTP CORE TYPES              │
+└──────────────────────────────┘
+
+HttpRequest
+  - method
+  - uri
+  - version
+  - headers (map)
+  - body
+
+HttpResponse
+  - statusCode
+  - statusMessage
+  - headers (map)
+  - body
+
+
+┌──────────────────────────────┐
+│ CONFIG TYPES (SERVER MODEL)  │
+└──────────────────────────────┘
+
+ServerConfig
+  - listens (ip + port list)
+  - serverNames
+  - root
+  - maxBodySize
+  - errorPages map
+  - locations list
+
+LocationConfig
+  - path
+  - root
+  - allowedMethods
+  - autoindex flag (optional use)
+  - upload path (optional use)
+  - redirect info (optional use)
+  - cgi extensions (optional use)
+
+
+┌──────────────────────────────┐
+│ REACTOR CORE CONTRACT        │
+└──────────────────────────────┘
+
+IEventHandler (interface)
+  - handle_input()
+  - handle_output()
+  - handle_close()
+
+Reactor
+  - register_fd(fd, handler)
+  - unregister_fd(fd)
+  - loop()
+
+ClientHandler (forward declared)
+  - exists as type used by all devs
+  - owns one connection lifecycle
+
+
+┌──────────────────────────────┐
+│ ROUTING CONTRACT             │
+└──────────────────────────────┘
+
+Router (stateless)
+  - route(request, serverConfigs, responseOut)
+  - returns IRequestHandler*
+
+IRequestHandler (interface)
+  - execute(request, response)
+
+
+Implementations (exist as types only at start):
+  - StaticFileHandler
+  - UploadHandler
+  - DeleteHandler
+  - CGIHandler
+
+
+┌──────────────────────────────┐
+│ PARSING CONTRACT             │
+└──────────────────────────────┘
+
+ParseState enum
+  - REQUEST_LINE
+  - HEADERS
+  - BODY
+  - COMPLETE
+
+
+┌──────────────────────────────┐
+│ BUFFER CONTRACTS             │
+└──────────────────────────────┘
+
+ReadBuffer
+  - raw incoming data string
+
+WriteBuffer
+  - outgoing data string
+  - offset for partial writes
+
+
+┌──────────────────────────────┐
+│ CGI CONTRACT (MINIMAL)       │
+└──────────────────────────────┘
+
+CGIState enum
+  - SPAWNED
+  - READING
+  - WRITING
+  - DONE
+
+
+CGIHandler (type exists everywhere)
+  - implements IRequestHandler
+  - implements IEventHandler
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                             DEPENDENCY RULES                                 │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+DEVELOPER A (CORE / REACTOR / CONFIG)
+  MUST HAVE:
+    - HttpRequest (struct only)
+    - HttpResponse (struct only)
+    - ServerConfig
+    - LocationConfig
+    - IEventHandler
+    - ClientHandler (forward declared only)
+
+  DOES NOT NEED:
+    - Router implementation
+    - IRequestHandler logic
+    - CGI internals
+
+
+DEVELOPER B (HTTP / ROUTING / LOGIC)
+  MUST HAVE:
+    - HttpRequest
+    - HttpResponse
+    - ServerConfig
+    - LocationConfig
+    - IRequestHandler interface
+    - Router contract
+    - ParseState enum
+    - ClientHandler (opaque type)
+
+  DOES NOT NEED:
+    - Reactor internals
+    - sockets / poll / fd logic
+    - filesystem operations
+
+
+DEVELOPER C (IO / FILESYSTEM / CGI)
+  MUST HAVE:
+    - HttpRequest (read-only)
+    - HttpResponse (write/serialize target)
+    - IRequestHandler
+    - IEventHandler
+    - CGIHandler type
+    - ServerConfig (read-only access if needed)
+
+  DOES NOT NEED:
+    - Router logic
+    - parsing state machine
+    - config parsing logic
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         CRITICAL DESIGN CONSTRAINTS                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+1. All shared structs must be fixed before development starts
+2. No dev is allowed to change shared fields later
+3. All unknown behavior must be stubbed, not omitted
+4. ClientHandler must exist as a compile-time type for everyone
+5. Router must be stateless and pure function style
+6. Reactor must not know HTTP exists at all
+7. HTTP logic must not know sockets exist at all
+8. IO/CGI must not know routing decisions exist at all
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           MINIMUM STARTING POINT                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+If these are defined first, all 3 devs can work independently:
+
+  - HttpRequest
+  - HttpResponse
+  - ServerConfig
+  - LocationConfig
+  - IEventHandler
+  - IRequestHandler
+  - Reactor
+  - Router
+  - ClientHandler (forward declaration only)
+  - ParseState
+  - CGIState
+  - ReadBuffer / WriteBuffer
