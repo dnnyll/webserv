@@ -4,9 +4,9 @@ poll:
 
 struct pollfd
 {
-    int   fd;         /* file descriptor */
-    short events;     /* requested events */
-    short revents;    /* returned events */
+    int   fd;      // which file descriptor to watch
+    short events;  // what you're asking poll to watch FOR
+    short revents; // what poll tells you actually happened
 };
 
 
@@ -130,3 +130,42 @@ When we call poll(fds, nfds, timeout) the kernel checks each fd:
 "is there an error?"
 
 then it fills fds[i].revents
+
+
+fds[] array
+                    ┌─────────────────────┐
+                    │ [0] server_fd POLLIN │
+                    │ [1] client_fd POLLIN │
+                    │ [2] client_fd POLLIN │
+                    │ [3]   (empty)        │
+                    └─────────────────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   poll(fds, 3, -1)  │◄─────── sleeping...
+                    └─────────────────────┘
+                               │
+                    OS wakes us up, sets revents
+                               │
+               ┌───────────────┴───────────────┐
+               │                               │
+       fds[0].revents                   fds[1].revents
+         & POLLIN ?                       & POLLIN ?
+               │                               │
+               ▼                               ▼
+      ┌────────────────┐             ┌──────────────────────┐
+      │ new connection │             │  client sent data     │
+      │                │             │                       │
+      │  accept()      │             │  read()               │
+      │  fds[3].fd =   │             │                       │
+      │    client_fd   │             │  bytes == 0?          │
+      │  nfds → 4      │             │  ┌─── yes ──── no ───┐│
+      └────────────────┘             │  ▼               ▼   ││
+               │                    │ close()       process ││
+               │                    │ swap+nfds--   data    ││
+               │                    └──────────────────────┘│
+               │                               │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+                        back to poll()
