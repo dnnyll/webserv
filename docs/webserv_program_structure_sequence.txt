@@ -1,0 +1,421 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — PROGRAM STARTUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+main()
+ │
+ ├── CREATE ConfigParser
+ │       purpose:
+ │           parse .conf file
+ │
+ │       contains:
+ │           - current token
+ │           - parser index
+ │           - temporary parser state
+ │           - tokenizer
+ │
+ │
+ ├── CREATE ServerConfig
+ │       purpose:
+ │           represent one server block
+ │
+ │       contains:
+ │           - server_name
+ │           - host
+ │           - port list
+ │           - root directory
+ │           - error pages
+ │           - client_max_body_size
+ │           - vector<LocationConfig>
+ │
+ │
+ ├── CREATE ListenEntry
+ │       purpose:
+ │           represent one listen directive
+ │
+ │       contains:
+ │           - ip
+ │           - port
+ │
+ │
+ ├── CREATE LocationConfig
+ │       purpose:
+ │           represent one location block
+ │
+ │       contains:
+ │           - route path
+ │           - allowed methods
+ │           - root / alias
+ │           - index files
+ │           - autoindex flag
+ │           - upload directory
+ │           - CGI extension
+ │           - redirect rules
+ │
+ │
+ ├── DESTROY ConfigParser
+ │
+ ▼
+CONFIGURATION READY
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — SERVER INITIALIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+main()
+ │
+ ├── CREATE Reactor
+ │       purpose:
+ │           central poll() manager
+ │
+ │       contains:
+ │           - vector<pollfd>
+ │           - fd → handler map
+ │           - running flag
+ │           - deferred-remove list
+ │
+ │
+ ├── CREATE AcceptHandler :8080
+ │       purpose:
+ │           manage one listening socket
+ │
+ │       contains:
+ │           - listening socket fd
+ │           - bound ip
+ │           - bound port
+ │           - reference to Reactor
+ │           - reference to configs
+ │
+ │
+ ├── socket()
+ │
+ ├── bind()
+ │
+ ├── listen()
+ │
+ ├── set nonblocking
+ │
+ ├── ADD listening fd into Reactor pollfds
+ │
+ │
+ ├── CREATE AcceptHandler :8081
+ │
+ ▼
+SERVER READY
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — EVENT LOOP STARTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+reactor.run()
+ │
+ ▼
+while (running)
+ │
+ ├── poll(pollfds)
+ │
+ ├── iterate pollfds
+ │
+ ├── detect active fd
+ │
+ └── dispatch event to owner handler
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — NEW CLIENT CONNECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+poll()
+ │
+ ├── fd=3 → POLLIN
+ │
+ ▼
+AcceptHandler::handle_input()
+ │
+ ├── accept()
+ │
+ ├── CREATE ClientHandler
+ │       purpose:
+ │           manage one HTTP connection
+ │
+ │       contains:
+ │           - client socket fd
+ │           - client address
+ │           - connection state
+ │           - bytes sent counter
+ │           - ReadBuffer
+ │           - WriteBuffer
+ │           - HttpRequest
+ │           - HttpResponse
+ │           - IRequestHandler*
+ │
+ │
+ ├── CREATE ReadBuffer
+ │       purpose:
+ │           store received socket bytes
+ │
+ │       contains:
+ │           - byte buffer
+ │           - current size
+ │
+ │
+ ├── CREATE WriteBuffer
+ │       purpose:
+ │           store response bytes to send
+ │
+ │       contains:
+ │           - byte buffer
+ │           - current offset
+ │
+ │
+ ├── CREATE HttpRequest
+ │       purpose:
+ │           represent parsed request
+ │
+ │       contains:
+ │           - method
+ │           - URI
+ │           - version
+ │           - headers
+ │           - body
+ │           - parser state
+ │
+ │
+ ├── CREATE HttpResponse
+ │       purpose:
+ │           represent outgoing response
+ │
+ │       contains:
+ │           - status code
+ │           - headers
+ │           - body
+ │
+ │
+ ├── ADD client fd to pollfds
+ │
+ ▼
+BACK TO poll()
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 5 — READING REQUEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+poll()
+ │
+ ├── client fd → POLLIN
+ │
+ ▼
+ClientHandler::handle_input()
+ │
+ ├── recv()
+ │
+ ├── append bytes to ReadBuffer
+ │
+ ├── HttpRequest.feed()
+ │
+ ├── parser updates:
+ │       - method
+ │       - URI
+ │       - headers
+ │       - body
+ │
+ ├── parser state:
+ │       - READING_HEADERS
+ │       - READING_BODY
+ │       - COMPLETE
+ │
+ ├── if incomplete:
+ │       return to poll()
+ │
+ ▼
+REQUEST COMPLETE
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — ROUTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Router
+ │
+ ├── choose matching ServerConfig
+ │
+ ├── choose matching LocationConfig
+ │
+ ├── validate HTTP method
+ │
+ ├── determine request type
+ │
+ ├───────────────────────────────────────┐
+ │                                       │
+ │ STATIC FILE                           │
+ │                                       │
+ ├── CREATE StaticFileHandler            │
+ │       purpose:                        │
+ │           serve normal files          │
+ │                                       │
+ │       contains:                       │
+ │           - target file path          │
+ │           - opened file fd            │
+ │           - file size                 │
+ │           - read offset               │
+ │                                       │
+ ├───────────────────────────────────────┤
+ │ CGI                                   │
+ │                                       │
+ ├── CREATE CGIHandler                   │
+ │       purpose:                        │
+ │           execute CGI script          │
+ │                                       │
+ │       contains:                       │
+ │           - child pid                 │
+ │           - stdin pipe fd             │
+ │           - stdout pipe fd            │
+ │           - CGI state                 │
+ │           - CGI output buffer         │
+ │                                       │
+ ├───────────────────────────────────────┤
+ │ UPLOAD                                │
+ │                                       │
+ ├── CREATE UploadHandler                │
+ │       purpose:                        │
+ │           store uploaded file         │
+ │                                       │
+ │       contains:                       │
+ │           - upload file fd            │
+ │           - upload path               │
+ │           - received bytes            │
+ │           - expected body size        │
+ │                                       │
+ ├───────────────────────────────────────┤
+ │ DELETE                                │
+ │                                       │
+ └── CREATE DeleteHandler
+         purpose:
+             remove file/resource
+
+         contains:
+             - target path
+             - delete result
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 7 — RESPONSE GENERATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IRequestHandler executes
+ │
+ ├── process request
+ │
+ ├── fill HttpResponse
+ │
+ ├── serialize response
+ │
+ ├── append serialized bytes into WriteBuffer
+ │
+ ├── switch client pollfd:
+ │       POLLIN → POLLOUT
+ │
+ ▼
+BACK TO poll()
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 8 — RESPONSE SENDING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+poll()
+ │
+ ├── client fd → POLLOUT
+ │
+ ▼
+ClientHandler::handle_output()
+ │
+ ├── send()
+ │
+ ├── advance WriteBuffer offset
+ │
+ ├── partial send possible
+ │
+ ├── if incomplete:
+ │       return to poll()
+ │
+ ▼
+RESPONSE COMPLETE
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 9 — CONNECTION CLOSE (HTTP/1.0)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ClientHandler::close_connection()
+ │
+ ├── remove fd from pollfds
+ │
+ ├── remove fd from registry
+ │
+ ├── close(socket fd)
+ │
+ ├── DESTROY IRequestHandler
+ │
+ ├── DESTROY HttpRequest
+ │
+ ├── DESTROY HttpResponse
+ │
+ ├── DESTROY ReadBuffer
+ │
+ ├── DESTROY WriteBuffer
+ │
+ ├── DESTROY ClientHandler
+ │
+ ▼
+BACK TO poll()
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBJECT LIFETIME SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROGRAM LIFETIME
+ │
+ ├── Reactor
+ ├── AcceptHandler
+ ├── ServerConfig
+ ├── ListenEntry
+ └── LocationConfig
+
+
+PER CONNECTION
+ │
+ ├── ClientHandler
+ ├── ReadBuffer
+ ├── WriteBuffer
+ ├── HttpRequest
+ ├── HttpResponse
+ └── IRequestHandler
+
+
+REQUEST TYPE OBJECTS
+ │
+ ├── StaticFileHandler
+ ├── CGIHandler
+ ├── UploadHandler
+ └── DeleteHandler
+
+
+TEMPORARY
+ │
+ ├── ConfigParser
+ ├── Router execution
+ └── serialization helpers
