@@ -1,0 +1,184 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SEQUENTIAL TIMELINE — when each class is created and destroyed
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 1 — STARTUP                                                          │
+  │  program begins, config loaded, sockets opened                              │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ [1]  ConfigParser
+  │         created in main()
+  │         reads webserv.conf from argv
+  │         tokenises and parses the file
+  │         validates all directives
+  │         exits with error if config is invalid
+  │         destroyed after parse() returns
+  │         lifetime: a few milliseconds
+  │
+  ├─▶ [2]  ListenEntry  (one per listen directive found)
+  │         created inside ConfigParser::parseServerBlock()
+  │         stored inside ServerConfig::listens
+  │         lifetime: entire program
+  │
+  ├─▶ [3]  LocationConfig  (one per location block found)
+  │         created inside ConfigParser::parseLocationBlock()
+  │         stored inside ServerConfig::locations
+  │         lifetime: entire program
+  │
+  ├─▶ [4]  ServerConfig  (one per server block found)
+  │         created inside ConfigParser::parse()
+  │         owns its LocationConfig and ListenEntry vectors
+  │         returned as vector to main()
+  │         lifetime: entire program
+  │
+  ├─▶ [5]  Reactor
+  │         created in main() after config is parsed
+  │         creates vector and map
+  │         holds a reference to vector
+  │         never destroyed until program exits
+  │         lifetime: entire program
+  │
+  ├─▶ [6]  AcceptHandler  (one per unique ip:port found in config)
+  │         created in main() after Reactor exists
+  │         one per server socket — if config has 3 unique ip:port pairs
+  │         then 3 AcceptHandlers are created here
+  │         registered into Reactor with POLLIN
+  │         never destroyed until program exits
+  │         lifetime: entire program
+  │
+  └─▶ reactor.run() called — control never returns from here
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 2 — CONNECTION ARRIVES                                               │
+  │  poll() fires POLLIN on a server socket fd                                  │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ AcceptHandler::handle_input() runs
+  │
+  ├─▶ [7]  ClientHandler
+  │         created inside AcceptHandler::handle_input()
+  │         one per accepted TCP connection
+  │         receives: clientFd, reactor ref, configs ref, ip, port
+  │         owns: _readBuf, _writeBuf, _bytesSent
+  │         owns: HttpRequest (empty at creation)
+  │         registered into Reactor with POLLIN
+  │         lifetime: duration of one HTTP/1.0 request-response cycle
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 3 — READING THE REQUEST                                              │
+  │  poll() fires POLLIN on client fd — may happen multiple times               │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ ClientHandler::handle_input() runs
+  │
+  ├─▶ [8]  HttpRequest
+  │         created inside ClientHandler at construction (empty)
+  │         fed chunks via _request.feed(_readBuf) each recv() call
+  │         state machine advances: READING_HEADERS → COMPLETE
+  │         lives inside ClientHandler — not a pointer, a member
+  │         destroyed when ClientHandler is destroyed
+  │         lifetime: same as ClientHandler
+  │
+  ├─▶ recv() called, bytes land in _readBuf
+  ├─▶ _request.feed() called with new bytes
+  ├─▶ if _request.isComplete() == false → return, wait for next POLLIN
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 4 — REQUEST COMPLETE — ROUTING                                       │
+  │  full request is in _request, now decide what response to send              │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ [9]  Router
+  │         NOT created as an object — used as a static/free function call
+  │         Router::route(_request, _configs, _ip, _port)
+  │         no state, no lifetime — it is a pure function
+  │         takes request + config, returns HttpResponse
+  │         internally:
+  │           matches ip:port → narrows ServerConfig candidates
+  │           matches Host header → picks one ServerConfig
+  │           matches URI → picks LocationConfig
+  │           checks method allowed
+  │           decides: static file / CGI / redirect / error
+  │
+  ├─▶ [10] HttpResponse
+  │         created inside Router::route()
+  │         returned by value to ClientHandler
+  │         ClientHandler calls _response.serialize()
+  │         result stored in _writeBuf as raw bytes
+  │         lives inside ClientHandler — a member
+  │         destroyed when ClientHandler is destroyed
+  │         lifetime: same as ClientHandler
+  │
+  ├─▶ _writeBuf now contains full HTTP/1.0 response as raw bytes
+  ├─▶ reactor.modify(fd, POLLOUT) — switch fd to write mode
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 5 — SENDING THE RESPONSE                                             │
+  │  poll() fires POLLOUT on client fd — may happen multiple times              │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ ClientHandler::handle_output() runs
+  ├─▶ send() called with _writeBuf from _bytesSent offset
+  ├─▶ _bytesSent += bytes actually sent
+  ├─▶ if kernel buffer full (EAGAIN) → return, wait for next POLLOUT
+  ├─▶ if _bytesSent < _writeBuf.size() → return, wait for next POLLOUT
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 6 — CLEANUP                                                          │
+  │  response fully sent — HTTP/1.0 always closes here                          │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ ClientHandler::handle_close() runs
+  ├─▶ reactor.remove(fd) called
+  │     fd removed from _fds (deferred)
+  │     fd removed from _registry (deferred)
+  │     close(fd)
+  │
+  ├─▶ [7]  ClientHandler  ← DESTROYED
+  │         delete called by Reactor after deferred remove applied
+  │         destructor runs: _readBuf freed, _writeBuf freed
+  │         HttpRequest destroyed with it
+  │         HttpResponse destroyed with it
+  │
+  └─▶ back to poll() waiting — ready for next connection
+  │
+  │
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  PHASE 7 — SHUTDOWN                                                         │
+  │  SIGINT / SIGTERM received or fatal error in loop                           │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  │
+  ├─▶ reactor.run() exits the while loop
+  ├─▶ [6]  AcceptHandler(s)  ← DESTROYED
+  ├─▶ [5]  Reactor           ← DESTROYED  (closes epfd, cleans registry)
+  ├─▶ [4]  ServerConfig(s)   ← DESTROYED  (vector goes out of scope)
+  ├─▶ [3]  LocationConfig(s) ← DESTROYED  (owned by ServerConfig)
+  ├─▶ [2]  ListenEntry(s)    ← DESTROYED  (owned by ServerConfig)
+  └─▶ program exits
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LIFETIME SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  class              created when              destroyed when
+  ────────────────   ───────────────────────   ──────────────────────────────
+  ConfigParser       main() starts             parse() returns
+  ListenEntry        parsing listen line       program exits
+  LocationConfig     parsing location block    program exits
+  ServerConfig       parsing server block      program exits
+  Reactor            after config parsed       program exits
+  AcceptHandler      before reactor.run()      program exits
+  ─ ─ ─ ─ ─ ─ ─ ─   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─     ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+  ClientHandler      on each accept()          after response fully sent
+  HttpRequest        with ClientHandler        with ClientHandler
+  HttpResponse       inside Router::route()    with ClientHandler
+  Router             never (static calls)      never
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
