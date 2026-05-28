@@ -13,18 +13,18 @@ struct	Location
 
 struct	ServerBlock
 {
-	std::string	host;
-	int			port;
-	std::string	server_name;
+	std::string				host;
+	int						port;
+	std::string				server_name;
 	std::vector<Location>	locations;
-	std::string	root;
-	size_t		client_max_body_size;
+	std::string				root;
+	size_t					client_max_body_size;
 };
 
 class	Config
 {
 	public:
-		ServerConfig();
+		Config();
 		void parse(std::string filepath);
 		const std::vector<ServerBlock>& getServers() const;
 		
