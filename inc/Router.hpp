@@ -3,7 +3,7 @@
 
 #include	"HttpRequest.hpp"
 #include	"HttpResponse.hpp"
-#include	"ServerConfig.hpp"
+#include	"Config.hpp"
 
 class	Router
 {
@@ -12,7 +12,7 @@ public:
 	Router();
 		// stateless router constructor
 
-	HttpResponse route(const HttpRequest& request, const ServerConfig& config);
+	HttpResponse route(const HttpRequest& request, const Config& config);
 		// parsed incoming request
 		// server configuration selected
 		// by host/ip/port

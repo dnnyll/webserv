@@ -21,7 +21,7 @@ struct	ServerBlock
 	size_t		client_max_body_size;
 };
 
-class	ServerConfig
+class	Config
 {
 	public:
 		ServerConfig();

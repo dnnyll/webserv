@@ -2,7 +2,7 @@
 # define	SERVER_HPP
 
 # include	<map>
-# include	"ServerConfig.hpp"
+# include	"Config.hpp"
 # include	"Client.hpp"
 
 class	Server
