@@ -1,11 +1,11 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef		SERVER_HPP
+# define	SERVER_HPP
 
-# include <map>
-# include "Config.hpp"
-# include "Client.hpp"
+# include	<map>
+# include	"ServerConfig.hpp"
+# include	"Client.hpp"
 
-class Server
+class	Server
 {
 	public:
 		Server();

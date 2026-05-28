@@ -1,23 +1,22 @@
-#ifndef HTTPREQUEST_HPP
-# define HTTPREQUEST_HPP
+#ifndef		HTTPREQUEST_HPP
+# define	HTTPREQUEST_HPP
 
-# include <string>
-# include <map>
+# include	<string>
+# include	<map>
 
-class HttpRequest
-{
-	public:
-		HttpRequest();
+// class HttpRequest
+// {
+// 	public:
+// 		HttpRequest();
 
-	private:
-		std::string	method;
-		std::string	uri;
-		std::map<std::string, std::string> headers;
-		std::string	body;
-};
+// 	private:
+// 		std::string	method;
+// 		std::string	uri;
+// 		std::map<std::string, std::string> headers;
+// 		std::string	body;
+// };
 
-#endif
-
+// #endif
 
 enum	ParseState
 {

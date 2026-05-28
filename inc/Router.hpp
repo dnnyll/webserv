@@ -1,18 +1,18 @@
-#ifndef	ROUTER_HPP
-#define	ROUTER_HPP
+#ifndef		ROUTER_HPP
+#define		ROUTER_HPP
 
 #include	"HttpRequest.hpp"
 #include	"HttpResponse.hpp"
-#include	"Config.hpp"
+#include	"ServerConfig.hpp"
 
-class Router
+class	Router
 {
 public:
 
 	Router();
 		// stateless router constructor
 
-	HttpResponse route(const HttpRequest& request, const Config& config);
+	HttpResponse route(const HttpRequest& request, const ServerConfig& config);
 		// parsed incoming request
 		// server configuration selected
 		// by host/ip/port
@@ -59,4 +59,5 @@ public:
 		- ONLY decides "what response should be built"
 
 */
+
 #endif

@@ -1,11 +1,11 @@
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef		CLIENT_HPP
+# define	CLIENT_HPP
 
-# include <string>
-# include "HttpRequest.hpp"
-# include "HttpResponse.hpp"
+# include	<string>
+# include	"HttpRequest.hpp"
+# include	"HttpResponse.hpp"
 
-enum State
+enum	State
 {
 	READING,
 	PROCESSING,
@@ -13,7 +13,7 @@ enum State
 	CLOSE
 };
 
-class Client
+class	Client
 {
 	public:
 		Client();

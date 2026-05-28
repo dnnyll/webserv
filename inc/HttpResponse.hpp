@@ -1,21 +1,21 @@
-#ifndef HTTPRESPONSE_HPP
-# define HTTPRESPONSE_HTTP
+#ifndef		HTTPRESPONSE_HPP
+# define	HTTPRESPONSE_HTTP
 
-# include <string>
-# include <map>
+# include	<string>
+# include	<map>
 
-class HttpResponse
-{
-	public:
-		HttpResponse();
+// class HttpResponse
+// {
+// 	public:
+// 		HttpResponse();
 
-	private:
-		int									status;
-		std::map<std::string, std::string>	headers;
-		std::string							body;
-};
+// 	private:
+// 		int									status;
+// 		std::map<std::string, std::string>	headers;
+// 		std::string							body;
+// };
 
-#endif
+// #endif
 
 
 class	HttpResponse
@@ -47,6 +47,8 @@ class	HttpResponse
 		//	\r\n
 		//	body
 	};
+
+#endif
 
 	/*
 		httpResponse builds the server response sent to client

@@ -1,17 +1,17 @@
-#ifndef CONFIG_HPP
-# define CONFIG_HPP
+#ifndef		SERVERCONFIG_HPP
+# define	SERVERCONFIG_HPP
 
-#include <string>
-#include <vector>
+#include	<string>
+#include	<vector>
 
-struct Location
+struct	Location
 {
 	std::string	path;
 	std::string	root;
 	std::string	index;
 };
 
-struct ServerBlock
+struct	ServerBlock
 {
 	std::string	host;
 	int			port;
@@ -21,10 +21,10 @@ struct ServerBlock
 	size_t		client_max_body_size;
 };
 
-class Config
+class	ServerConfig
 {
 	public:
-		Config();
+		ServerConfig();
 		void parse(std::string filepath);
 		const std::vector<ServerBlock>& getServers() const;
 		
