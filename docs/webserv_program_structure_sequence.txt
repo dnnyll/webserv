@@ -1,5 +1,5 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SEQUENTIAL TIMELINE — COMPLETE OBJECT LIFECYCLE (FIXED)
+SEQUENTIAL TIMELINE — COMPLETE OBJECT LIFECYCLE
 poll() + HTTP/1.0 WEBSERVER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -11,57 +11,58 @@ main()
 │
 ├── CREATE ConfigParser
 │       purpose:
-│           parse .conf file
+│           parse .conf file, produce vector
 │
 │       contains:
-│           - tokenizer
-│           - parser cursor
-│           - temporary token stream
-│           - parsing state
+│           - raw file string
+│           - token stream
+│           - parser cursor position
+│           - temporary parse state
 │
 │
-├── CREATE ServerConfig
+├── CREATE ListenEntry  (one per listen directive found)
 │       purpose:
-│           represent one server block
-│
-│       contains:
-│           - server_name
-│           - host
-│           - port list
-│           - root directory
-│           - error pages
-│           - client_max_body_size
-│           - vector<LocationConfig>
-│
-│
-├── CREATE ListenEntry
-│       purpose:
-│           represent one listen directive
+│           represent one ip:port pair from a listen directive
 │
 │       contains:
 │           - ip
 │           - port
 │
 │
-├── CREATE LocationConfig
+├── CREATE LocationConfig  (one per location block found)
 │       purpose:
-│           represent one location block
+│           represent one location block and its routing rules
 │
 │       contains:
-│           - route path
-│           - allowed methods
-│           - root / alias
-│           - index files
+│           - path
+│           - isExact flag
+│           - root directory
+│           - index files list
+│           - allowed methods list
 │           - autoindex flag
 │           - upload directory
-│           - CGI extension
-│           - redirect rules
+│           - CGI extensions map
+│           - redirect code
+│           - redirect uri
+│
+│
+├── CREATE ServerConfig  (one per server block found)
+│       purpose:
+│           represent one server block
+│
+│       contains:
+│           - listens (vector)
+│           - server names list
+│           - max body size
+│           - error pages map
+│           - locations (vector)
 │
 │
 ├── DESTROY ConfigParser
 │
 ▼
 CONFIGURATION READY
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 2 — SERVER INITIALIZATION
@@ -71,24 +72,25 @@ main()
 │
 ├── CREATE Reactor
 │       purpose:
-│           central poll() manager
+│           central poll() manager, owns the event loop
 │
 │       contains:
-│           - vector<pollfd>
+│           - vector
 │           - fd → handler map
 │           - running flag
+│           - deferred add list
 │           - deferred remove list
 │
 │
-├── CREATE AcceptHandler (one per listen socket)
+├── CREATE AcceptHandler  (one per unique ip:port)
 │       purpose:
-│           manage listening socket
+│           manage one listening socket, spawn ClientHandlers
 │
 │       contains:
 │           - listening fd
 │           - ip / port
 │           - Reactor reference
-│           - ServerConfig reference
+│           - vector reference
 │
 │
 ├── socket()
@@ -101,6 +103,7 @@ main()
 ▼
 SERVER READY
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 3 — EVENT LOOP STARTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -110,14 +113,23 @@ reactor.run()
 ▼
 while (running)
 │
-├── poll(pollfds)
+├── poll(pollfds, timeout)
+├── if EINTR → continue
 ├── iterate active fds
-├── lookup handler
+├── lookup handler in registry
 │
-└── dispatch:
-POLLIN  → handle_input()
-POLLOUT → handle_output()
-ERROR   → handle_close()
+├── dispatch:
+│       POLLIN        → handle_input()
+│       POLLOUT       → handle_output()
+│       POLLERR/HUP   → handle_close()
+│
+├── apply deferred remove list
+├── apply deferred add list
+│
+└── check client timeouts
+        any ClientHandler alive too long → handle_close()
+        subject: requests must never hang indefinitely
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 4 — NEW CLIENT CONNECTION
@@ -135,56 +147,40 @@ AcceptHandler::handle_input()
 │
 ├── CREATE ClientHandler
 │       purpose:
-│           manage one HTTP/1.0 connection
+│           manage one HTTP/1.0 connection end to end
 │
 │       contains:
 │           - client socket fd
-│           - client address
-│           - connection state
-│           - ReadBuffer
-│           - WriteBuffer
-│           - HttpRequest
-│           - HttpResponse
-│           - IRequestHandler*
+│           - ip / port (which server socket accepted it)
+│           - Reactor reference
+│           - vector reference
+│           - _readBuf  (string — incoming bytes land here)
+│           - _writeBuf (string — outgoing bytes wait here)
+│           - _bytesSent (size_t — partial send progress)
+│           - HttpRequest (value member — incremental parser)
+│           - connection timestamp (for timeout tracking)
 │
 │
-├── CREATE ReadBuffer
+├── CREATE HttpRequest  (value member inside ClientHandler)
 │       purpose:
-│           store incoming bytes
-│
-│
-├── CREATE WriteBuffer
-│       purpose:
-│           store outgoing bytes
-│
-│
-├── CREATE HttpRequest
-│       purpose:
-│           incremental HTTP parsing
+│           incrementally parse incoming HTTP/1.0 bytes
 │
 │       contains:
 │           - method
 │           - URI
 │           - version
-│           - headers
+│           - headers map
 │           - body
 │           - ParseState
-│
-│
-├── CREATE HttpResponse
-│       purpose:
-│           outgoing HTTP response
-│
-│       contains:
-│           - status code
-│           - headers
-│           - body
+│           - contentLength
 │
 │
 ├── ADD client fd to Reactor (POLLIN)
+│       pushed to deferred add list — applied after dispatch round
 │
 ▼
 BACK TO EVENT LOOP
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 5 — REQUEST READING
@@ -197,75 +193,174 @@ poll()
 ▼
 ClientHandler::handle_input()
 │
-├── recv()
-├── append to ReadBuffer
-├── HttpRequest.feed()
+├── recv() into _readBuf
+│       never check errno after recv()
+│       if recv() returns 0 or -1 → handle_close()
+│
+├── HttpRequest.feed(chunk)
 │
 ├── ParseState:
 │       REQUEST_LINE → HEADERS → BODY → COMPLETE
 │
-├── if incomplete:
+│       HEADERS: check body size vs maxBodySize → 413 if exceeded
+│       BODY: read exactly Content-Length bytes (no chunked in HTTP/1.0)
+│
+├── if not COMPLETE:
 │       return to poll()
 │
 ▼
 REQUEST COMPLETE
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 6 — ROUTING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Router (stateless utility)
+Router::route()  (stateless free function — never instantiated)
 │
-├── match ServerConfig
-├── match LocationConfig
-├── validate method
+├── filter configs by ip:port
+├── match Host header → pick ServerConfig (first = default)
+├── match URI → pick LocationConfig (exact first, then prefix)
+├── validate method → 405 if not in allowedMethods
 ├── detect request type
 │
-├───────────────────────────────────────────────┐
-│ STATIC FILE                                  │
-├───────────────────────────────────────────────┤
-│ CREATE StaticFileHandler                     │
-│       purpose: serve files                   │
-│       contains: file fd / path / size       │
-│                                               │
-├───────────────────────────────────────────────┤
-│ CGI                                          │
-├───────────────────────────────────────────────┤
-│ CREATE CGIHandler                            │
-│       purpose: async execution               │
-│       contains: pid / pipes / buffer         │
-│                                               │
-├───────────────────────────────────────────────┤
-│ UPLOAD                                       │
-├───────────────────────────────────────────────┤
-│ CREATE UploadHandler                         │
-│       purpose: store uploads                 │
-│                                               │
-├───────────────────────────────────────────────┤
-│ DELETE                                       │
-└───────────────────────────────────────────────┘
-CREATE DeleteHandler
-purpose:
-remove filesystem resource
+├───────────────────────────────────────────────────────────┐
+│  REDIRECT                                                 │
+│    build 301/302 HttpResponse                             │
+│    no filesystem access needed                            │
+│    → go to phase 7                                        │
+├───────────────────────────────────────────────────────────┤
+│  STATIC FILE  (GET)                                       │
+│    FileSystem::readFile(path)                             │
+│    FileSystem::mimeType(extension)                        │
+│    if directory → find index or FileSystem::autoindex()   │
+│    build 200 HttpResponse                                 │
+│    → go to phase 7                                        │
+├───────────────────────────────────────────────────────────┤
+│  UPLOAD  (POST)                                           │
+│    FileSystem::writeFile(path, body)                      │
+│    build 201 HttpResponse                                 │
+│    → go to phase 7                                        │
+├───────────────────────────────────────────────────────────┤
+│  DELETE                                                   │
+│    FileSystem::deleteFile(path)                           │
+│    build 200 HttpResponse                                 │
+│    → go to phase 7                                        │
+├───────────────────────────────────────────────────────────┤
+│  CGI                                                      │
+│    signal CGI needed                                      │
+│    → go to phase 8 (CGI path)                             │
+├───────────────────────────────────────────────────────────┤
+│  ERROR  (400 / 403 / 404 / 405 / 413 / 500)               │
+│    check errorPages map → custom page if set              │
+│    fallback to built-in default error page                │
+│    build error HttpResponse                               │
+│    → go to phase 7                                        │
+└───────────────────────────────────────────────────────────┘
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 7 — RESPONSE GENERATION
+PHASE 7 — RESPONSE READY  (non-CGI path)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-IRequestHandler.execute()
 │
-├── process request
-├── fill HttpResponse
-├── serialize response
-├── write to WriteBuffer
+├── CREATE HttpResponse  (returned by value from Router::route())
+│       purpose:
+│           hold and serialize one HTTP/1.0 response
 │
-├── switch POLLIN → POLLOUT
+│       contains:
+│           - status code
+│           - status message
+│           - headers map
+│           - body
+│
+│       serialize() produces:
+│           "HTTP/1.0 200 OK\r\n"
+│           "Content-Length: N\r\n"
+│           "Connection: close\r\n"
+│           "\r\n"
+│           body bytes
+│
+│
+├── serialize HttpResponse → write raw bytes into _writeBuf
+│
+├── reactor.modify(fd, POLLOUT)
+│       safe mid-dispatch: only updates a value, no resize
 │
 ▼
 BACK TO LOOP
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 8 — RESPONSE SENDING
+PHASE 8 — CGI EXECUTION  (CGI path only)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+│
+├── pipe()
+├── fork()   ← only fork() in the entire server
+│
+│   child:
+│       dup2 stdout → pipe write end
+│       dup2 stdin  → request body pipe (POST)
+│       set env vars (REQUEST_METHOD, CONTENT_LENGTH, etc.)
+│       execve(interpreter, script, envp)
+│
+│   parent:
+│       close pipe write end
+│       set pipe read end nonblocking
+│
+├── CREATE CgiHandler
+│       purpose:
+│           read CGI stdout from pipe async via poll()
+│           fill ClientHandler._writeBuf when done
+│
+│       contains:
+│           - pipe read fd
+│           - child pid
+│           - ClientHandler pointer
+│           - start timestamp (for timeout)
+│
+│
+├── ADD pipe read fd to Reactor (POLLIN)
+│       pushed to deferred add list
+│
+│   ClientHandler waits — registered with no events until CGI finishes
+│
+▼
+BACK TO LOOP
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 9 — CGI READING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+poll()
+│
+├── pipe fd → POLLIN
+│
+▼
+CgiHandler::handle_input()
+│
+├── read() from pipe → append to ClientHandler._writeBuf
+│
+├── if pipe still open:
+│       return to poll()
+│
+├── if pipe closed (child finished):
+│       check timeout → kill(pid, SIGKILL) if exceeded
+│       waitpid(WNOHANG) → reap child, no zombies
+│       prepend HTTP/1.0 headers to _writeBuf
+│       reactor.modify(clientFd, POLLOUT)
+│       reactor.remove(pipeFd)
+│
+├── DESTROY CgiHandler
+│
+▼
+BACK TO LOOP
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 10 — RESPONSE SENDING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 poll()
@@ -275,63 +370,64 @@ poll()
 ▼
 ClientHandler::handle_output()
 │
-├── send()
-├── advance offset
-│
-├── if partial:
-│       return to poll()
+├── send() from _writeBuf at _bytesSent offset
+│       never check errno after send()
+│       if send() returns <= 0  → handle_close()
+│       if send() returns < remaining → partial
+│           _bytesSent += n
+│           return to poll()
 │
 ▼
-RESPONSE COMPLETE
+RESPONSE COMPLETE → handle_close()
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 9 — CONNECTION CLOSE (HTTP/1.0)
+PHASE 11 — CONNECTION CLOSE  (HTTP/1.0 — always)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ClientHandler::handle_close()
 │
-├── remove fd from Reactor
-├── close(fd)
+├── reactor.remove(fd)
+│       pushed to deferred remove list
+│       applied after dispatch round ends:
+│           remove fd from _fds
+│           erase fd from registry
+│           close(fd)
 │
-├── DESTROY IRequestHandler
-├── DESTROY HttpRequest
-├── DESTROY HttpResponse
-├── DESTROY ReadBuffer
-├── DESTROY WriteBuffer
-├── DESTROY ClientHandler
+├── DESTROY HttpResponse   (member of ClientHandler)
+├── DESTROY HttpRequest    (member of ClientHandler)
+├── DESTROY ClientHandler  (delete called by Reactor)
 │
 ▼
 BACK TO LOOP
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OBJECT LIFETIME SUMMARY (FIXED)
+OBJECT LIFETIME SUMMARY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 PROGRAM LIFETIME
 │
 ├── Reactor
-├── AcceptHandler
-├── ServerConfig
-├── ListenEntry
-└── LocationConfig
+├── AcceptHandler          (one per server socket)
+├── ServerConfig           (one per server block)
+├── ListenEntry            (one per listen directive)
+└── LocationConfig         (one per location block)
 
 PER CONNECTION
 │
 ├── ClientHandler
-├── ReadBuffer
-├── WriteBuffer
-├── HttpRequest
-├── HttpResponse
-└── IRequestHandler
+│     ├── _readBuf         string member
+│     ├── _writeBuf        string member
+│     ├── _bytesSent       size_t member
+│     └── HttpRequest      value member
+└── HttpResponse           created by Router, stored in ClientHandler
 
-REQUEST TYPE OBJECTS
+CGI ONLY
 │
-├── StaticFileHandler
-├── CGIHandler
-├── UploadHandler
-└── DeleteHandler
+└── CgiHandler             created after fork(), destroyed after pipe closes
 
 TEMPORARY
 │
-├── ConfigParser
-└── Router (stateless utility)
+├── ConfigParser           startup only, destroyed after parse()
+└── Router                 never instantiated — stateless free function
