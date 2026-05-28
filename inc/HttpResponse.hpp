@@ -36,7 +36,7 @@ class	HttpResponse
 		std::string	body;
 		//	response body sent to client
 
-		httpResponse();
+		HttpResponse();
 		//	initializes status code + status message
 		//	example:	200 OK, 404 Not Found
 
