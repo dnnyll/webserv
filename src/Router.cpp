@@ -9,7 +9,7 @@
 
 Router::Router(){}
 
-HttpResponse	Router::route(const HttpRequest&, const ServerConfig&)
+HttpResponse	Router::route(const HttpRequest&, const Config&)
 {
 	// temporary hardcoded routing
 
