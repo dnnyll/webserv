@@ -1,0 +1,141 @@
+@startuml webserv
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f8f8
+skinparam classBorderColor #999
+skinparam arrowColor #555
+skinparam linetype ortho
+
+' ══ Config ══
+class Config {
+    - servers : vector<ServerBlock>
+    + parse(filepath : string) : void
+    + getServers() const : const std::vector<ServerBlock>&
+}
+
+struct ServerBlock {
+    + host : string
+    + port : int
+    + server_name : string
+    + locations : vector<Location>
+    + root : string
+    + client_max_body_size : size_t
+}
+
+struct Location {
+    + path : string
+    + root : string
+    + index : string
+}
+
+' ══ WebServ ══
+class WebServ {
+    - servers : vector<Server>
+    - fds : vector<pollfd>
+    - fd_to_srv : map<int, Server*>
+    + WebServ(config : Config&)
+    + run() : void
+}
+
+' ══ Server ══
+class Server {
+    - server_fd : int
+    - clients : map<int, Client>
+    - config : ServerBlock&
+    + setup() : void
+    + handleEvent(fd : int) : void
+    - acceptClient() : void
+    - readClient(fd : int) : void
+    - writeClient(fd : int) : void
+    - closeClient(fd : int) : void
+}
+
+' ══ Client ══
+class Client {
+    - fd : int
+    - state : State
+    - raw_request : string //buffer brut recu depuis le socket
+    - request : HttpRequest //la requete parsee
+    - response : HttpResponse //la reponse prete pour l'envoi
+    - bytes_sent : size_t //pour suivre si on a tout envoye
+    - last_activity : time_t //pour le timeout
+    - cgi_pid : pid_t //pour gerer le cgi
+    - cgi_running : bool
+    - headers_complete : bool //pour le parsing incremental
+    - body_complete : bool //pour le parsing incremental
+    - content_length : size_t
+    + Client(fd : int)
+    + getFd() const : int
+    + appendRequest(const std::string& data) : void
+    + requestComplete() const :  bool
+}
+
+enum State {
+    READING
+    PROCESSING
+    WRITING
+    CLOSE
+}
+
+' ══ Router ══
+class Router {
+    - routes : map<string, Handler>
+    - error_pages : map<int, string>
+    + route(req : HttpRequest) : HttpResponse
+}
+
+' ══ HttpRequest ══
+class HttpRequest {
+    - method : string
+    - uri : string
+    - headers : map<string, string>
+    - body : string
+    + getMethod() : string
+    + getURI() : string
+    + getHeaders : map<string, string>
+    + parse(raw : string) : void
+}
+
+' ══ HttpResponse ══
+class HttpResponse {
+    + status_code : int
+    + headers : map<string, string>
+    + body : string
+    + toString() : string
+}
+
+' ══ Relations ══
+
+' Config contient des ServerBlock (composition)
+Config *-- "1..*" ServerBlock : contient
+
+' ServerBlock contient des Location (composition)
+ServerBlock *-- "1..*" Location : contient
+
+' WebServ lit la Config (dépendance)
+WebServ ..> Config : lit
+
+' WebServ compose des Server (composition)
+WebServ *-- "1..*" Server : possède
+
+' WebServ utilise le Router (association)
+WebServ --> Router : utilise
+
+' Server référence un ServerBlock (association)
+Server --> ServerBlock : config&
+
+' Server compose des Client (composition)
+Server *-- "0..*" Client : gère
+
+' Client a un état (association)
+Client --> State : state
+
+' Client crée une HttpRequest (dépendance)
+Client ..> HttpRequest : crée
+
+' Router reçoit HttpRequest et retourne HttpResponse (dépendances)
+Router ..> HttpRequest  : reçoit
+Router ..> HttpResponse : crée
+
+@enduml
