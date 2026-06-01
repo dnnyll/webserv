@@ -49,7 +49,7 @@ class	HttpRequest
 		//	used for POST uploads/images
 
 
-		//	── parsed metadata ──────────────────────────────────────
+		//	parsed metadata ──────────────────────────────────────
 
 		size_t	contentLength;
 		//	content length extracted from Headers

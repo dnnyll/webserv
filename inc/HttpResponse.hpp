@@ -56,7 +56,7 @@ class	HttpResponse
 		//	always adds Connection: keep-alive or close
 		//	result written into ClientHandler::_writeBuf
 
-		static HttpResponse make(int code, const std::string& message);
+		static	HttpResponse make(int code, const std::string& message);
 		//	factory method — builds a minimal response quickly
 		//	Router uses this for error responses:
 		//		return HttpResponse::make(404, "Not Found");

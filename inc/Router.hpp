@@ -39,9 +39,9 @@ class	Router
 		Router Responsibility
 		─────────────────────
 		input:
-			HttpRequest             parsed request from client
-			vector    all server blocks from config
-			string ip + int port    which socket the connection arrived on
+			HttpRequest				parsed request from client
+			vector					all server blocks from config
+			string ip + int port	which socket the connection arrived on
 
 		core job:
 			decide what the request means and where it goes
