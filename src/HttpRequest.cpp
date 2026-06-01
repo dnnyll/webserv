@@ -7,17 +7,51 @@
 
 #include	"HttpRequest.hpp"
 
-HttpRequest::HttpRequest(): state(REQUEST_LINE), contentLength(0){}
-//	parser starts at request line, there's no body length known yet
+//	constructor ──────────────────────────────────────────────────────
 
-bool	HttpRequest::feed(const std::string&)
+HttpRequest::HttpRequest()
+	: contentLength(0)
+	, isChunked(false)
+	, _state(REQUEST_LINE)
+	, _bodyBytesRead(0)
 {
-	//	real parer will be added later
-	return (false);
 }
+	//	parser starts at REQUEST_LINE
+	//	no body length known yet
+	//	no chunked encoding assumed yet
+
+
+//	feed ─────────────────────────────────────────────────────────────
+
+bool	HttpRequest::feed(const std::string& chunk)
+{
+	//	append incoming bytes to internal buffer
+	//	the buffer may already contain leftover bytes from last call
+	//	real parser will be added here later (check doc webserv_httpReq_feed.txt)
+	_buffer += chunk;
+	return (false);
+	//stub: real implementation returns (_state == COMPLETE)
+}
+
+
+//	isComplete ───────────────────────────────────────────────────────
 
 bool	HttpRequest::isComplete() const
 {
-	// only true when state == COMPLETED
-	return (false);
+	//	only true when state machine reached COMPLETE
+	//	ClientHandler calls this after every feed()
+	//	when true: ClientHandler calls Router::route()
+	return (_state == COMPLETE);
 }
+
+
+//	hasError ─────────────────────────────────────────────────────────
+bool	HttpRequest::hasError() const
+{
+	//	only true when state machine reached ERROR_STATE
+	//	ClientHandler checks this after every feed()
+	//	when true: ClientHandler builds 400 or 505 response directly
+	//	without calling Router::route()
+	return (_state == ERROR_STATE);
+}
+

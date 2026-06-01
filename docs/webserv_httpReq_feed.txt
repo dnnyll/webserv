@@ -1,0 +1,36 @@
+//  real parser will be added here
+    //  it will consume _buffer state by state:
+    //
+    //  REQUEST_LINE:
+    //      look for \r\n in _buffer
+    //      if found: extract method, uri, version
+    //      validate version == "HTTP/1.1" → else ERROR_STATE (505)
+    //      validate method is GET/POST/DELETE → else ERROR_STATE (400)
+    //      advance _state to HEADERS
+    //
+    //  HEADERS:
+    //      look for \r\n\r\n in _buffer
+    //      parse each "Key: Value\r\n" line into headers map
+    //      extract Content-Length → contentLength
+    //      check Transfer-Encoding: chunked → isChunked = true
+    //      HTTP/1.1: if Host header missing → ERROR_STATE (400)
+    //      if isChunked          → advance _state to CHUNKED
+    //      else if contentLength > 0 → advance _state to BODY
+    //      else                  → advance _state to COMPLETE
+    //
+    //  BODY:
+    //      read exactly contentLength bytes from _buffer into body
+    //      track progress with _bodyBytesRead
+    //      when _bodyBytesRead == contentLength → advance to COMPLETE
+    //
+    //  CHUNKED:
+    //      read hex size line → parse size
+    //      if size == 0 → advance to COMPLETE (final chunk)
+    //      else read that many bytes → append to body
+    //      repeat until final chunk received
+    //      format: "1a\r\n" + 26 bytes + "\r\n" + ... + "0\r\n\r\n"
+    //
+    //  ERROR_STATE:
+    //      stop processing immediately
+    //      hasError() will return true
+    //      ClientHandler will send 400 or 505 and close
