@@ -1,8 +1,8 @@
 #ifndef		HTTPRESPONSE_HTTP
 # define	HTTPRESPONSE_HTTP
 
-# include	<string>
-# include	<map>
+#include	<string>
+#include	<map>
 
 class	HttpResponse
 {

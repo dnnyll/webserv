@@ -1,9 +1,9 @@
 #ifndef		CLIENT_HPP
 # define	CLIENT_HPP
 
-# include	<string>
-# include	"HttpRequest.hpp"
-# include	"HttpResponse.hpp"
+#include	<string>
+#include	"HttpRequest.hpp"
+#include	"HttpResponse.hpp"
 
 enum	State
 {

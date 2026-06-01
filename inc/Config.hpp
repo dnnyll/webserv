@@ -24,7 +24,7 @@ struct	ServerBlock
 class	Config
 {
 	public:
-		ServerConfig();
+		Config();
 		void parse(std::string filepath);
 		const std::vector<ServerBlock>& getServers() const;
 		
