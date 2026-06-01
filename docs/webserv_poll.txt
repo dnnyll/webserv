@@ -1,0 +1,171 @@
+poll:
+    poll(fds, nfds, timeout);
+
+
+struct pollfd
+{
+    int   fd;      // which file descriptor to watch
+    short events;  // what you're asking poll to watch FOR
+    short revents; // what poll tells you actually happened
+};
+
+
+struct Client
+{
+    int fd;
+    std::string read_buffer;
+    std::string write_buffer;
+};
+
+std::vector<pollfd> poll_fds;
+std::unordered_map<int, Client> clients;
+
+
+
+                        SERVER
+    ------------------------------------------------
+    |                                              |
+    |  std::vector<pollfd> pfds                    |
+    |                                              |
+    |   index     fd        events                 |
+    |   -----    ----    --------------            |
+    |     0        3      POLLIN                   | <- listening socket
+    |     1        5      POLLIN                   | <- client A
+    |     2        8      POLLIN                   | <- client B
+    |                                              |
+    ------------------------------------------------
+                         |
+                         | fd is the key
+                         v
+    ------------------------------------------------
+    |                                              |
+    |   std::map<int, Client> clients              |
+    |                                              |
+    |    key(fd)         Client object             |
+    |   ---------    ---------------------         |
+    |      5        Client {                       |
+    |                   fd = 5                     |
+    |                   read_buffer                |
+    |                   write_buffer               |
+    |                   nickname                   |
+    |               }                              |
+    |                                              |
+    |      8        Client {                       |
+    |                   fd = 8                     |
+    |                   read_buffer                |
+    |                   write_buffer               |
+    |                   nickname                   |
+    |               }                              |
+    ------------------------------------------------
+
+
+EVENT LOOP FLOW
+================
+
+poll(pfds.data(), pfds.size(), timeout)
+          |
+          v
+
+kernel modifies:
+    pfds[i].revents
+
+Example:
+    pfds[1].revents = POLLIN
+
+Meaning:
+    fd 5 became readable
+
+
+Your loop:
+------------
+
+for each pollfd in pfds
+{
+    if (p.revents & POLLIN)
+    {
+        int fd = p.fd;
+
+        Client& c = clients[fd];
+
+        read(fd, ...);
+
+        append data into:
+            c.read_buffer
+    }
+}
+
+
+IMPORTANT IDEA
+================
+
+pollfd:
+    only stores socket state information
+
+Client:
+    stores your application/protocol state
+
+The fd connects both worlds.
+
+
+KERNEL SIDE
+============
+
+socket fd 5
+    |
+    +-- incoming TCP data
+
+poll():
+    "fd 5 is readable"
+
+Your server:
+    "ok, get Client associated with fd 5"
+
+
+
+When we call poll(fds, nfds, timeout) the kernel checks each fd:
+
+"is socket readable?"
+"is socket writable?"
+"did it disconnect?"
+"is there an error?"
+
+then it fills fds[i].revents
+
+
+fds[] array
+                    ┌─────────────────────┐
+                    │ [0] server_fd POLLIN │
+                    │ [1] client_fd POLLIN │
+                    │ [2] client_fd POLLIN │
+                    │ [3]   (empty)        │
+                    └─────────────────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   poll(fds, 3, -1)  │◄─────── sleeping...
+                    └─────────────────────┘
+                               │
+                    OS wakes us up, sets revents
+                               │
+               ┌───────────────┴───────────────┐
+               │                               │
+       fds[0].revents                   fds[1].revents
+         & POLLIN ?                       & POLLIN ?
+               │                               │
+               ▼                               ▼
+      ┌────────────────┐             ┌──────────────────────┐
+      │ new connection │             │  client sent data     │
+      │                │             │                       │
+      │  accept()      │             │  read()               │
+      │  fds[3].fd =   │             │                       │
+      │    client_fd   │             │  bytes == 0?          │
+      │  nfds → 4      │             │  ┌─── yes ──── no ───┐│
+      └────────────────┘             │  ▼               ▼   ││
+               │                    │ close()       process ││
+               │                    │ swap+nfds--   data    ││
+               │                    └──────────────────────┘│
+               │                               │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+                        back to poll()
