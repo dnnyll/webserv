@@ -14,49 +14,17 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
-enum HttpMethod
-{
-	METHOD_GET,
-	METHOD_POST,
-	METHOD_DELETE,
-	METHOD_UNKNOWN
-};
+// enum HttpMethod
+// {
+// 	METHOD_GET,
+// 	METHOD_POST,
+// 	METHOD_DELETE,
+// 	METHOD_UNKNOWN
+// };
 
-class	HttpRequest
+class	HttpRequest :public HttpMessage
 {
 	public:
-		//	request line fields ──────────────────────────────────
-
-		std::string	method;
-		//	http Method: GET POST DELETE
-
-		std::string	uri;
-		//	request URI/path
-		//	"/images/cat.png"
-
-		std::string	version;
-		//	to verify that it's "HTTP/1.1" — anything else → ERROR_STATE 505
-
-		
-		//	header fields ────────────────────────────────────────
-
-		std::map<std::string, std::string> headers;
-		//	all parsed headers stored here
-		//	headers["Host"]           = "localhost:8080"
-		//	headers["Content-Length"] = "42"
-		//	headers["Connection"]     = "keep-alive"
-		//	headers["Transfer-Encoding"] = "chunked"
-		//	HTTP/1.1: Host header is REQUIRED — missing → 400
-
-
-		//	body field ───────────────────────────────────────────
-
-		std::string	body;
-		//	populated after BODY or CHUNKED state completes
-		//	used for POST uploads, CGI stdin
-		//	used for POST uploads/images
-
-
 		//	parsed metadata ──────────────────────────────────────
 
 		size_t	contentLength;
@@ -71,7 +39,14 @@ class	HttpRequest
 	public:
 		HttpRequest();
 
-		bool	feed(const std::string& chunk);
+		parseFristLine(std::stringsteam input);
+		parseHeader(std::stringsteam input);
+		parseBody(std::stringsteam input);
+
+        static void		decode(HttpMessage &msg, int stop_at = HttpMessage::decoding_done);
+        
+
+		// bool	feed(const std::string& chunk);
 		//	append new raw bytes from recv() to internal buffer
 		//	advances the parse state machine
 		//	returns true if request reaches COMPLETE state
