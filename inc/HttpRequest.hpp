@@ -14,6 +14,14 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
+enum HttpMethod
+{
+	METHOD_GET,
+	METHOD_POST,
+	METHOD_DELETE,
+	METHOD_UNKNOWN
+};
+
 class	HttpRequest
 {
 	public:
@@ -125,4 +133,37 @@ class	HttpRequest
 	request complete?
 		├── no → wait for more packets
 		└── yes → "request ready"
+
+
+new request
+     │
+     ▼
+REQUEST_LINE
+     │
+     ▼
+HEADERS
+     │
+     ├──────────────► ERROR_STATE
+     │
+     ├─ Content-Length
+     │
+     ▼
+BODY
+     │
+     ▼
+COMPLETE
+
+or
+
+REQUEST_LINE
+     │
+     ▼
+HEADERS
+     │
+     ├─ Transfer-Encoding: chunked
+     ▼
+CHUNKED
+     │
+     ▼
+COMPLETE
 */
