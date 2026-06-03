@@ -37,7 +37,7 @@ class	HttpMessage
 			//             headers["Content-Length"]    = "42"
 			//             headers["Connection"]        = "keep-alive"
 
-			//	body			────────────────────────────────────────
+		//	body			────────────────────────────────────────
 		std::string	body;
 			//  message body — shared by request and response
 			//  request:  populated by feed() after headers complete

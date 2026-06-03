@@ -3,8 +3,9 @@
 
 #include	<string>
 #include	<map>
+#include	"HttpMessage.hpp"
 
-class	HttpResponse
+class	HttpResponse : public HttpMessage
 {
 	public:
 		//	response line fields ─────────────────────────────────
