@@ -15,15 +15,16 @@ HttpRequest::HttpRequest()
 	, _state(REQUEST_LINE)
 	, _bodyBytesRead(0)
 {
-}
+	(void)_bodyBytesRead;
 	//	parser starts at REQUEST_LINE
 	//	no body length known yet
-	//	no chunked encoding assumed yet
+	//	no chunked encoding assumed ye
+}
 
 
 //	feed ─────────────────────────────────────────────────────────────
 
-bool	HttpRequest::feed(const std::string& chunk)
+bool	HttpRequest::getData(const std::string& chunk)
 {
 	//	append incoming bytes to internal buffer
 	//	the buffer may already contain leftover bytes from last call
@@ -33,6 +34,31 @@ bool	HttpRequest::feed(const std::string& chunk)
 	//stub: real implementation returns (_state == COMPLETE)
 }
 
+bool	HttpRequest::decode()
+{
+	switch(_state)
+	{
+		case REQUEST_LINE:
+			std::cout << "decodeRequestLine()" << std::endl;
+			
+		case HEADERS:
+			std::cout << "decodeHeader()" << std::endl;
+			
+		case BODY:
+			std::cout << "decodeBody()" << std::endl;
+			
+		case CHUNKED:
+			std::cout << "decodeChunk()" << std::endl;
+
+		case COMPLETE:
+			std::cout << "COMPLETE" << std::endl;
+
+		case ERROR_STATE:
+			std::cout << "ERROR" << std::endl;
+	}
+	return(_state = COMPLETE);
+
+}
 
 //	isComplete ───────────────────────────────────────────────────────
 

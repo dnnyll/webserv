@@ -44,8 +44,8 @@ enum	ParseState
 class	HttpRequest :public HttpMessage
 {
 	public:
-		//	parsed metadata ──────────────────────────────────────
-		//	request line fields ──────────────────────────────────
+	//	parsed metadata ──────────────────────────────────────
+	//	request line fields ──────────────────────────────────
 
 		std::string	method;
 		//	http Method: GET POST DELETE
@@ -63,6 +63,30 @@ class	HttpRequest :public HttpMessage
 		//	true when Transfer-Encoding: chunked is set
 		//	when true: contentLength is ignored, use chunked parser
 
+	private:
+		ParseState	_state;
+		//	current position in the state machine
+		//	only feed() is allowed to advance this
+		//	public code reads state via isComplete() / hasError() only
+		//	for switch case acess to ParseState enum
+
+		std::string		_buffer;
+		//	raw bytes waiting to be parsed
+		//	feed() appends incoming chunks here
+		//	parser consumes from front, leaving unparsed remainder
+		//	CRITICAL: without this, partial data between recv() calls is lost
+
+		size_t			_bodyBytesRead;
+		//	tracks how many body bytes have been appended so far
+		//	used in BODY state to know when contentLength is reached
+
+		// std::string		_chunkSizeLine;
+		//	accumulates the hex size line in chunked parsing
+		//	"1a\r\n" → parsed to size_t → then read that many bytes
+
+
+	//	methods ──────────────────────────────────────
+
 	public:
 		//	parsing/decoding
 		HttpRequest();
@@ -73,14 +97,15 @@ class	HttpRequest :public HttpMessage
 
 		// static void		decode(HttpMessage &msg, int stop_at = HttpMessage::decoding_done);
 
-
-		// bool	feed(const std::string& chunk);
-		//	append new raw bytes from recv() to internal buffer
-		//	advances the parse state machine
-		//	returns true if request reaches COMPLETE state
-		//	safe to call multiple times with partial data
-		//	data arrives in chunks — never assume full request in one call
+		bool	getData(const std::string& chunk);
+		// append new raw bytes from recv() to internal buffer
+		// advances the parse state machine
+		// returns true if request reaches COMPLETE state
+		// safe to call multiple times with partial data
+		// data arrives in chunks — never assume full request in one call
 		
+		bool	decode();
+
 		bool		isComplete() const;
 		//	returns true only when state == COMPLETE
 		//	ClientHandler checks this after every feed() call
@@ -88,26 +113,6 @@ class	HttpRequest :public HttpMessage
 		bool		hasError() const;
 		//	returns true when state == ERROR_STATE
 		//	ClientHandler checks this to decide 400 or 505 response
-
-	private:
-		ParseState	_state;
-		//	current position in the state machine
-		//	only feed() is allowed to advance this
-		//	public code reads state via isComplete() / hasError() only
-
-	std::string		_buffer;
-		//	raw bytes waiting to be parsed
-		//	feed() appends incoming chunks here
-		//	parser consumes from front, leaving unparsed remainder
-		//	CRITICAL: without this, partial data between recv() calls is lost
-
-	size_t			_bodyBytesRead;
-		//	tracks how many body bytes have been appended so far
-		//	used in BODY state to know when contentLength is reached
-
-	std::string		_chunkSizeLine;
-		//	accumulates the hex size line in chunked parsing
-		//	"1a\r\n" → parsed to size_t → then read that many bytes
 };
 
 #endif

@@ -5,14 +5,13 @@
 #include	<map>
 #include	<iostream>
 
-/*
-	POST /upload HTTP/1.1
-	Host: localhost:8080
-	Content-Type: text/plain
-	Content-Length: 5
+// std::string inputTest = "	POST /upload HTTP/1.1
+// 							Host: localhost:8080
+// 							Content-Type: text/plain
+// 							Content-Length: 5
 
-	hello
-*/
+// 							hello"
+
 
 class	HttpMessage
 {
