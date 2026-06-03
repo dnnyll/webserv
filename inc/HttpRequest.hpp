@@ -45,15 +45,21 @@ class	HttpRequest :public HttpMessage
 {
 	public:
 		//	parsed metadata ──────────────────────────────────────
+		//	request line fields ──────────────────────────────────
 
 		std::string	method;
+		//	http Method: GET POST DELETE
+
 		std::string	uri;
+		//	request URI/path
+		//	"/images/cat.png"
+
 		size_t		contentLength;
 		//	content length extracted from Headers
 		//	value of contentLength header converted to size_t
 		//	0 if header not present or not applicable
 
-		bool	isChunked;
+		bool		isChunked;
 		//	true when Transfer-Encoding: chunked is set
 		//	when true: contentLength is ignored, use chunked parser
 
@@ -75,34 +81,33 @@ class	HttpRequest :public HttpMessage
 		//	safe to call multiple times with partial data
 		//	data arrives in chunks — never assume full request in one call
 		
-		bool	isComplete() const;
+		bool		isComplete() const;
 		//	returns true only when state == COMPLETE
 		//	ClientHandler checks this after every feed() call
 
-		bool	hasError() const;
+		bool		hasError() const;
 		//	returns true when state == ERROR_STATE
 		//	ClientHandler checks this to decide 400 or 505 response
 
-		private:
-			ParseState	_state;
-			//	current position in the state machine
-			//	only feed() is allowed to advance this
-			//	public code reads state via isComplete() / hasError() only
+	private:
+		ParseState	_state;
+		//	current position in the state machine
+		//	only feed() is allowed to advance this
+		//	public code reads state via isComplete() / hasError() only
 
-		std::string	_buffer;
-			//	raw bytes waiting to be parsed
-			//	feed() appends incoming chunks here
-			//	parser consumes from front, leaving unparsed remainder
-			//	CRITICAL: without this, partial data between recv() calls is lost
+	std::string		_buffer;
+		//	raw bytes waiting to be parsed
+		//	feed() appends incoming chunks here
+		//	parser consumes from front, leaving unparsed remainder
+		//	CRITICAL: without this, partial data between recv() calls is lost
 
-		size_t	_bodyBytesRead;
-			//	tracks how many body bytes have been appended so far
-			//	used in BODY state to know when contentLength is reached
+	size_t			_bodyBytesRead;
+		//	tracks how many body bytes have been appended so far
+		//	used in BODY state to know when contentLength is reached
 
-		std::string	_chunkSizeLine;
-			//	accumulates the hex size line in chunked parsing
-			//	"1a\r\n" → parsed to size_t → then read that many bytes
-
+	std::string		_chunkSizeLine;
+		//	accumulates the hex size line in chunked parsing
+		//	"1a\r\n" → parsed to size_t → then read that many bytes
 };
 
 #endif

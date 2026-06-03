@@ -19,9 +19,10 @@ class	HttpMessage
 	public:
 		//	version			────────────────────────────────────────
 		std::string	version;
-			//  HTTP protocol version
-			//  request:  parsed from request line "HTTP/1.1"
-			//  response: written into status line "HTTP/1.1"
+			//	HTTP protocol version
+			//	to verify that it's "HTTP/1.1" — anything else → ERROR_STATE 505
+			//	request:  parsed from request line "HTTP/1.1"
+			//	response: written into status line "HTTP/1.1"
 
 		//	header			────────────────────────────────────────
 		std::map<std::string, std::string> headers;
@@ -62,6 +63,62 @@ class	HttpMessage
 #endif
 
 // flow:
+
+// accept()
+//     │
+//     ▼
+// ClientHandler
+
+//     │
+//     ▼
+// recv()
+
+//     │
+//     ▼
+// HttpRequest::feed()
+
+//     │
+//     ├── _buffer += bytes
+//     │
+//     ├── parseRequestLine()
+//     │       └── method/uri/version
+//     │
+//     ├── parseHeaders()
+//     │       └── headers map
+//     │
+//     ├── parseBody()
+//     │       └── body string
+//     │
+//     └── COMPLETE
+
+//     │
+//     ▼
+// Router::handle(request)
+
+//     │
+//     ▼
+// HttpResponse filled
+
+//     │
+//     ▼
+// HttpResponse::encode()
+
+//     │
+//     ├── status line
+//     ├── headers map
+//     ├── CRLF
+//     └── body
+
+//     │
+//     ▼
+// send()
+
+//     │
+//     ▼
+// TCP Socket
+
+
+
 // fd → string _buffer → parse → HttpResponse → serialize() → string _writeBuf → fd
 
 // ┌──────────┐    ┌────────────────┐    ┌─────────────┐    ┌────────────────┐
@@ -91,7 +148,7 @@ class	HttpMessage
 // ───────────       ────────────
 // method            statusCode
 // uri               statusMessage
-// _state            serialize()
+// _state            decode()
 // _buffer           make()
 // contentLength
 // isChunked
