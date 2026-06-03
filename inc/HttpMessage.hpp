@@ -1,8 +1,9 @@
-#ifndef HTTPMESSAGE
-#define HTTPMESSAGE
+#ifndef		HTTPMESSAGE
+#define		HTTPMESSAGE
 
 #include	<string>
-
+#include	<map>
+#include	<iostream>
 
 /*
 	POST /upload HTTP/1.1
@@ -13,48 +14,17 @@
 	hello
 */
 
-Class	HttpMessage
+class	HttpMessage
 {
 	public:
-		
-		//	line fields ──────────────────────────────────
-		std::string	firstLine[3];	//	contains: method; uri; version
-
-		//	header fields ────────────────────────────────────────
-		std::map<std::string, std::string> headers;
-		//	all parsed headers stored here
-		//	headers["Host"]           = "localhost:8080"
-		//	headers["Content-Length"] = "42"
-		//	headers["Connection"]     = "keep-alive"
-		//	headers["Transfer-Encoding"] = "chunked"
-		//	HTTP/1.1: Host header is REQUIRED — missing → 400
-
-		//	body field ───────────────────────────────────────────
-		std::stringstream	body;
-		//	populated after BODY or CHUNKED state completes
-		//	used for POST uploads, CGI stdin
-		//	used for POST uploads/images
-}
-
-#endif
-/*
-
-GET    /index.html   HTTP/1.1
-[0]       [1]           [2]
-
-HTTP/1.1    200   OK
-[0]         [1]   [2]
-
-Class	HttpMessage
-{
-	public:
-		//  ── shared fields ────────────────────────────────────────
+		//	version			────────────────────────────────────────
 		std::string	version;
 			//  HTTP protocol version
 			//  request:  parsed from request line "HTTP/1.1"
 			//  response: written into status line "HTTP/1.1"
 
-		std::map	headers;
+		//	header			────────────────────────────────────────
+		std::map<std::string, std::string> headers;
 			//  HTTP headers — shared by request and response
 			//  request:  parsed from incoming bytes
 			//             headers["Host"]              = "localhost:8080"
@@ -66,14 +36,17 @@ Class	HttpMessage
 			//             headers["Content-Length"]    = "42"
 			//             headers["Connection"]        = "keep-alive"
 
+			//	body			────────────────────────────────────────
 		std::string	body;
 			//  message body — shared by request and response
 			//  request:  populated by feed() after headers complete
 			//             POST upload data, CGI stdin
 			//  response: populated by Router
 			//             file contents, error page, CGI output
+
+		//	constructors		────────────────────────────────────────
 	public:
-		virtual ~HttpMessage();
+		virtual	~HttpMessage();
 			//  virtual destructor — required when inheriting
 			//  if you delete HttpRequest through HttpMessage*
 			//  without this the wrong destructor runs → leak
@@ -87,4 +60,41 @@ Class	HttpMessage
 };
 
 #endif
-*/
+
+// flow:
+// fd → string _buffer → parse → HttpResponse → serialize() → string _writeBuf → fd
+
+// ┌──────────┐    ┌────────────────┐    ┌─────────────┐    ┌────────────────┐
+// │  recv()  │───▶│  _buffer       │───▶│  HttpRequest│───▶│  Router        │
+// │  fd      │    │  std::string   │    │  feed()     │    │  route()       │
+// └──────────┘    │  appended each │    │  state mach │    └───────┬────────┘
+// 				   │  recv() call   │    └─────────────┘            │
+// 				   └────────────────┘                               ▼
+// ┌──────────┐    ┌────────────────┐    ┌─────────────────────────────────────┐
+// │  send()  │◀───│  _writeBuf     │◀───│  HttpResponse::serialize()          │
+// │  fd      │    │  std::string   │    │  uses stringstream INTERNALLY       │
+// └──────────┘    │  offset track  │    │  returns std::string — done         │
+// 				   └────────────────┘    └─────────────────────────────────────┘
+
+// stringstream appears only inside serialize() as a local variable
+// it builds the string and is then thrown away
+// the persistent buffers are always plain std::string
+
+
+// 			HttpMessage
+// 			───────────
+// 			headers
+// 			body
+// 			version
+// 		/         \
+// HttpRequest       HttpResponse
+// ───────────       ────────────
+// method            statusCode
+// uri               statusMessage
+// _state            serialize()
+// _buffer           make()
+// contentLength
+// isChunked
+// feed()
+// isComplete()
+// hasError()

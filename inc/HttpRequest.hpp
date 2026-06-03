@@ -3,6 +3,7 @@
 
 #include	<string>
 #include	<map>
+#include	"HttpMessage.hpp"
 
 enum	ParseState
 {
@@ -22,12 +23,32 @@ enum	ParseState
 // 	METHOD_UNKNOWN
 // };
 
+// 			HttpMessage
+// 			───────────
+// 			headers
+// 			body
+// 			version
+// 		/         \
+// HttpRequest       HttpResponse
+// ───────────       ────────────
+// method            statusCode
+// uri               statusMessage
+// _state            serialize()
+// _buffer           make()
+// contentLength
+// isChunked
+// feed()
+// isComplete()
+// hasError()
+
 class	HttpRequest :public HttpMessage
 {
 	public:
 		//	parsed metadata ──────────────────────────────────────
 
-		size_t	contentLength;
+		std::string	method;
+		std::string	uri;
+		size_t		contentLength;
 		//	content length extracted from Headers
 		//	value of contentLength header converted to size_t
 		//	0 if header not present or not applicable
@@ -37,14 +58,15 @@ class	HttpRequest :public HttpMessage
 		//	when true: contentLength is ignored, use chunked parser
 
 	public:
+		//	parsing/decoding
 		HttpRequest();
 
-		parseFristLine(std::stringsteam input);
-		parseHeader(std::stringsteam input);
-		parseBody(std::stringsteam input);
+		// parseFristLine(std::stringsteam input);
+		// parseHeader(std::stringsteam input);
+		// parseBody(std::stringsteam input);
 
-        static void		decode(HttpMessage &msg, int stop_at = HttpMessage::decoding_done);
-        
+		// static void		decode(HttpMessage &msg, int stop_at = HttpMessage::decoding_done);
+
 
 		// bool	feed(const std::string& chunk);
 		//	append new raw bytes from recv() to internal buffer
