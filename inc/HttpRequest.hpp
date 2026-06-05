@@ -15,6 +15,7 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
+/*
 // enum HttpMethod
 // {
 // 	METHOD_GET,
@@ -40,6 +41,7 @@ enum	ParseState
 // feed()
 // isComplete()
 // hasError()
+*/
 
 class	HttpRequest :public HttpMessage
 {

@@ -28,7 +28,7 @@ class	HttpResponse : public HttpMessage
 		//	example:	200 OK, 404 Not Found
 		//	headers and body are empty — caller fills them
 
-		static void		encode(HttpMessage &msg, int stop_at = HttpMessage::encoding_done);
+		//static void		encode(HttpMessage &msg, int stop_at = HttpMessage::encoding_done);
 		//aka
 		std::string	serialize() const;
 		//	converts response object into raw HTTP/1.1 bytes:

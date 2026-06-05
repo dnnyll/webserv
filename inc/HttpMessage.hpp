@@ -62,6 +62,7 @@ class	HttpMessage
 
 #endif
 
+/*
 // flow:
 
 // accept()
@@ -155,3 +156,4 @@ class	HttpMessage
 // feed()
 // isComplete()
 // hasError()
+*/

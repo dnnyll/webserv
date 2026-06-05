@@ -1,11 +1,14 @@
 #ifndef		REQUESTHANDLER_HPP
 # define	REQUESTHANDLER_HPP
 
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
+
 class	RequestHandler
 {
 	private:
-		const HttpRequest	&_request;
-		const ServerBlock	&_config;
+		//const HttpRequest	&_request;
+		//const ServerBlock	&_config;
 		HttpResponse		_response;
 
 		//pointeur sur la location qui correspond a la request
@@ -25,6 +28,6 @@ class	RequestHandler
 
 		//une fonction publique que la boucle du serverManager appelera
 		//HttpResponse process();
-}
+};
 
 #endif
