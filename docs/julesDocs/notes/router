@@ -1,5 +1,8 @@
 ROUTER STEP
 
+L'HERITAGE MARCHE UNIQUEMENT DE SERVER -> LOCATION
+PAS DE LOCATION A LOCATION !!!!!!!!!!!!!!!!!!!!!!
+
 ETAPE 1 "pre routage"
 
 1 extraction de l'uri demande
@@ -46,3 +49,38 @@ uniform ressource identifier
 ->chercher quel bloc location de la config
 ->verifier sur la methode est accepte dans cette location
 ->mettre en place le vrai chemin
+
+
+///////////////////////////////////////////////////////////////////////////////////
+	
+	class RequestHandler {
+	private:
+	    const HttpRequest&  _request;
+	    const ServerBlock&  _config;
+	    HttpResponse        _response;
+	
+	    // Ton état interne pour le calcul (qui ne pollue pas le reste du programme)
+	    const Location*     _matchedLocation;
+	    std::string         _physicalPath;
+	
+	    // Tes méthodes de calculs privées (L'arbre de décision PNG)
+	    void    matchLocation();
+	    void    checkPermissions();
+	    void    handleGet();
+	    void    handlePost();
+	    bool    executeCGI();
+	    void    generateErrorPage(int statusCode);
+	
+	public:
+	    // Le constructeur prend ce dont tu as besoin (fait par ton mate et la config)
+	    RequestHandler(const HttpRequest& req, const ServerBlock& config);
+	
+	    // La seule fonction publique que la boucle ServerManager appelera
+	    HttpResponse process();
+	};
+	
+//////////////////////////////////////////////////////////////////////////////////////
+	
+
+
+
