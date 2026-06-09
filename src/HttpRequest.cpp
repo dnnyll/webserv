@@ -27,7 +27,7 @@ HttpRequest::HttpRequest()
 //	append incoming bytes to internal buffer
 //	the buffer may already contain leftover bytes from last call
 //	real parser will be added here later (check doc webserv_httpReq_feed.txt)
-//stub: real implementation returns (_state == COMPLETE)
+
 bool HttpRequest::getData(const std::string& chunk)
 {
 	_buffer += chunk;
@@ -38,6 +38,8 @@ bool HttpRequest::getData(const std::string& chunk)
 		if (_state == prev)
 			break ;
 	}
+	//	debug
+	std::cout << "final state: " << _state << std::endl;
 	return (_state == COMPLETE);
 }
 

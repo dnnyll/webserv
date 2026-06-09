@@ -3,7 +3,7 @@
 
 #include	<string>
 #include	<map>
-#include	"HttpMessage.hpp"
+#include	"../inc/HttpMessage.hpp"
 
 enum	ParseState
 {
