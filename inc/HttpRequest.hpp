@@ -15,31 +15,34 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
-// enum HttpMethod
-// {
-// 	METHOD_GET,
-// 	METHOD_POST,
-// 	METHOD_DELETE,
-// 	METHOD_UNKNOWN
-// };
+/*
+enum HttpMethod
+{
+	METHOD_GET,
+	METHOD_POST,
+	METHOD_DELETE,
+	METHOD_UNKNOWN
+};
 
-// 			HttpMessage
-// 			───────────
-// 			headers
-// 			body
-// 			version
-// 		/         \
-// HttpRequest       HttpResponse
-// ───────────       ────────────
-// method            statusCode
-// uri               statusMessage
-// _state            serialize()
-// _buffer           make()
-// contentLength
-// isChunked
-// feed()
-// isComplete()
-// hasError()
+			HttpMessage
+			───────────
+			headers
+			body
+			version
+		/         \
+HttpRequest       HttpResponse
+───────────       ────────────
+method            statusCode
+uri               statusMessage
+_state            serialize()
+_buffer           make()
+contentLength
+isChunked
+feed()
+isComplete()
+hasError()
+
+*/
 
 class	HttpRequest :public HttpMessage
 {
@@ -113,6 +116,12 @@ class	HttpRequest :public HttpMessage
 		bool		hasError() const;
 		//	returns true when state == ERROR_STATE
 		//	ClientHandler checks this to decide 400 or 505 response
+
+	private:
+		void	decodeRequestLine();
+		void	decodeHeaders();
+		// void	HttpRequest::decodeBody();
+		// void	HttpRequest::decodeChunked();
 };
 
 #endif

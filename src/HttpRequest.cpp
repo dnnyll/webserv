@@ -24,39 +24,53 @@ HttpRequest::HttpRequest()
 
 //	feed ─────────────────────────────────────────────────────────────
 
-bool	HttpRequest::getData(const std::string& chunk)
+//	append incoming bytes to internal buffer
+//	the buffer may already contain leftover bytes from last call
+//	real parser will be added here later (check doc webserv_httpReq_feed.txt)
+//stub: real implementation returns (_state == COMPLETE)
+bool HttpRequest::getData(const std::string& chunk)
 {
-	//	append incoming bytes to internal buffer
-	//	the buffer may already contain leftover bytes from last call
-	//	real parser will be added here later (check doc webserv_httpReq_feed.txt)
 	_buffer += chunk;
-	return (false);
-	//stub: real implementation returns (_state == COMPLETE)
+	while (_state != COMPLETE && _state != ERROR_STATE)
+	{
+		ParseState	prev = _state;
+		decode();
+		if (_state == prev)
+			break ;
+	}
+	return (_state == COMPLETE);
 }
+
+
 
 bool	HttpRequest::decode()
 {
 	switch(_state)
 	{
 		case REQUEST_LINE:
-			std::cout << "decodeRequestLine()" << std::endl;
-			
+			decodeRequestLine();
+			std::cout << "REQUEST_LINE" << std::endl;
+			break ;
 		case HEADERS:
-			std::cout << "decodeHeader()" << std::endl;
-			
+			decodeHeaders();
+			std::cout << "HEADERS" << std::endl;
+			break ;
 		case BODY:
-			std::cout << "decodeBody()" << std::endl;
-			
+			// decodeBody();
+			std::cout << "BODY" << std::endl;
+			break ;
 		case CHUNKED:
-			std::cout << "decodeChunk()" << std::endl;
-
+			// decodeChunked();
+			std::cout << "CHUNKED" << std::endl;
+			break ;
 		case COMPLETE:
 			std::cout << "COMPLETE" << std::endl;
-
+			break ;
 		case ERROR_STATE:
 			std::cout << "ERROR" << std::endl;
+			break ;
 	}
-	return(_state = COMPLETE);
+	return(_state == COMPLETE);
 
 }
 

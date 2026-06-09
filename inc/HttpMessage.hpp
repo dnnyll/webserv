@@ -61,96 +61,99 @@ class	HttpMessage
 
 #endif
 
-// flow:
 
-// accept()
-//     │
-//     ▼
-// ClientHandler
+/*
+flow:
 
-//     │
-//     ▼
-// recv()
+accept()
+    │
+    ▼
+ClientHandler
 
-//     │
-//     ▼
-// HttpRequest::feed()
+    │
+    ▼
+recv()
 
-//     │
-//     ├── _buffer += bytes
-//     │
-//     ├── parseRequestLine()
-//     │       └── method/uri/version
-//     │
-//     ├── parseHeaders()
-//     │       └── headers map
-//     │
-//     ├── parseBody()
-//     │       └── body string
-//     │
-//     └── COMPLETE
+    │
+    ▼
+HttpRequest::feed()
 
-//     │
-//     ▼
-// Router::handle(request)
+    │
+    ├── _buffer += bytes
+    │
+    ├── parseRequestLine()
+    │       └── method/uri/version
+    │
+    ├── parseHeaders()
+    │       └── headers map
+    │
+    ├── parseBody()
+    │       └── body string
+    │
+    └── COMPLETE
 
-//     │
-//     ▼
-// HttpResponse filled
+    │
+    ▼
+Router::handle(request)
 
-//     │
-//     ▼
-// HttpResponse::encode()
+    │
+    ▼
+HttpResponse filled
 
-//     │
-//     ├── status line
-//     ├── headers map
-//     ├── CRLF
-//     └── body
+    │
+    ▼
+HttpResponse::encode()
 
-//     │
-//     ▼
-// send()
+    │
+    ├── status line
+    ├── headers map
+    ├── CRLF
+    └── body
 
-//     │
-//     ▼
-// TCP Socket
+    │
+    ▼
+send()
 
-
-
-// fd → string _buffer → parse → HttpResponse → serialize() → string _writeBuf → fd
-
-// ┌──────────┐    ┌────────────────┐    ┌─────────────┐    ┌────────────────┐
-// │  recv()  │───▶│  _buffer       │───▶│  HttpRequest│───▶│  Router        │
-// │  fd      │    │  std::string   │    │  feed()     │    │  route()       │
-// └──────────┘    │  appended each │    │  state mach │    └───────┬────────┘
-// 				   │  recv() call   │    └─────────────┘            │
-// 				   └────────────────┘                               ▼
-// ┌──────────┐    ┌────────────────┐    ┌─────────────────────────────────────┐
-// │  send()  │◀───│  _writeBuf     │◀───│  HttpResponse::serialize()          │
-// │  fd      │    │  std::string   │    │  uses stringstream INTERNALLY       │
-// └──────────┘    │  offset track  │    │  returns std::string — done         │
-// 				   └────────────────┘    └─────────────────────────────────────┘
-
-// stringstream appears only inside serialize() as a local variable
-// it builds the string and is then thrown away
-// the persistent buffers are always plain std::string
+    │
+    ▼
+TCP Socket
 
 
-// 			HttpMessage
-// 			───────────
-// 			headers
-// 			body
-// 			version
-// 		/         \
-// HttpRequest       HttpResponse
-// ───────────       ────────────
-// method            statusCode
-// uri               statusMessage
-// _state            decode()
-// _buffer           make()
-// contentLength
-// isChunked
-// feed()
-// isComplete()
-// hasError()
+
+fd → string _buffer → parse → HttpResponse → serialize() → string _writeBuf → fd
+
+┌──────────┐    ┌────────────────┐    ┌─────────────┐    ┌────────────────┐
+│  recv()  │───▶│  _buffer       │───▶│  HttpRequest│───▶│  Router        │
+│  fd      │    │  std::string   │    │  feed()     │    │  route()       │
+└──────────┘    │  appended each │    │  state mach │    └───────┬────────┘
+				   │  recv() call   │    └─────────────┘            │
+				   └────────────────┘                               ▼
+┌──────────┐    ┌────────────────┐    ┌─────────────────────────────────────┐
+│  send()  │◀───│  _writeBuf     │◀───│  HttpResponse::serialize()          │
+│  fd      │    │  std::string   │    │  uses stringstream INTERNALLY       │
+└──────────┘    │  offset track  │    │  returns std::string — done         │
+				   └────────────────┘    └─────────────────────────────────────┘
+
+stringstream appears only inside serialize() as a local variable
+it builds the string and is then thrown away
+the persistent buffers are always plain std::string
+
+
+			HttpMessage
+			───────────
+			headers
+			body
+			version
+		/         \
+HttpRequest       HttpResponse
+───────────       ────────────
+method            statusCode
+uri               statusMessage
+_state            decode()
+_buffer           make()
+contentLength
+isChunked
+feed()
+isComplete()
+hasError()
+*/
