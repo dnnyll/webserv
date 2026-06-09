@@ -10,7 +10,10 @@ CXX				=	c++
 CXXFLAGS		=	-Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
 
 # sources and objects
-SRCS			= main.cpp
+SRCS			= main.cpp\
+				  HttpMessage.cpp\
+				  HttpRequest.cpp\
+				  HttpResponse.cpp
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 

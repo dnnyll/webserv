@@ -9,7 +9,7 @@ class	RequestHandler
 	private:
 		//const HttpRequest	&_request;
 		//const ServerBlock	&_config;
-		HttpResponse		_response;
+		//HttpResponse		_response;
 
 		//pointeur sur la location qui correspond a la request
 		//string du chemin officiel
@@ -24,7 +24,7 @@ class	RequestHandler
 		//void	generateErrorPage(int statusCode);
 
 	public:
-		//constructeur pendre la reference de la request et de la config
+		//constructeur prend la reference de la request et de la config
 
 		//une fonction publique que la boucle du serverManager appelera
 		//HttpResponse process();

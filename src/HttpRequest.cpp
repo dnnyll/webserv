@@ -23,15 +23,15 @@ HttpRequest::HttpRequest()
 
 //	feed ─────────────────────────────────────────────────────────────
 
-bool	HttpRequest::feed(const std::string& chunk)
-{
-	//	append incoming bytes to internal buffer
-	//	the buffer may already contain leftover bytes from last call
-	//	real parser will be added here later (check doc webserv_httpReq_feed.txt)
-	_buffer += chunk;
-	return (false);
-	//stub: real implementation returns (_state == COMPLETE)
-}
+//bool	HttpRequest::feed(const std::string& chunk)
+//{
+//	//	append incoming bytes to internal buffer
+//	//	the buffer may already contain leftover bytes from last call
+//	//	real parser will be added here later (check doc webserv_httpReq_feed.txt)
+//	_buffer += chunk;
+//	return (false);
+//	//stub: real implementation returns (_state == COMPLETE)
+//}
 
 
 //	isComplete ───────────────────────────────────────────────────────

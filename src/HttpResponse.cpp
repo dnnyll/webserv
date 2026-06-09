@@ -9,7 +9,7 @@
 
 //	constructor ──────────────────────────────────────────────────────
 
-HttpResponse::HttpResponse(): statusCode(200), statusMessage("OK"){}
+HttpResponse::HttpResponse(): statusCode("200"), statusMessage("OK"){}
 //	temporary hardcoded default sucess code: 200; text: "OK"
 //	default to 200 OK
 //	body and headers are empty — Router fills them before serialize()
