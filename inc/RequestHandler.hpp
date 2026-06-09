@@ -3,19 +3,21 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
+#include "Config.hpp"
 
 class	RequestHandler
 {
 	private:
-		//const HttpRequest	&_request;
-		//const ServerBlock	&_config;
-		//HttpResponse		_response;
+		const HttpRequest	&_request;
+		const ServerBlock	&_config;
+		HttpResponse		_response;
 
+		Location			_location;
 		//pointeur sur la location qui correspond a la request
 		//string du chemin officiel
 
 		//methode priver a voir si toute necessaire
-		//void	matchLocation();
+		Location	matchLocation();
 		//void	checkPermision();
 		//void	handleGet();
 		//void	handlePost();
@@ -24,10 +26,9 @@ class	RequestHandler
 		//void	generateErrorPage(int statusCode);
 
 	public:
-		//constructeur prend la reference de la request et de la config
+		RequestHandler(const HttpRequest &request, const ServerBlock &config);
 
-		//une fonction publique que la boucle du serverManager appelera
-		//HttpResponse process();
+		HttpResponse	process();
 };
 
 #endif
