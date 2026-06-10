@@ -1,13 +1,20 @@
+
+#ifndef HTTPREQUESTDECODEDEBUG_HPP
+# define HTTPREQUESTDECODEDEBUG_HPP
+
+#include	<iostream>
+#include	<string>
 #include	"../inc/HttpRequest.hpp"
 
-//	debug for HttpResquestDecode -> void HttpRequest::decodeRequestLine()
-
 template <typename T>
-void debugRequestLine(const std::string& label, const T& value)
+void debugParse(const std::string& section,
+				const std::string& label,
+				const T& value)
 {
-	std::cout << "[decodeRequestLine] "
-			  << label
-			  << " = "
+	std::cout << "[" << section << "] "
+			  << label << " = "
 			  << value
 			  << std::endl;
 }
+
+#endif

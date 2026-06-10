@@ -15,6 +15,7 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
+
 /*
 enum HttpMethod
 {
@@ -118,6 +119,9 @@ class	HttpRequest :public HttpMessage
 		//	ClientHandler checks this to decide 400 or 505 response
 
 	private:
+		bool	extractRequestLine(std::string &line);
+		bool	splitRequestLine(const std::string &line);
+		bool	validateRequestLine();
 		void	decodeRequestLine();
 		void	decodeHeaders();
 		// void	HttpRequest::decodeBody();
