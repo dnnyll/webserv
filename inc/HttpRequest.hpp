@@ -110,20 +110,27 @@ class	HttpRequest :public HttpMessage
 		
 		bool	decode();
 
-		bool		isComplete() const;
+		bool	isComplete() const;
 		//	returns true only when state == COMPLETE
 		//	ClientHandler checks this after every feed() call
 
-		bool		hasError() const;
+		bool	hasError() const;
 		//	returns true when state == ERROR_STATE
 		//	ClientHandler checks this to decide 400 or 505 response
 
 	private:
+		//	DecodeRequestLine
 		bool	extractRequestLine(std::string &line);
 		bool	splitRequestLine(const std::string &line);
 		bool	validateRequestLine();
 		void	decodeRequestLine();
+
+		//	DecodeHeaders
+		bool	extractHeaderLine(std::string &line, size_t &pos);
+		bool	splitHeaderLine(const std::string &line);
+		void	resolveBodyState();
 		void	decodeHeaders();
+
 		// void	HttpRequest::decodeBody();
 		// void	HttpRequest::decodeChunked();
 };
