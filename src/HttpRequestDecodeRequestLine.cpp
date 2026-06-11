@@ -1,13 +1,17 @@
 #include	"../inc/HttpRequest.hpp"
 #include	"../inc/HttpRequestDecodeDebug.hpp"
+#include	<string>
 
 bool	HttpRequest::extractRequestLine(std::string &line)
 {
-	size_t pos = _buffer.find("\r\n");
+	size_t	pos = _buffer.find("\r\n");
+
 	if (pos == std::string::npos)
-		return false;
+		return (false);
+
 	line = _buffer.substr(0, pos);
 	_buffer.erase(0, pos + 2);
+
 	return (true);
 }
 
@@ -32,6 +36,7 @@ bool	HttpRequest::splitRequestLine(const std::string &line)
 	method = line.substr(0, first_space);
 	uri = line.substr(first_space + 1, second_space - first_space - 1);
 	version = line.substr(second_space + 1);
+
 	return (true);
 }
 
@@ -59,8 +64,10 @@ bool	HttpRequest::validateRequestLine()
 }
 
 
-void HttpRequest::decodeRequestLine()
+void	HttpRequest::decodeRequestLine()
 {
+	std::cout << "=====\tdecodeRequestLine()" << std::endl;
+
 	std::string	line;
 
 	if (!extractRequestLine(line))
@@ -68,6 +75,7 @@ void HttpRequest::decodeRequestLine()
 		debugParse("REQUEST_LINE", "status", "incomplete");
 		return ;
 	}
+
 	debugParse("REQUEST_LINE", "line", line);
 
 	if (!splitRequestLine(line))
@@ -75,6 +83,7 @@ void HttpRequest::decodeRequestLine()
 		debugParse("REQUEST_LINE", "ERROR", "split failed");
 		return ;
 	}
+
 	debugParse("REQUEST_LINE", "method", method);
 	debugParse("REQUEST_LINE", "uri", uri);
 	debugParse("REQUEST_LINE", "version", version);
@@ -84,6 +93,7 @@ void HttpRequest::decodeRequestLine()
 		debugParse("REQUEST_LINE", "ERROR", "validation failed");
 		return ;
 	}
+
 	_state = HEADERS;
 	debugParse("REQUEST_LINE", "state", "HEADERS");
 }

@@ -13,8 +13,9 @@ CXXFLAGS		=	-Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
 SRCS			=	main.cpp \
 					HttpMessage.cpp \
 					HttpRequest.cpp \
-					HttpRequestDecodeRquestLine.cpp \
-					HttpRequestDecodeHeaders.cpp
+					HttpRequestDecodeRequestLine.cpp \
+					HttpRequestDecodeHeaders.cpp \
+					HttpRequestDecodeBody.cpp
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 

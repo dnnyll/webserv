@@ -2,11 +2,12 @@
 #include	"../inc/HttpRequest.hpp"
 #include	<string>
 
-int main()
+int	main()
 {
 	HttpRequest test1;
 
-	std::string chunks[] = {
+	std::string chunks[] =
+	{
 		"GE",
 		"T /in",
 		"dex.html ",
@@ -15,9 +16,22 @@ int main()
 		"calhost:80",
 		"80\r\nCont",
 		"ent-Length",
-		": 0\r\n",
+		": 28\r\n",
 		"\r",
 		"\n"
+		"\nhe",
+		"llo mate! h",
+		"ow's it go",
+		"ing? a",
+		"re you dea",
+		"d yet?????"
+
+		// "GE",
+		// "T ",
+		// std::string(100, ' '),
+		// "/index.h",
+		// "tml H",
+		// "TTP/1.1\r\n"
 	};
 
 	for (size_t i = 0; i < sizeof(chunks) / sizeof(chunks[0]); ++i)
@@ -28,5 +42,5 @@ int main()
 		test1.getData(chunks[i]);
 	}
 
-	return 0;
+	return (0);
 }

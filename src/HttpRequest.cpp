@@ -58,7 +58,7 @@ bool	HttpRequest::decode()
 			std::cout << "HEADERS" << std::endl;
 			break ;
 		case BODY:
-			// decodeBody();
+			decodeBody();
 			std::cout << "BODY" << std::endl;
 			break ;
 		case CHUNKED:

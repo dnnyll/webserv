@@ -131,7 +131,9 @@ class	HttpRequest :public HttpMessage
 		void	resolveBodyState();
 		void	decodeHeaders();
 
-		// void	HttpRequest::decodeBody();
+		//	DecodeBody
+		void	decodeBody();
+
 		// void	HttpRequest::decodeChunked();
 };
 
