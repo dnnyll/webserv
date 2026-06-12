@@ -67,6 +67,11 @@ class	HttpRequest :public HttpMessage
 		//	true when Transfer-Encoding: chunked is set
 		//	when true: contentLength is ignored, use chunked parser
 
+		size_t	_chunkSize;
+		//	size of the current chunk being read
+		//	0 means we are expecting a new chunk size line
+		//	non-zero means we are reading chunk data
+
 	private:
 		ParseState	_state;
 		//	current position in the state machine
@@ -134,22 +139,14 @@ class	HttpRequest :public HttpMessage
 		//	DecodeBody
 		void	decodeBody();
 
-		// void	HttpRequest::decodeChunked();
+		//	DecodeChunked
+		void	decodeChunked();
 };
 
 #endif
 
 
 /*
-	http request example:
-
-	POST /upload HTTP/1.1
-	Host: localhost
-	Content-Length: 5
-
-	hello
-
-	-------------------------------------
 
 	flow exmple:
 

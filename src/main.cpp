@@ -8,23 +8,41 @@ int	main()
 
 	std::string chunks[] =
 	{
-		"GE",
-		"T /in",
-		"dex.html ",
-		"HTTP/1.1\r",
-		"\nHost: lo",
-		"calhost:80",
-		"80\r\nCont",
-		"ent-Length",
-		": 28\r\n",
-		"\r",
-		"\n"
-		"\nhe",
-		"llo mate! h",
-		"ow's it go",
-		"ing? a",
-		"re you dea",
-		"d yet?????"
+		//	regular test
+		// "GE",
+		// "T /in",
+		// "dex.html ",
+		// "HTTP/1.1\r",
+		// "\nHost: lo",
+		// "calhost:80",
+		// "80\r\nCont",
+		// "ent-Length",
+		// ": 28\r\n",
+		// "\r",
+		// "\n"
+		// "\nhe",
+		// "llo mate! h",
+		// "ow's it go",
+		// "ing? a",
+		// "re you dea",
+		// "d yet?????"
+
+		//	chunked test
+		"POST /upl",
+		"oad HTTP/1.1\r\n",
+		"Host: local",
+		"host:8080\r\n",
+		"Transfer-Enc",
+		"oding: chunked\r\n",
+		"\r\n",
+		"5\r\n",
+		"he",
+		"llo\r\n",
+		"6\r\n wo",
+		"rld\r\n",
+		"0\r",
+		"\n",
+		"\r\n"
 
 		// "GE",
 		// "T ",

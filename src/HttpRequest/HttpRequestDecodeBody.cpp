@@ -12,7 +12,7 @@
 	This repeats across multiple chunks until _bodyBytesRead == contentLength,
 	at which point the full body is assembled and _state becomes COMPLETE.
 */
-void HttpRequest::decodeBody()
+void	HttpRequest::decodeBody()
 {
 	std::cout << "=====\tdecodeBody()" << std::endl;
 

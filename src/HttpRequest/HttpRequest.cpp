@@ -12,6 +12,7 @@
 HttpRequest::HttpRequest()
 	: contentLength(0)
 	, isChunked(false)
+	, _chunkSize(0)
 	, _state(REQUEST_LINE)
 	, _bodyBytesRead(0)
 {
@@ -62,7 +63,7 @@ bool	HttpRequest::decode()
 			std::cout << "BODY" << std::endl;
 			break ;
 		case CHUNKED:
-			// decodeChunked();
+			decodeChunked();
 			std::cout << "CHUNKED" << std::endl;
 			break ;
 		case COMPLETE:
