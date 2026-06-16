@@ -115,6 +115,9 @@ class	HttpRequest :public HttpMessage
 		
 		bool	decode();
 
+		//	Reset
+		void	reset();
+
 		bool	isComplete() const;
 		//	returns true only when state == COMPLETE
 		//	ClientHandler checks this after every feed() call
