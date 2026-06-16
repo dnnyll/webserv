@@ -8,10 +8,14 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 
 HttpResponse RequestHandler::process()
 {
-	matchLocation();
+	if (!setLocation())
+	{
+		//quel erreur ?
+	}
 	//check des permissions dans cette location
 	//check si fichier ou dossier exist
 
 	//s'assurer que les resso
+	std::cout << "fin de process" << std::endl;
 	return (_response);
 }

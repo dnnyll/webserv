@@ -7,7 +7,7 @@ OBJ_DIR			=	obj
 BIN_DIR			=	bin
 NAME			=	webserv
 CXX				=	c++
-CXXFLAGS		=	-Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
+CXXFLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
 
 # sources and objects
 SRCS			= main.cpp\

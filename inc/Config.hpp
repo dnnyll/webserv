@@ -6,8 +6,8 @@
 
 struct	Location
 {
-	std::string	path;
-	std::string	root;
+	std::string	path; //path ou se situe les regle
+	std::string	root; //regle qui dit que ca se situe a cet endroit
 	std::string	index;
 };
 
