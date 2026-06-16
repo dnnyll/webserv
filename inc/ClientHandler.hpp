@@ -55,6 +55,10 @@ class	ClientHandler : public	EventHandler
 										//	you don't close the fd, 
 										//	you reset _request and wait for the next request
 		bool			_setClose;
+
+	//	methods
+
+	bool	setClose() const;
 	};
 
 #endif

@@ -2,6 +2,7 @@
 #include	<string>
 #include	<sys/socket.h>
 #include	<netinet/in.h>
+#include	<unistd.h>
 
 int	main()
 {
@@ -25,5 +26,10 @@ int	main()
 	ClientHandler	handler(clientFd);
 
 	while (true)
+	{
 		handler.handleRead();						// call repeatedly, see it parse + respond
+		handler.handleWrite();
+	}
+	close(listenFd);
+	return (0);
 }

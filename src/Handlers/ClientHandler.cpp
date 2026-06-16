@@ -52,7 +52,7 @@ void	ClientHandler::handleRead()
 
 void	ClientHandler::handleWrite()
 {
-	std::cout << "handleWrite is not implemented yet" << std::endl;
+	// std::cout << "handleWrite is not implemented yet" << std::endl;
 
 	if (_outBuffer.empty())
 		return ; // nothing to send yet
@@ -83,9 +83,13 @@ void	ClientHandler::handleWrite()
 	}
 }
 
-
 int		ClientHandler::getFd() const
 {
 	std::cout << "getFd is not implemented yet" << std::endl;
 	return (0);
+}
+
+bool	ClientHandler::setClose() const
+{
+	return (_setClose);
 }
