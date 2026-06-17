@@ -12,6 +12,7 @@ class	EventHandler
 		virtual void	handleRead()  = 0;
 		virtual void	handleWrite() = 0;
 		virtual int		getFd() const = 0;
+		virtual bool	setClose() const = 0;
 };
 
 #endif

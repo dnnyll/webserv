@@ -4,6 +4,21 @@
 #include	"../inc/HttpRequest.hpp"
 #include	"../inc/EventHandler.hpp"
 
+/*
+** ClientHandler
+**
+** Represents one connected client.
+**
+** Responsibilities:
+** - receive bytes from the socket
+** - feed data into the HTTP request parser
+** - detect when a request is complete
+** - store serialized HTTP responses
+** - send responses back to the client
+** - manage connection persistence (keep-alive)
+**
+** One ClientHandler instance exists per connected client socket.
+*/
 class	ClientHandler : public	EventHandler
 {
 	public:
@@ -11,34 +26,6 @@ class	ClientHandler : public	EventHandler
 		~ClientHandler();
 
 		void	handleRead();
-
-		/*
-		recv() fills buf[4096]	(temporary, local)
-				│
-				▼
-		_request.getData(buf)	(appends to _buffer, persistent)
-				│
-				▼
-		_buffer parsed by decode() state machine
-		*/
-
-		/*
-		Client (browser/curl)
-			│
-			│	sends raw HTTP request bytes over TCP
-			▼
-		OS kernel
-		(socket buffer for fd _fd)
-			│
-			│	recv(_fd, buf, sizeof(buf), 0)
-			▼
-		your buf[4096] array
-			│
-			│	_request.getData(std::string(buf, n))
-			▼
-		HttpRequest._buffer → parsed into method/uri/headers/body
-		*/
-		
 		void	handleWrite();
 		int		getFd() const;
 
@@ -54,11 +41,10 @@ class	ClientHandler : public	EventHandler
 										//	HTTP/1.1 defaults to keep-alive; after a response is fully sent, 
 										//	you don't close the fd, 
 										//	you reset _request and wait for the next request
-		bool			_setClose;
+		bool			_setClose;		//	private data, ClintHandler only
 
-	//	methods
-
-	bool	setClose() const;
-	};
+		//	methods
+		bool	setClose() const;
+};
 
 #endif
