@@ -4,6 +4,39 @@
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/EventLoop.hpp"
 
+/*
+** AcceptHandler
+**
+** Represents the server's listening socket.
+**
+** Responsibilities:
+** - create and configure the listening socket
+** - accept incoming TCP connections
+** - create a ClientHandler for each new client
+** - register new ClientHandlers with the EventLoop
+**
+** Only one AcceptHandler normally exists per listening port.
+**
+** Event flow:
+**
+**   Client connects
+**          │
+**          ▼
+**   listening socket becomes readable
+**          │
+**          ▼
+**   AcceptHandler::handleRead()
+**          │
+**          ▼
+**   accept()
+**          │
+**          ▼
+**   new ClientHandler(clientFd)
+**          │
+**          ▼
+**   EventLoop.addHandler()
+*/
+
 class	AcceptHandler : public	EventHandler
 {
 	public:
@@ -11,7 +44,7 @@ class	AcceptHandler : public	EventHandler
 		//means "a reference to an EventLoop, and I'll refer to it as reactor inside this class." 
 		//The & binds to the type, not the variable name.
 		~AcceptHandler();
-		//	overwritten methods
+		//	virtual overwritten methods
 		void	handleRead();
 		void	handleWrite();
 		int		getFd() const;
@@ -19,6 +52,10 @@ class	AcceptHandler : public	EventHandler
 
 	private:
 		int		_fd;
+		EventLoop  &_reactor;
+
+	//	methods
+	void	setupSocket(int port);
 };
 
 #endif
