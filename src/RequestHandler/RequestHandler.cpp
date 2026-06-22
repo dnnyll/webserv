@@ -11,8 +11,20 @@ HttpResponse RequestHandler::process()
 	if (!setLocation())
 	{
 		//quel erreur ?
+		std::cout << "erreur de setLocation" << std::endl;
+		//fonction de return
 	}
-	//check des permissions dans cette location
+	if (_request.uri.empty() || _location->root.empty() || _location->path.empty())
+	{
+		std::cout << "empty requestUri | locationRoot | locationPath" << std::endl;
+		return (_response)
+	}
+	_pathAbsolute = getPathAbsolute(_request.uri, _location->root, _location->path);
+	if (!checkPermission())
+	{
+		std::cout << "erreur de checkPermission" << std::endl;
+		//fonction de return
+	}
 	//check si fichier ou dossier exist
 
 	//s'assurer que les resso

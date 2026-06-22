@@ -15,7 +15,9 @@ SRCS			= main.cpp\
 				  HttpRequest.cpp\
 				  HttpResponse.cpp\
 				  RequestHandler/RequestHandler.cpp\
-				  RequestHandler/matchLocation.cpp
+				  RequestHandler/setLocation.cpp\
+				  RequestHandler/getPathAbsolute.cpp\
+				  RequestHandler/checkPermission.cpp
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
