@@ -150,8 +150,8 @@ void	ClientHandler::handleWrite()
 */
 int		ClientHandler::getFd() const
 {
-	std::cout << "getFd is not implemented yet" << std::endl;
-	return (0);
+	// std::cout << "getFd is not implemented yet" << std::endl;
+	return (_fd);
 }
 
 /*
