@@ -1,4 +1,5 @@
 #include	"../inc/ClientHandler.hpp"
+#include	"../inc/EventHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
@@ -166,4 +167,16 @@ int		ClientHandler::getFd() const
 bool	ClientHandler::setClose() const
 {
 	return (_setClose);
+}
+
+/*
+** Returns true when the output buffer has data waiting
+** to be sent to the client.
+** EventLoop uses this to register POLLOUT on this fd,
+** so handleWrite() is only called when there is
+** something to send.
+*/
+bool	ClientHandler::isWritable() const
+{
+	return (!_outBuffer.empty());
 }

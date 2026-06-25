@@ -28,6 +28,7 @@ class	ClientHandler : public	EventHandler
 		void	handleRead();
 		void	handleWrite();
 		int		getFd() const;
+		bool	isWritable() const;
 
 	private:
 		int				_fd;			//	the client's socket fd

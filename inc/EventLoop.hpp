@@ -23,16 +23,16 @@ class	EventLoop
 		EventLoop();
 		~EventLoop();
 
-		void addHandler(EventHandler *handler);
-		void run();
+		void	addHandler(EventHandler *handler);
+		void	run();
 
 	private:
-		std::vector<EventHandler*>  _handlers;
-		std::vector<struct pollfd>  _pollfds;
+		std::vector<EventHandler*>	_handlers;
+		std::vector<struct pollfd>	_pollfds;
 
-		void buildPollFds();
-		void dispatch();
-		void removeClosedHandlers();
+		void			buildPollFds();
+		void			dispatch();
+		void			removeClosedHandlers();
 };
 
 #endif

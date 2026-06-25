@@ -1,6 +1,7 @@
 
 #include	"../inc/AcceptHandler.hpp"
 #include	"../inc/ClientHandler.hpp"
+#include	"../inc/EventHandler.hpp"
 #include	<iostream>
 #include	<sys/socket.h>
 #include	<fcntl.h>
@@ -128,4 +129,15 @@ void	AcceptHandler::setupSocket(int port)
 	listen(_fd, 10);
 
 	std::cout << "listening on " << port << "..." << std::endl;
+}
+
+/*
+	** AcceptHandler never writes to its fd.
+	** The listening socket only receives incoming connections,
+	** it never sends data directly.
+	** Always returns false.
+*/
+bool	AcceptHandler::isWritable() const
+{
+	return (false);
 }
