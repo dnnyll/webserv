@@ -48,7 +48,7 @@ class	AcceptHandler : public	EventHandler
 		void	handleRead();
 		void	handleWrite();
 		int		getFd() const;
-		bool	setClose() const;
+		bool	isClosed() const;
 		bool	isWritable() const;
 
 	private:

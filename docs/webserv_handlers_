@@ -22,6 +22,6 @@ Putting it together — a full lifecycle:
 7. Browser sends request bytes → poll() flags the client fd
 8. EventLoop calls ClientHandler::handleRead() → feeds HttpRequest
 9. Once response is ready, EventLoop calls ClientHandler::handleWrite() → sends it
-10. If setClose() is true, EventLoop removes + deletes that ClientHandler
+10. If isClosed() is true, EventLoop removes + deletes that ClientHandler
 11. Loop continues, watching whatever fds remain
 So really: AcceptHandler exists purely to spawn ClientHandlers. ClientHandler exists to do the actual work you already built (parsing + responding). EventLoop is the dumb middleman that just keeps asking the OS "who's ready?" and routing the answer to the right object.

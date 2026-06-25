@@ -2,8 +2,22 @@
 #include	<cstddef>
 #include	<iostream>
 
+/*
+** Construct an empty EventLoop.
+**
+** Handlers are added later through addHandler().
+*/
 EventLoop::EventLoop(){}
 
+/*
+** Destroy the EventLoop and release all remaining handlers.
+**
+** Any handlers still owned by the event loop are deleted
+** before the handler list is cleared.
+**
+** The EventLoop assumes ownership of every handler passed
+** to addHandler(), making it responsible for cleanup.
+*/
 EventLoop::~EventLoop()
 {
 	size_t	i = 0;
@@ -16,6 +30,32 @@ EventLoop::~EventLoop()
 	_handlers.clear();
 }
 
+/*
+** Register a new handler with the event loop.
+**
+** The handler will be included in future poll() calls
+** and receive events when its file descriptor becomes ready.
+**
+** Ownership is transferred to the EventLoop, which is
+** responsible for deleting the handler during cleanup.
+*/
+void	EventLoop::addHandler(EventHandler *handler)
+{
+	_handlers.push_back(handler);
+}
+
+/*
+** Main event-processing loop.
+**
+** Repeats indefinitely:
+**     1. rebuild the pollfd array from active handlers
+**     2. wait in poll() until at least one fd is ready
+**     3. dispatch ready events to their handlers
+**     4. remove handlers marked for closing
+**
+** poll() blocks indefinitely (-1 timeout) until an event occurs.
+** If poll() fails, the iteration is skipped and the loop continues.
+*/
 void	EventLoop::run()
 {
 	while (true)
@@ -90,19 +130,30 @@ void	EventLoop::dispatch()
 			_handlers[i]->handleWrite();
 
 		if (_pollfds[i].revents & POLLERR)
-			_handlers[i]->setClose(); // mark for cleanup
+			_handlers[i]->isClosed(); // mark for cleanup
 
 		i++;
 	}
 }
 
+/*
+** Remove and destroy handlers that have been marked for closing.
+**
+** Iterates through the handler list and checks each handler's
+** close state. Closed handlers are deleted and removed from
+** the vector immediately.
+**
+** erase() shifts all following elements one position to the left,
+** so the index is only incremented when no removal occurs.
+** This ensures no handlers are skipped during iteration.
+*/
 void	EventLoop::removeClosedHandlers()
 {
 	size_t	i = 0;
 
 	while (i < _handlers.size())
 	{
-		if (_handlers[i]->setClose())
+		if (_handlers[i]->isClosed())
 		{
 			delete _handlers[i];
 			_handlers.erase(_handlers.begin() + i);	//	ereases element from vector and shifts left

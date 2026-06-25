@@ -54,7 +54,7 @@ int	AcceptHandler::getFd() const
 ** Client connections may be removed, but the listening
 ** socket stays registered so new clients can connect.
 */
-bool	AcceptHandler::setClose() const
+bool	AcceptHandler::isClosed() const
 {
 	return (false);
 }

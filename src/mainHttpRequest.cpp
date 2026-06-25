@@ -8,6 +8,42 @@ int	main()
 
 	std::string chunks[] =
 	{
+		//	Request line split everywhere
+		// "G",
+		// "E",
+		// "T",
+		// " ",
+		// "/",
+		// "i",
+		// "n",
+		// "d",
+		// "e",
+		// "x",
+		// ".",
+		// "h",
+		// "t",
+		// "m",
+		// "l",
+		// " ",
+		// "H",
+		// "T",
+		// "T",
+		// "P",
+		// "/",
+		// "1",
+		// ".",
+		// "1",
+		// "\r",
+		// "\n",
+		// "Host",
+		// ":",
+		// " ",
+		// "localhost",
+		// "\r",
+		// "\n",
+		// "\r",
+		// "\n"
+
 		//	regular test
 		// "GE",
 		// "T /in",
@@ -28,21 +64,21 @@ int	main()
 		// "d yet?????"
 
 		//	chunked test
-		"POST /upl",
-		"oad HTTP/1.1\r\n",
-		"Host: local",
-		"host:8080\r\n",
-		"Transfer-Enc",
-		"oding: chunked\r\n",
-		"\r\n",
-		"5\r\n",
-		"he",
-		"llo\r\n",
-		"6\r\n wo",
-		"rld\r\n",
-		"0\r",
-		"\n",
-		"\r\n"
+		// "POST /upl",
+		// "oad HTTP/1.1\r\n",
+		// "Host: local",
+		// "host:8080\r\n",
+		// "Transfer-Enc",
+		// "oding: chunked\r\n",
+		// "\r\n",
+		// "5\r\n",
+		// "he",
+		// "llo\r\n",
+		// "6\r\n wo",
+		// "rld\r\n",
+		// "0\r",
+		// "\n",
+		// "\r\n"
 
 		// "GE",
 		// "T ",
@@ -50,6 +86,14 @@ int	main()
 		// "/index.h",
 		// "tml H",
 		// "TTP/1.1\r\n"
+
+		//	CRLF split across reads
+		"GET / HTTP/1.1\r",
+		"\nHost: localhost\r",
+		"\nUser-Agent: test\r",
+		"\n",
+		"\r",
+		"\n"
 	};
 
 	for (size_t i = 0; i < sizeof(chunks) / sizeof(chunks[0]); ++i)

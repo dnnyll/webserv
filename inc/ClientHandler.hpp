@@ -42,10 +42,10 @@ class	ClientHandler : public	EventHandler
 										//	HTTP/1.1 defaults to keep-alive; after a response is fully sent, 
 										//	you don't close the fd, 
 										//	you reset _request and wait for the next request
-		bool			_setClose;		//	private data, ClintHandler only
+		bool			_isClosed;		//	private data, ClintHandler only
 
 		//	methods
-		bool	setClose() const;
+		bool	isClosed() const;
 };
 
 #endif

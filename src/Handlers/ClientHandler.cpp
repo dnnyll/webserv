@@ -60,7 +60,7 @@ void	ClientHandler::handleRead()
 
 	if (bytesReceived <= 0)
 	{
-		_setClose = true;
+		_isClosed = true;
 		return ;
 	}
 	_request.getData(std::string (buffer, bytesReceived));
@@ -122,7 +122,7 @@ void	ClientHandler::handleWrite()
 	if (bytesSent <= 0)
 	{
 		// error → cleanup
-		_setClose = true;
+		_isClosed = true;
 		return ;
 	}
 
@@ -137,7 +137,7 @@ void	ClientHandler::handleWrite()
 		}
 		else
 		{
-			_setClose = true;
+			_isClosed = true;
 			// mark for closingnad
 		}
 	}
@@ -164,9 +164,9 @@ int		ClientHandler::getFd() const
 ** The event loop can use this flag to remove the handler and destroy
 ** the connection safely outside of the read/write callbacks.
 */
-bool	ClientHandler::setClose() const
+bool	ClientHandler::isClosed() const
 {
-	return (_setClose);
+	return (_isClosed);
 }
 
 /*
