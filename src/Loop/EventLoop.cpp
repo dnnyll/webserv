@@ -1,5 +1,37 @@
 #include	"../inc/EventLoop.hpp"
 #include	<cstddef>
+#include	<iostream>
+
+EventLoop::EventLoop(){}
+
+EventLoop::~EventLoop()
+{
+	size_t	i = 0;
+
+	while(i < _handlers.size())
+	{
+		delete _handlers[i];
+		i++;
+	}
+	_handlers.clear();
+}
+
+void	EventLoop::run()
+{
+	while (true)
+	{
+		buildPollFds();
+		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
+	
+		if(pollReady == -1)
+		{
+			std::cout << "edgecase poll() returned -1. handle error" << std::endl;
+			continue ;	//	skips dispatch
+		}
+		dispatch();
+		removeClosedHandlers();
+	}
+}
 
 /*
 ** Build the pollfd array from the current list of handlers.
@@ -47,7 +79,7 @@ oll() returns.
 */
 void	EventLoop::dispatch()
 {
-	size_t i = 0;
+	size_t	i = 0;
 
 	while (i < _pollfds.size())
 	{
@@ -61,5 +93,21 @@ void	EventLoop::dispatch()
 			_handlers[i]->setClose(); // mark for cleanup
 
 		i++;
+	}
+}
+
+void	EventLoop::removeClosedHandlers()
+{
+	size_t	i = 0;
+
+	while (i < _handlers.size())
+	{
+		if (_handlers[i]->setClose())
+		{
+			delete _handlers[i];
+			_handlers.erase(_handlers.begin() + i);	//	ereases element from vector and shifts left
+		}
+		else
+			i++;
 	}
 }

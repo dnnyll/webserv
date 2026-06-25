@@ -28,7 +28,7 @@ class	EventLoop
 
 	private:
 		std::vector<EventHandler*>	_handlers;
-		std::vector<struct pollfd>	_pollfds;
+		std::vector<struct pollfd>	_pollfds;	//	https://man7.org/linux/man-pages/man2/poll.2.html
 
 		void			buildPollFds();
 		void			dispatch();
