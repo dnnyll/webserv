@@ -3,6 +3,31 @@
 #include	<string>
 #include	<sstream>
 
+bool	HttpRequest::parseChunkSize()
+{
+		size_t	pos = _buffer.find("\r\n");
+		debugParse("CHUNKED", "CRLF position", pos);
+
+		if (pos == std::string::npos)
+		{
+			debugParse("CHUNKED", "status", "incomplete size line");
+			return (false);
+		}
+
+		std::string	sizeLine = _buffer.substr(0, pos);
+
+		debugParse("CHUNKED", "size line", sizeLine);
+
+		_buffer.erase(0, pos + 2);
+
+		std::stringstream	ss(sizeLine);
+		ss >> std::hex >> _chunkSize;
+
+		debugParse("CHUNKED", "parsed chunkSize", _chunkSize);
+
+		return (true);
+}
+
 void	HttpRequest::decodeChunked()
 {
 	debugParse("CHUNKED", "buffer size", _buffer.size());
@@ -10,29 +35,16 @@ void	HttpRequest::decodeChunked()
 
 	if (_chunkSize == 0)
 	{
-		size_t	pos = _buffer.find("\r\n");
-		debugParse("CHUNKED", "CRLF position", pos);
-
-		if (pos == std::string::npos)
-		{
-			debugParse("CHUNKED", "status", "incomplete size line");
-			return ;
-		}
-
-		std::string	sizeLine = _buffer.substr(0, pos);
-		debugParse("CHUNKED", "size line", sizeLine);
-
-		_buffer.erase(0, pos + 2);
-
-		std::stringstream	ss(sizeLine);
-		ss >> std::hex >> _chunkSize;
-		debugParse("CHUNKED", "parsed chunkSize", _chunkSize);
-
 		if (_chunkSize == 0)
 		{
-			debugParse("CHUNKED", "status", "final chunk received");
-			_state = COMPLETE;
-			return ;
+			if (!parseChunkSize())
+				return ;
+			if (_chunkSize == 0)
+			{
+				debugParse("CHUNKED", "status", "final chunk received");
+				_state = COMPLETE;
+				return ;
+			}
 		}
 	}
 
@@ -55,24 +67,8 @@ void	HttpRequest::decodeChunked()
 
 		_chunkSize = 0;
 
-		size_t	pos = _buffer.find("\r\n");
-		debugParse("CHUNKED", "next CRLF position", pos);
-
-		if (pos == std::string::npos)
-		{
-			debugParse("CHUNKED", "status", "incomplete next size line");
+		if (!parseChunkSize())
 			return ;
-		}
-
-		std::string	sizeLine = _buffer.substr(0, pos);
-		debugParse("CHUNKED", "next size line", sizeLine);
-
-		_buffer.erase(0, pos + 2);
-
-		std::stringstream	ss(sizeLine);
-		ss >> std::hex >> _chunkSize;
-		debugParse("CHUNKED", "next chunkSize", _chunkSize);
-
 		if (_chunkSize == 0)
 		{
 			debugParse("CHUNKED", "status", "final chunk received");

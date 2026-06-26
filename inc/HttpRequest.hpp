@@ -143,6 +143,7 @@ class	HttpRequest :public HttpMessage
 		void	decodeBody();
 
 		//	DecodeChunked
+		bool	parseChunkSize();
 		void	decodeChunked();
 };
 

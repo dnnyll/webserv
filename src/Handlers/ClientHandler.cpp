@@ -57,7 +57,7 @@ ClientHandler::~ClientHandler()
 void	ClientHandler::handleRead()
 {
 	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
-	char	buffer[4096];
+	char	buffer[1];
 	ssize_t	bytesReceived = recv(_fd, buffer, sizeof(buffer), 0);;
 
 	if (bytesReceived <= 0)
