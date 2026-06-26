@@ -8,7 +8,6 @@
 #include	"HttpRequest.hpp"
 
 //	constructor ──────────────────────────────────────────────────────
-
 HttpRequest::HttpRequest()
 	: contentLength(0)
 	, isChunked(false)
@@ -22,14 +21,12 @@ HttpRequest::HttpRequest()
 	//	no chunked encoding assumed ye
 }
 
-
 //	feed ─────────────────────────────────────────────────────────────
 
 //	append incoming bytes to internal buffer
 //	the buffer may already contain leftover bytes from last call
 //	real parser will be added here later (check doc webserv_httpReq_feed.txt)
-
-bool HttpRequest::getData(const std::string& chunk)
+bool	HttpRequest::getData(const std::string& chunk)
 {
 	_buffer += chunk;
 	while (_state != COMPLETE && _state != ERROR_STATE)
@@ -43,8 +40,6 @@ bool HttpRequest::getData(const std::string& chunk)
 	std::cout << "final state: " << _state << std::endl;
 	return (_state == COMPLETE);
 }
-
-
 
 bool	HttpRequest::decode()
 {
@@ -76,6 +71,7 @@ bool	HttpRequest::decode()
 	return(_state == COMPLETE);
 
 }
+
 void	HttpRequest::reset()
 {
 	method.clear();
@@ -93,7 +89,6 @@ void	HttpRequest::reset()
 	_chunkSize = 0;
 }
 
-
 //	isComplete ───────────────────────────────────────────────────────
 
 bool	HttpRequest::isComplete() const
@@ -103,7 +98,6 @@ bool	HttpRequest::isComplete() const
 	//	when true: ClientHandler calls Router::route()
 	return (_state == COMPLETE);
 }
-
 
 //	hasError ─────────────────────────────────────────────────────────
 bool	HttpRequest::hasError() const

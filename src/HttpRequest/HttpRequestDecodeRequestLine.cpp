@@ -63,7 +63,6 @@ bool	HttpRequest::validateRequestLine()
 	return (true);
 }
 
-
 void	HttpRequest::decodeRequestLine()
 {
 	std::cout << "=====\tdecodeRequestLine()" << std::endl;

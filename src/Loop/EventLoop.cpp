@@ -43,6 +43,7 @@ EventLoop::~EventLoop()
 void	EventLoop::addHandler(EventHandler *handler)
 {
 	_handlers.push_back(handler);
+	std::cout << "[EVENTLOOP] handler added, total: " << _handlers.size() << std::endl;
 }
 
 /*
@@ -62,15 +63,24 @@ void	EventLoop::run()
 	while (true)
 	{
 		buildPollFds();
+
+		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
+
 		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
 	
 		if(pollReady == -1)
 		{
+			std::cout << "[EVENTLOOP] poll() error" << std::endl;
+			//	this still has to be handled
 			std::cout << "edgecase poll() returned -1. handle error" << std::endl;
 			continue ;	//	skips dispatch
 		}
+		std::cout << "[EVENTLOOP] " << pollReady << " fd(s) ready" << std::endl;
+
 		dispatch();
 		removeClosedHandlers();
+
+		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
 	}
 }
 
@@ -157,6 +167,7 @@ void	EventLoop::removeClosedHandlers()
 	{
 		if (_handlers[i]->isClosed())
 		{
+			std::cout << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
 			delete _handlers[i];
 			_handlers.erase(_handlers.begin() + i);	//	ereases element from vector and shifts left
 		}
