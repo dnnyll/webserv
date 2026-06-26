@@ -18,6 +18,7 @@ EventLoop::EventLoop(){}
 ** The EventLoop assumes ownership of every handler passed
 ** to addHandler(), making it responsible for cleanup.
 */
+
 EventLoop::~EventLoop()
 {
 	size_t	i = 0;
@@ -126,8 +127,9 @@ void	EventLoop::dispatch()
 		if (_pollfds[i].revents & POLLIN)
 			_handlers[i]->handleRead();
 
-		if (_pollfds[i].revents & POLLOUT)
+		if (_pollfds[i].revents & POLLOUT || _handlers[i]->isWritable())
 			_handlers[i]->handleWrite();
+		//	check immediately if there's something to write and call handleWrite() in the same dispatch cycle.
 
 		if (_pollfds[i].revents & POLLERR)
 			_handlers[i]->isClosed(); // mark for cleanup

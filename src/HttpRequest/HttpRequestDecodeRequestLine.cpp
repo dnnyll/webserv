@@ -70,6 +70,10 @@ void	HttpRequest::decodeRequestLine()
 
 	std::string	line;
 
+	// skip leading blank lines (CRLF before request line)
+	while (_buffer.size() >= 2 && _buffer[0] == '\r' && _buffer[1] == '\n')
+		_buffer.erase(0, 2);
+
 	if (!extractRequestLine(line))
 	{
 		debugParse("REQUEST_LINE", "status", "incomplete");

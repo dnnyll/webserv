@@ -88,7 +88,7 @@ void	HttpRequest::reset()
 	isChunked = false;
 
 	_state = REQUEST_LINE;
-	_buffer.clear();
+	// _buffer.clear();
 	_bodyBytesRead = 0;
 	_chunkSize = 0;
 }

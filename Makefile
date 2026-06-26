@@ -10,14 +10,17 @@ CXX				=	c++
 CXXFLAGS		=	-Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
 
 # sources and objects
-SRCS			=	mainHandler.cpp \
+SRCS			=	mainEventLoop.cpp \
 					HttpMessage.cpp \
 					HttpRequest/HttpRequestDecodeBody.cpp \
 					HttpRequest/HttpRequestDecodeChunked.cpp \
 					HttpRequest/HttpRequest.cpp \
 					HttpRequest/HttpRequestDecodeRequestLine.cpp \
 					HttpRequest/HttpRequestDecodeHeaders.cpp \
-					Handlers/ClientHandler.cpp
+					Handlers/ClientHandler.cpp \
+					Handlers/AcceptHandler.cpp \
+					Loop/EventLoop.cpp
+
 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)

@@ -83,7 +83,7 @@ void	AcceptHandler::handleRead()
 	if (clientFd < 0)
 		return ; // no connection actually pending, or error — ignore
 
-	ClientHandler *client = new ClientHandler(clientFd);
+	ClientHandler	*client = new ClientHandler(clientFd);
 	_reactor.addHandler(client);
 }
 
