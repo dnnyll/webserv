@@ -14,6 +14,7 @@ ClientHandler::ClientHandler(int fd) : _fd(fd)
 {
 	//	add , _keepAlive(true) to function
 	_keepAlive = true;
+	_isClosed = false;
 }
 
 /* Destructor
@@ -55,6 +56,7 @@ ClientHandler::~ClientHandler()
 */
 void	ClientHandler::handleRead()
 {
+	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
 	char	buffer[4096];
 	ssize_t	bytesReceived = recv(_fd, buffer, sizeof(buffer), 0);;
 
@@ -113,7 +115,7 @@ void	ClientHandler::handleRead()
 void	ClientHandler::handleWrite()
 {
 	// std::cout << "handleWrite is not implemented yet" << std::endl;
-
+	std::cout << "[CLIENTHANDLER] handleWrite() fd=" << _fd << std::endl;
 	if (_outBuffer.empty())
 		return ; // nothing to send yet
 
