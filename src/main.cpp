@@ -1,10 +1,11 @@
 #include <iostream>
 #include "../inc/check_path.hpp"
+#include "../inc/Config.hpp"
 #include "../inc/event_loop.hpp"
 
 int	main(void)
 {
-	{
+	/*{
 		std::cout << "---------TEST CONFIG FILE---------" << std::endl;
 		std::string path1 = "blabla.conf"; //right;
 		std::string path2 = "../config_files/.conf"; //right;
@@ -35,10 +36,22 @@ int	main(void)
 		{
 			std::cerr << "Exception caught: " << e.what() << std::endl;
 		}
-	}
+	}*/
 	{
+		try
+		{
+			Config config;
+			config.parse("../config_files/server.conf");
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "Config error: " << e.what() << '\n';
+			return (1);
+		}
+	}
+	/*{
 		std::cout << "---------------- EVENT LOOP -------------------" << std::endl;
 		return event_loop();
-	}
+	}*/
 
 }
