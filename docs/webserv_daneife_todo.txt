@@ -18,3 +18,10 @@
       static / upload / delete / redirect / error / CGI signal
 
   milestone: curl GET /index.html returns correct file content
+
+
+
+DEBUG
+
+create a DEBUGFLOW for the flow of the program showing each functiont that is being called
+transofmr DEBUG into DEBUG HTTP PARSING

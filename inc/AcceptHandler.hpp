@@ -40,8 +40,8 @@
 class	AcceptHandler : public	EventHandler
 {
 	private:
-		int		_fd;
-		EventLoop  &_reactor;
+		int			_fd;
+		EventLoop	&_reactor;
 		
 	//	methods
 	public:

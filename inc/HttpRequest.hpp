@@ -70,7 +70,7 @@ class	HttpRequest :public HttpMessage
 		//	non-zero means we are reading chunk data
 
 	private:
-		ParseState	_state;
+		ParseState		_state;
 		//	current position in the state machine
 		//	only feed() is allowed to advance this
 		//	public code reads state via isComplete() / hasError() only
