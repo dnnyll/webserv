@@ -9,6 +9,10 @@ NAME			=	webserv
 CXX				=	c++
 CXXFLAGS		=	-g3 -O0 -Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
 
+ifdef DEBUG
+CXXFLAGS += -DDEBUG
+endif
+
 # sources and objects
 SRCS			=	mainEventLoop.cpp \
 					HttpMessage.cpp \
@@ -32,6 +36,11 @@ $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.cpp
 
 # default target
 all: $(BIN_DIR)/$(NAME)
+
+# must fclean before `make debug` if not debug
+.PHONY:debug
+debug:
+	$(MAKE) DEBUG=1 all
 
 # linking binary
 $(BIN_DIR)/$(NAME): $(OBJS)
