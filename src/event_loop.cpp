@@ -1,4 +1,5 @@
 #include "../inc/event_loop.hpp"
+#include "../inc/Config.hpp"
 
 static void	add_client(int socket_fd, std::vector<struct pollfd> &fds, std::map<int, Client> &clients)
 {
@@ -59,13 +60,13 @@ static void	handle_write(int i, std::vector<struct pollfd> &fds, std::map<int, C
 		fds[i].events = POLLIN;
 }
 
-static int	init_server_socket(void)
+static int	init_server_socket(ServerBlock &server)
 {
 	//parsing du .config server
 	struct sockaddr_in	addr = {};
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(8080);
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	addr.sin_port = htons(server.port);
+	addr.sin_addr.s_addr = inet_addr(server.host.c_str());
 
 	int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd < 0)
@@ -96,20 +97,27 @@ static int	init_server_socket(void)
 	return (socket_fd);
 }
 
-int	event_loop(void)
+int	event_loop(Config &config)
 {
 	std::vector<struct pollfd> fds;
 	std::map<int, Client> clients;
- 
-	int	socket_fd = init_server_socket();
-	if (socket_fd < 0)
-		return (1);
+	std::vector<ServerBlock> servers;
+	std::vector<int> serverSockets;
+	servers = config.getServers();
 
-	struct pollfd server_pfd = {};
-	server_pfd.fd = socket_fd;
-	server_pfd.events = POLLIN; // POLLIN uniquement car pour les nouvelles connexions que des entrées pas de sortie
-	fds.push_back(server_pfd);
-  
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		std::cout << i << std::endl;
+		int	socket_fd = init_server_socket(servers[i]);
+		if (socket_fd < 0)
+			return (1);
+		serverSockets.push_back(socket_fd);
+		struct pollfd server_pfd = {};
+		server_pfd.fd = socket_fd;
+		server_pfd.events = POLLIN; // POLLIN uniquement car pour les nouvelles connexions que des entrées pas de sortie
+		fds.push_back(server_pfd);
+	}
+	
 	while (1)
 	{
 		// poll() attend qu'un événement arrive sur n'importe quel fd
@@ -128,9 +136,18 @@ int	event_loop(void)
 		{
 			if (!(fds[i].revents & (POLLIN | POLLOUT | POLLERR | POLLHUP)))
 				continue; // rien sur ce fd, on passe
+			bool isServer = false;
+			for (size_t j = 0; j < serverSockets.size(); j++)
+			{
+				if (serverSockets[j] == fds[i].fd)
+				{
+					isServer = true;
+					break;
+				}
+			}
 			// --- Cas 1 : nouvelle connexion sur le server socket ---
-			if (fds[i].fd == socket_fd)
-				add_client(socket_fd, fds, clients);
+			if (isServer)
+				add_client(fds[i].fd, fds, clients);
 			// --- Cas 2 : données à lire sur un client ---
 			else
 			{

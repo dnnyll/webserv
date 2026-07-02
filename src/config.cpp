@@ -149,3 +149,8 @@ void Config::parse(const std::string &filepath)
 			std::cout << "  Location: " << _servers[s].locations[l].path << std::endl;
 	}
 }
+
+const std::vector<ServerBlock>& Config::getServers() const
+{
+	return _servers;
+}

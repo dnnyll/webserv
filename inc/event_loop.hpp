@@ -12,6 +12,7 @@
 #include	<vector>
 #include	<map>
 #include	<fcntl.h>
+#include	"../inc/Config.hpp"
  
 #define BUFFER_SIZE 50
 
@@ -21,6 +22,6 @@ struct Client{
 	std::string send;
 };
 
-int	event_loop(void);
+int	event_loop(Config &config);
 
 #endif

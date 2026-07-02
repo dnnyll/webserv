@@ -37,7 +37,7 @@ int	main(void)
 			std::cerr << "Exception caught: " << e.what() << std::endl;
 		}
 	}*/
-	{
+	/*{
 		try
 		{
 			Config config;
@@ -48,10 +48,20 @@ int	main(void)
 			std::cerr << "Config error: " << e.what() << '\n';
 			return (1);
 		}
-	}
-	/*{
-		std::cout << "---------------- EVENT LOOP -------------------" << std::endl;
-		return event_loop();
 	}*/
+	{
+		std::cout << "---------------- EVENT LOOP -------------------" << std::endl;
+		try
+		{
+			Config	config;
+			config.parse("../config_files/server.conf");
+			return event_loop(config);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+		return (0);
+	}
 
 }
