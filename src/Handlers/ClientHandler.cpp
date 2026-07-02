@@ -52,6 +52,22 @@ void	ClientHandler::handleRead()
 		_isClosed = true;
 		return ;
 	}
+
+	//	temporary debug
+	std::cout << "Received " << bytesReceived << " bytes:\n";
+	for (ssize_t i = 0; i < bytesReceived; ++i)
+	{
+		unsigned char c = buffer[i];
+
+		if (c == '\r')
+			std::cout << "\\r";
+		else if (c == '\n')
+			std::cout << "\\n\n";
+		else
+			std::cout << c;
+	}
+	std::cout << "\n----- END OF CHUNK -----\n";
+
 	_request.getData(std::string (buffer, bytesReceived));
 
 	if (_request.hasError())
