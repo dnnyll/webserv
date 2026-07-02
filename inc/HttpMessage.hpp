@@ -126,13 +126,13 @@ fd → string _buffer → parse → HttpResponse → serialize() → string _wri
 │  recv()  │───▶│  _buffer       │───▶│  HttpRequest│───▶│  Router        │
 │  fd      │    │  std::string   │    │  feed()     │    │  route()       │
 └──────────┘    │  appended each │    │  state mach │    └───────┬────────┘
-				   │  recv() call   │    └─────────────┘            │
-				   └────────────────┘                               ▼
+				│  recv() call   │    └─────────────┘            │
+				└────────────────┘                               ▼
 ┌──────────┐    ┌────────────────┐    ┌─────────────────────────────────────┐
 │  send()  │◀───│  _writeBuf     │◀───│  HttpResponse::serialize()          │
 │  fd      │    │  std::string   │    │  uses stringstream INTERNALLY       │
 └──────────┘    │  offset track  │    │  returns std::string — done         │
-				   └────────────────┘    └─────────────────────────────────────┘
+				└────────────────┘    └─────────────────────────────────────┘
 
 stringstream appears only inside serialize() as a local variable
 it builds the string and is then thrown away

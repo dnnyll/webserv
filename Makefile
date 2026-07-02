@@ -66,33 +66,6 @@ fclean: clean
 
 re: fclean all
 
-# git
-
-# git log
-log:
-	git log --oneline --graph --decorate --all
-
-# git commit + push
-push: fclean
-	@DATE=$$(date "+%Y-%m-%d %Hh%Mm%S -"); \
-	USER=$$(whoami)" -"; \
-	printf "enter commit message > "; \
-	read MSG; \
-	MSG=$${MSG:-update}; \
-	git add -A; \
-	git commit -m "$$USER $$DATE $$MSG" || echo "nothing to commit"; \
-	git push
-
-# git pull
-pull:
-	git pull
-
-# git fetch + pull
-fetch:
-	git fetch
-	make -s pull
-
-
 # PHONY
 
 .PHONY: all clean fclean re push pull fetch

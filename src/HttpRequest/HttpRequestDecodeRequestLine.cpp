@@ -15,7 +15,6 @@ bool	HttpRequest::extractRequestLine(std::string &line)
 	return (true);
 }
 
-
 bool	HttpRequest::splitRequestLine(const std::string &line)
 {
 	size_t	first_space = line.find(' ');
@@ -67,6 +66,7 @@ bool	HttpRequest::validateRequestLine()
 void	HttpRequest::decodeRequestLine()
 {
 	std::cout << "=====\tdecodeRequestLine()" << std::endl;
+	
 	std::string	line;
 
 	// skip leading blank lines (CRLF before request line)
@@ -98,5 +98,6 @@ void	HttpRequest::decodeRequestLine()
 	}
 
 	_state = HEADERS;
+
 	debugParse("REQUEST_LINE", "state", "HEADERS");
 }

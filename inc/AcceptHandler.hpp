@@ -39,24 +39,26 @@
 
 class	AcceptHandler : public	EventHandler
 {
+	private:
+		int		_fd;
+		EventLoop  &_reactor;
+		
+	//	methods
 	public:
 		AcceptHandler(int port, EventLoop &reactor);
 		//means "a reference to an EventLoop, and I'll refer to it as reactor inside this class." 
 		//The & binds to the type, not the variable name.
 		~AcceptHandler();
+
 		//	virtual overwritten methods
 		void	handleRead();
 		void	handleWrite();
 		int		getFd() const;
 		bool	isClosed() const;
 		bool	isWritable() const;
-
+		
 	private:
-		int		_fd;
-		EventLoop  &_reactor;
-
-	//	methods
-	void	setupSocket(int port);
+		void	setupSocket(int port);
 };
 
 #endif

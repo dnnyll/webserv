@@ -43,6 +43,7 @@ ClientHandler::~ClientHandler()
 void	ClientHandler::handleRead()
 {
 	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
+
 	char	buffer[4096];
 	ssize_t	bytesReceived = recv(_fd, buffer, sizeof(buffer), 0);;
 
@@ -127,7 +128,6 @@ void	ClientHandler::handleWrite()
 
 int		ClientHandler::getFd() const
 {
-	std::cout << "getFd is not implemented yet" << std::endl;
 	return (_fd);
 }
 

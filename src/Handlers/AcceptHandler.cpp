@@ -83,11 +83,14 @@ void	AcceptHandler::handleRead()
 	if (clientFd < 0)
 	{
 		std::cout << "[ACCEPTHANDLER] accept() failed" << std::endl;
-		return ; // no connection actually pending, or error — ignore
+		return ;
 	}
+
 	std::cout << "[ACCEPTHANDLER] new client connected, fd=" << clientFd << std::endl;
+
 	ClientHandler	*client = new ClientHandler(clientFd);
 	_reactor.addHandler(client);
+
 	std::cout << "[ACCEPTHANDLER] ClientHandler created and registered" << std::endl;
 }
 

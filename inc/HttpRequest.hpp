@@ -48,9 +48,6 @@ hasError()
 class	HttpRequest :public HttpMessage
 {
 	public:
-	//	parsed metadata ──────────────────────────────────────
-	//	request line fields ──────────────────────────────────
-
 		std::string	method;
 		//	http Method: GET POST DELETE
 
@@ -94,7 +91,7 @@ class	HttpRequest :public HttpMessage
 		//	"1a\r\n" → parsed to size_t → then read that many bytes
 
 
-	//	methods ──────────────────────────────────────
+	//	methods
 
 	public:
 		//	parsing/decoding

@@ -30,6 +30,8 @@ bool	HttpRequest::parseChunkSize()
 
 void	HttpRequest::decodeChunked()
 {
+	std::cout << "=====\tdecodeChunked()" << std::endl;
+
 	debugParse("CHUNKED", "buffer size", _buffer.size());
 	debugParse("CHUNKED", "chunkSize", _chunkSize);
 

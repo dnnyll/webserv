@@ -62,6 +62,7 @@ void	HttpRequest::resolveBodyState()
 void	HttpRequest::decodeHeaders()
 {
 	std::cout << "=====\tdecodeHeaders()" << std::endl;
+
 	debugParse("HEADERS", "buffer size", _buffer.size());
 	
 	while (1)
@@ -93,7 +94,9 @@ void	HttpRequest::decodeHeaders()
 		}
 
 		debugParse("HEADERS", "stored header", line);
+
 		_buffer.erase(0, pos + 2);
+		
 		debugParse("HEADERS", "remaining buffer size", _buffer.size());
 	}
 }
