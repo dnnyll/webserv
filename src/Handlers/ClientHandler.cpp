@@ -3,26 +3,12 @@
 #include	<unistd.h>
 #include	<sys/socket.h>
 
-/* Constructor
-** Create a handler for a newly accepted client connection.
-**
-** Stores the client's socket fd and initializes connection state.
-** HTTP/1.1 defaults to persistent connections, so keep-alive is
-** enabled until a request or response explicitly asks to close.
-*/
 ClientHandler::ClientHandler(int fd) : _fd(fd)
 {
-	//	add , _keepAlive(true) to function
 	_keepAlive = true;
 	_isClosed = false;
 }
 
-/* Destructor
-** Cleanup for a client connection.
-**
-** Closes the socket associated with this client.
-** Called when the connection is removed from the event loop.
-*/
 ClientHandler::~ClientHandler()
 {
 	close(_fd);
@@ -57,7 +43,7 @@ ClientHandler::~ClientHandler()
 void	ClientHandler::handleRead()
 {
 	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
-	char	buffer[1];
+	char	buffer[4096];
 	ssize_t	bytesReceived = recv(_fd, buffer, sizeof(buffer), 0);;
 
 	if (bytesReceived <= 0)
@@ -70,7 +56,7 @@ void	ClientHandler::handleRead()
 	if (_request.hasError())
 	{
 		std::cout << "ERROR detected, would build error response here" << std::endl;
-		//	needs implementation -> _outBuffer = errorResponse.serialize();
+		//	TODO (danny): needs implementation -> _outBuffer = errorResponse.serialize();
 	}
 	else if (_request.isComplete())
 	{
@@ -79,12 +65,12 @@ void	ClientHandler::handleRead()
 		std::cout << "  uri: "				<< _request.uri << std::endl;
 		std::cout << "  body: "				<< _request.body << std::endl;
 
-		//	temporary mesure
-		_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
-
+		//	TODO (danny): temporary mesure
 		//	needs implementation ->	HttpResponse res = router.route(_request);
 		//							_outBuffer = res.serialize();
-		//	J'ai besoin de la partie de Jules pour creer le message de reponse 200 OK
+		//	I need Jule's response
+		
+		_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
 	}
 }
 
@@ -114,70 +100,42 @@ void	ClientHandler::handleRead()
 */
 void	ClientHandler::handleWrite()
 {
-	// std::cout << "handleWrite is not implemented yet" << std::endl;
 	std::cout << "[CLIENTHANDLER] handleWrite() fd=" << _fd << std::endl;
+
 	if (_outBuffer.empty())
-		return ; // nothing to send yet
+		return ;
 
 	ssize_t	bytesSent = send(_fd, _outBuffer.c_str(), _outBuffer.size(), 0);
 
 	if (bytesSent <= 0)
 	{
-		// error → cleanup
 		_isClosed = true;
 		return ;
 	}
 
-	_outBuffer.erase(0, bytesSent);	//	delete what was sent
+	//	very important: we MUST delete what was sent
+	_outBuffer.erase(0, bytesSent);
 
 	if (_outBuffer.empty())
 	{
 		if (_keepAlive)
-		{
 			_request.reset();
-			// reset _request for the next request on this connection
-		}
 		else
-		{
 			_isClosed = true;
-			// mark for closingnad
-		}
 	}
 }
 
-/*
-** Return the socket file descriptor associated with this client.
-**
-** Used by the event loop (poll/select/epoll/kqueue) to identify
-** which connection generated an event.
-*/
 int		ClientHandler::getFd() const
 {
-	// std::cout << "getFd is not implemented yet" << std::endl;
+	std::cout << "getFd is not implemented yet" << std::endl;
 	return (_fd);
 }
 
-/*
-** Check whether this connection should be closed.
-**
-** Returns true after a response has been fully sent and the
-** connection is not supposed to remain alive.
-**
-** The event loop can use this flag to remove the handler and destroy
-** the connection safely outside of the read/write callbacks.
-*/
 bool	ClientHandler::isClosed() const
 {
 	return (_isClosed);
 }
 
-/*
-** Returns true when the output buffer has data waiting
-** to be sent to the client.
-** EventLoop uses this to register POLLOUT on this fd,
-** so handleWrite() is only called when there is
-** something to send.
-*/
 bool	ClientHandler::isWritable() const
 {
 	return (!_outBuffer.empty());

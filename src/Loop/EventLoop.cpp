@@ -2,22 +2,8 @@
 #include	<cstddef>
 #include	<iostream>
 
-/*
-** Construct an empty EventLoop.
-**
-** Handlers are added later through addHandler().
-*/
-EventLoop::EventLoop(){}
 
-/*
-** Destroy the EventLoop and release all remaining handlers.
-**
-** Any handlers still owned by the event loop are deleted
-** before the handler list is cleared.
-**
-** The EventLoop assumes ownership of every handler passed
-** to addHandler(), making it responsible for cleanup.
-*/
+EventLoop::EventLoop(){}
 
 EventLoop::~EventLoop()
 {
@@ -31,15 +17,6 @@ EventLoop::~EventLoop()
 	_handlers.clear();
 }
 
-/*
-** Register a new handler with the event loop.
-**
-** The handler will be included in future poll() calls
-** and receive events when its file descriptor becomes ready.
-**
-** Ownership is transferred to the EventLoop, which is
-** responsible for deleting the handler during cleanup.
-*/
 void	EventLoop::addHandler(EventHandler *handler)
 {
 	_handlers.push_back(handler);
@@ -63,23 +40,19 @@ void	EventLoop::run()
 	while (true)
 	{
 		buildPollFds();
-
 		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
-
 		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
 	
 		if(pollReady == -1)
 		{
 			std::cout << "[EVENTLOOP] poll() error" << std::endl;
-			//	this still has to be handled
+			//	TODO (danny) : HANDLE ERROR for edge case poll()
 			std::cout << "edgecase poll() returned -1. handle error" << std::endl;
-			continue ;	//	skips dispatch
+			continue ;
 		}
 		std::cout << "[EVENTLOOP] " << pollReady << " fd(s) ready" << std::endl;
-
 		dispatch();
 		removeClosedHandlers();
-
 		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
 	}
 }
@@ -142,7 +115,7 @@ void	EventLoop::dispatch()
 		//	check immediately if there's something to write and call handleWrite() in the same dispatch cycle.
 
 		if (_pollfds[i].revents & POLLERR)
-			_handlers[i]->isClosed(); // mark for cleanup
+			_handlers[i]->isClosed();
 
 		i++;
 	}
@@ -169,7 +142,7 @@ void	EventLoop::removeClosedHandlers()
 		{
 			std::cout << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
 			delete _handlers[i];
-			_handlers.erase(_handlers.begin() + i);	//	ereases element from vector and shifts left
+			_handlers.erase(_handlers.begin() + i);
 		}
 		else
 			i++;

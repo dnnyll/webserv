@@ -52,9 +52,7 @@ void	HttpRequest::resolveBodyState()
 		std::istringstream ss(headers["Content-Length"]);
 		ss >> contentLength;
 
-		//	insert here if (bodyLength > _maxBodySize)
-		//	_state = ERROR_STATE
-		
+		//	TODO (danny): insert here if (bodyLength > _maxBodySize), _state = ERROR_ST, 
 		_state = BODY;
 	}
 	else
@@ -99,8 +97,3 @@ void	HttpRequest::decodeHeaders()
 		debugParse("HEADERS", "remaining buffer size", _buffer.size());
 	}
 }
-
-
-// decodeBody();
-
-// decodeChunked();

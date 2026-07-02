@@ -14,16 +14,16 @@
 */
 void	HttpRequest::decodeBody()
 {
+
 	std::cout << "=====\tdecodeBody()" << std::endl;
 
 	debugParse("BODY", "buffer size", _buffer.size());
 	debugParse("BODY", "contentLength", contentLength);
 	debugParse("BODY", "already read", _bodyBytesRead);
 
-	//	TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//	add check if (contentLength > _maxBodySize)
+	//	TODO (danny): add check if (contentLength > _maxBodySize)
+	//	add _maxBodySize private member of HttpRequest, set either in the constructor or via a setter once config is available.	
 	//	_state = ERROR_STATE
-	// add _maxBodySize private member of HttpRequest, set either in the constructor or via a setter once config is available.
 
 	size_t	bytesNeeded = contentLength - _bodyBytesRead;
 	size_t	bytesAvailable = _buffer.size();
