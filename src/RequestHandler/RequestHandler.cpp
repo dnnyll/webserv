@@ -8,7 +8,7 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 
 HttpResponse RequestHandler::process()
 {
-	if (!setLocation())
+	if (setLocation())
 	{
 		//quel erreur ?
 		std::cout << "erreur de setLocation" << std::endl;
@@ -20,9 +20,14 @@ HttpResponse RequestHandler::process()
 		return (_response);
 	}
 	_pathAbsolute = getPathAbsolute(_request.uri, _location->root, _location->path);
-	if (!checkPermission())
+	if (checkPermission())
 	{
 		std::cout << "erreur de checkPermission" << std::endl;
+		//fonction de return
+	}
+	if (checkFile())
+	{
+		std::cout << "pas de file ou si directory pas dindex correspondant" << std::endl;
 		//fonction de return
 	}
 	//check si fichier ou dossier exist

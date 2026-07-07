@@ -32,7 +32,7 @@ int	RequestHandler::setLocation()
 		if(!_config.root.empty())
 		{
 			_location = &(*_config.locations.begin());//retour de la premiere location /
-			return (1);
+			return (0);
 		}
 		else
 		{
