@@ -17,7 +17,7 @@ HttpResponse RequestHandler::process()
 	if (_request.uri.empty() || _location->root.empty() || _location->path.empty())
 	{
 		std::cout << "empty requestUri | locationRoot | locationPath" << std::endl;
-		return (_response)
+		return (_response);
 	}
 	_pathAbsolute = getPathAbsolute(_request.uri, _location->root, _location->path);
 	if (!checkPermission())
