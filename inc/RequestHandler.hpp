@@ -15,10 +15,11 @@ class	RequestHandler
 		const Location		*_location;	//reference ou ptr ?????
 		std::string			_pathAbsolute;
 
-		int					setLocation();
+		int					populateLocation();
+		int					checkMethod();
 		std::string			getPathAbsolute(std::string uri, std::string root,
 								std::string path);
-		int					checkPermission();
+		int					checkFileExist();
 		//void	handleGet();
 		//void	handlePost();
 		//void	handleDelete();

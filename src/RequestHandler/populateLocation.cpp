@@ -8,7 +8,7 @@ static size_t	getCharMatching(std::string requestLocation, std::string configLoc
 	return (i);
 }
 
-int	RequestHandler::setLocation()
+int	RequestHandler::populateLocation()
 {
 	std::vector<Location>::const_iterator iter = _config.locations.begin();
 	size_t	tempNbChar = 0;
