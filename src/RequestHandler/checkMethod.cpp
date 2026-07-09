@@ -2,7 +2,7 @@
 
 int RequestHandler::checkMethod()
 {
-	std::vector<std::string>const_iterator iter = _location->methods.begin(); 
+	std::vector<std::string>::const_iterator iter = _location->methods.begin(); 
 
 	while (iter != _location->methods.begin())
 	{

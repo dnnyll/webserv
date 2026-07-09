@@ -1,4 +1,5 @@
 #include "RequestHandler.hpp"
+#include <sys/stat.h>
 
 int	RequestHandler::checkFileExist()
 {
@@ -7,10 +8,10 @@ int	RequestHandler::checkFileExist()
 	if (stat(_pathAbsolute.c_str(), &statbuf) == -1)
 	{
 		if (errno == ENOENT)
-			return (1); //not found
+			return (1); //not found 404
 		if (errno == EACCES)
-			return (1); //forbidden
-		return INTERNAL_SERVER_ERROR;//???????????
+			return (1); //forbidden 403
+		return 1;//???????????
 	}
 	if (S_ISREG(statbuf.st_mode))
 		return (0); //fichier
@@ -18,45 +19,15 @@ int	RequestHandler::checkFileExist()
 	{
 		//dossier 
 		//index autoindex etc
+		//si index a cette location je prend 
+		//sinon index du server config
+		//si aucun des 2 nexiste 
+		//alors autoindex
+		//si on
+		//		listing
+		//si off
+		//		403
 	}
-
-
-	
-//	URI
-// │
-// ▼
-//Construire le chemin physique
-// │
-// ▼
-//stat(path)
-// │
-// ├── erreur ENOENT → 404
-// ├── erreur EACCES → 403
-// │
-// ▼
-//Est-ce un fichier ?
-// │
-// ├── Oui → OK, servir ce fichier
-// │
-// └── Non (c'est un dossier)
-//         │
-//         ▼
-//La location possède un index ?
-//         │
-//         ├── Oui
-//         │      essayer chaque index (index.html, index.htm, ...)
-//         │      │
-//         │      ├── trouvé → servir cet index
-//         │      └── aucun trouvé → continuer
-//         │
-//         ▼
-//Le serveur possède un index par défaut ?
-//         │
-//         ├── Oui → essayer de le trouver
-//         │
-//         ▼
-//Autoindex activé ?
-//         │
-//         ├── Oui → générer le listing
-//         └── Non → 403 (ou selon les exigences du projet)
+	else
+		return 1; //403
 }

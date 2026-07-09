@@ -8,12 +8,13 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 
 HttpResponse RequestHandler::process()
 {
-	if (populateLocation())
+	if (populateLocation()) //match la location la plus proche
 	{
 		//quel erreur ?
 		std::cout << "erreur de populateLocation" << std::endl;
 		//fonction de return
 	}
+	//fonction qui complete server+location avec root index autoindex
 	if (checkMethod())
 	{
 		std::cout << "method not allowed" << std::endl;
@@ -34,3 +35,12 @@ HttpResponse RequestHandler::process()
 	std::cout << "fin de process" << std::endl;
 	return (_response);
 }
+
+router
+	choisir la location la plus specifique 
+resolver
+	construire la config effective (root index autoindex method)
+filesystem
+	resoudre le chemin disque + stat/index/autoindex
+responder
+	construire la reponse
