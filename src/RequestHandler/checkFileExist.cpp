@@ -27,6 +27,7 @@ int	RequestHandler::checkFileExist()
 		//		listing
 		//si off
 		//		403
+		return 0;
 	}
 	else
 		return 1; //403

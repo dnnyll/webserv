@@ -8,7 +8,7 @@ int main(void)
 
 	RequestHandler a(r, c);
 
-	a.process();
+	a.processRequest();
 	std::cout << "ok im working" << std::endl;
 	return (1);
 }
