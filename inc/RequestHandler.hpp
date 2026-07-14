@@ -23,7 +23,7 @@ typedef struct s_EffectiveConfig
 	std::string					index;
 	bool						autoindex;
 	std::vector<std::string>	methods;
-
+	int							status;
 } t_EffectiveConfig;
 
 class	RequestHandler
@@ -39,7 +39,7 @@ class	RequestHandler
 		std::string			_pathAbsolute;
 
 		//router
-		int					getLocation();
+		const Location*		getLocation();
 		//void				verifier redirection();
 
 

@@ -1,38 +1,36 @@
 #include "RequestHandler.hpp"
 
-static size_t	getDirectoryMatching(std::string requestLocation,
-		std::string configLocation)
+static int	matchLocation(const std::string &uri, const std::string &path)
 {
-	size_t	i = 0;
-	size_t	dir = 0;
-	while (requestLocation[i] == configLocation[i])
-	{
-		i++;
-		if (requestLocation[i] == '/')
-			dir++;
-	}
-	return (dir);
+	if (uri.empty() || path.empty())
+		return (0);
+	if (uri.size() < path.size())
+		return (0);
+	if  (uri.compare(0, path.size(), path))
+		return (0);
+	if (uri.size() != path.size() && path[path.size() - 1] != '/'
+			&& uri[path.size()] != '/')
+		return (0);
+	return 1;
 }
 
-int	RequestHandler::getLocation()
+const Location*	RequestHandler::getLocation()
 {
 	std::vector<Location>::const_iterator iter = _config.locations.begin();
-	size_t	tempNbDir = 0;
-	size_t	nbDirLocation = 0;
-	const Location *actLocation = NULL;
+	size_t	bestPathLocation = 0;
+	const Location *bestLocation = NULL;
 
 	while (iter != _config.locations.end())
 	{
-		tempNbDir = getDirectoryMatching(_request.uri, iter->path);
-		if (tempNbDir > nbDirLocation)
+		if (matchLocation(_request.uri, iter->path)
 		{
-			nbDirLocation = tempNbDir;
-			actLocation = &(*iter);
-			if (actLocation->path == _request.uri)
-				break;
+			if (bestLocation == NULL || iter->path.size() > bestPathLocation)
+			{
+				bestPathLocation = iter->path.size();
+				bestLocation = &(*iter);
+			}
 		}
 		iter++;
 	}
-	//dir = 1?
-	return (actLocation);
+	return (bestLocation);
 }
