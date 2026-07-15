@@ -22,7 +22,7 @@ const Location*	RequestHandler::getLocation()
 
 	while (iter != _config.locations.end())
 	{
-		if (matchLocation(_request.uri, iter->path)
+		if (matchLocation(_request.uri, iter->path))
 		{
 			if (bestLocation == NULL || iter->path.size() > bestPathLocation)
 			{

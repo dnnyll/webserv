@@ -23,6 +23,7 @@ HttpResponse RequestHandler::processRequest()
 		//405 methode not allowed
 		//fonction de return
 	}
+	//a changer
 	if (_request.uri.empty() || _location->root.empty() || _location->path.empty())
 	{
 		std::cout << "empty requestUri | locationRoot | locationPath" << std::endl;

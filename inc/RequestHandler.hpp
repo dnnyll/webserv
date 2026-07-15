@@ -7,7 +7,7 @@
 
 enum	EffectiveConfig
 {
-	FILE,
+	FILE_,
 	INDEX_FOUND,
 	AUTOINDEX,
 	NOT_FOUND,
@@ -21,8 +21,8 @@ typedef struct s_EffectiveConfig
 	std::string					path;
 	std::string					root;
 	std::string					index;
-	bool						autoindex;
 	std::vector<std::string>	methods;
+	bool						autoindex;
 	int							status;
 } t_EffectiveConfig;
 
@@ -32,7 +32,7 @@ class	RequestHandler
 		const HttpRequest	&_request;
 		const ServerBlock	&_config;
 
-		T_EffectiveConfig	_effconf;
+		t_EffectiveConfig	_effconf;
 		HttpResponse		_response;
 
 		const Location		*_location;
