@@ -10,26 +10,19 @@ HttpResponse RequestHandler::processRequest()
 {
 	this->_location = getLocation();
 	resolverBuildConfig();
-
-
-
-
-
-
-	
 	if (checkMethod())
-	{
-		std::cout << "method not allowed" << std::endl;
-		//405 methode not allowed
-		//fonction de return
-	}
-	//a changer
-	if (_request.uri.empty() || _location->root.empty() || _location->path.empty())
+		std::cout << " 405 method not allowed" << std::endl;
+	if (this->_request.uri.empty() || this->_effconf.root.empty()
+			|| this->_effconf.path.empty())
 	{
 		std::cout << "empty requestUri | locationRoot | locationPath" << std::endl;
 		return (_response);
 	}
-	_pathAbsolute = getPathAbsolute(_request.uri, _location->root, _location->path);
+	_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
+			this->_effconf.path);
+
+
+
 	if (checkFileExist())
 	{
 		std::cout << "pas de file ou si directory pas dindex correspondant" << std::endl;
