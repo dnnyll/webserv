@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 static Location parse_location(const std::vector<std::string> &tokens, size_t &i)
 {

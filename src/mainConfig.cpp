@@ -54,7 +54,7 @@ int	main(void)
 		try
 		{
 			Config	config;
-			config.parse("../config_files/server.conf");
+			config.parse("config_files/server.conf");
 			return event_loop(config);
 		}
 		catch(const std::exception& e)
