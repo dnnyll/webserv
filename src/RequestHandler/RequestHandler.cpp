@@ -20,14 +20,10 @@ HttpResponse RequestHandler::processRequest()
 	}
 	_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
 			this->_effconf.path);
+	resolveFileSystem();
 
 
 
-	if (checkFileExist())
-	{
-		std::cout << "pas de file ou si directory pas dindex correspondant" << std::endl;
-		//fonction de return
-	}
 	std::cout << "fin de process" << std::endl;
 	return (_response);
 }

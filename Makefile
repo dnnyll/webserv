@@ -19,7 +19,8 @@ SRCS			= main.cpp\
 				  RequestHandler/resolverBuildConfig.cpp\
 				  RequestHandler/getPathAbsolute.cpp\
 				  RequestHandler/checkMethod.cpp\
-				  RequestHandler/checkFileExist.cpp
+				  RequestHandler/resolveFileSystem.cpp\
+				  RequestHandler/resolveDirectory.cpp
 				 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)

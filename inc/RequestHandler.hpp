@@ -5,11 +5,10 @@
 #include "HttpResponse.hpp"
 #include "Config.hpp"
 
-enum	EffectiveConfig
+enum	FileSystemStatus
 {
-	FILE_,
-	INDEX_FOUND,
-	AUTOINDEX,
+	FILE_FOUND,
+	DIRECTORY_LISTING,
 	NOT_FOUND,
 	FORBIDDEN,
 	CGI_NEEDED,
@@ -23,7 +22,7 @@ typedef struct s_EffectiveConfig
 	std::string					index;
 	std::vector<std::string>	methods;
 	bool						autoindex;
-	int							status;
+	FileSystemStatus			status;
 } t_EffectiveConfig;
 
 class	RequestHandler
@@ -51,7 +50,7 @@ class	RequestHandler
 								std::string path);
 
 		//filesystem
-		int					checkFileExist();
+		void				resolveFileSystem();
 
 		//responder
 
