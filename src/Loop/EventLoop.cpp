@@ -54,6 +54,7 @@ void	EventLoop::run()
 		dispatch();
 		removeClosedHandlers();
 		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
+		// break ;
 	}
 }
 
@@ -107,7 +108,8 @@ void	EventLoop::dispatch()
 
 	while (i < _pollfds.size())
 	{
-		if (_pollfds[i].revents & POLLIN)
+		std::cout << "[DISPATCH] fd=" << _pollfds[i].fd << " revents=" << _pollfds[i].revents << std::endl;
+		if (_pollfds[i].revents & POLLIN && _pollfds[i].fd >= 0)
 			_handlers[i]->handleRead();
 
 		//	check immediately if there's something to write and call handleWrite() in the same dispatch cycle.

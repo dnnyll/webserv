@@ -14,16 +14,18 @@ CXXFLAGS += -DDEBUG
 endif
 
 # sources and objects
-SRCS			=	mainConfig.cpp \
+SRCS			=	mainEventLoopConfig.cpp \
+					Config/check_path.cpp \
+					Config/Config.cpp \
+					Handlers/AcceptHandler.cpp \
+					Handlers/ClientHandler.cpp \
 					HttpMessage.cpp \
 					HttpRequest/HttpRequestDecodeBody.cpp \
 					HttpRequest/HttpRequestDecodeChunked.cpp \
 					HttpRequest/HttpRequest.cpp \
 					HttpRequest/HttpRequestDecodeRequestLine.cpp \
 					HttpRequest/HttpRequestDecodeHeaders.cpp \
-					Config/check_path.cpp \
-					Config/Config.cpp \
-					Loop/event_loop.cpp
+					Loop/EventLoop.cpp
 
 
 

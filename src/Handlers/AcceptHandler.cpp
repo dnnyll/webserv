@@ -2,12 +2,16 @@
 #include	"../inc/AcceptHandler.hpp"
 #include	"../inc/ClientHandler.hpp"
 #include	"../inc/EventHandler.hpp"
+#include	"../inc/Config.hpp"
+// #include	"../inc/EventLoop.hpp"
 #include	<iostream>
 #include	<sys/socket.h>
 #include	<fcntl.h>
 #include	<netinet/in.h>
 #include	<unistd.h>
-
+#include	<arpa/inet.h>
+#include	<cerrno>
+#include	<cstring>
 /*
 ** Create a listening socket handler.
 **
@@ -17,9 +21,10 @@
 ** After construction, the socket is bound to the requested
 ** port and ready to accept incoming connections.
 */
-AcceptHandler::AcceptHandler(int port, EventLoop &reactor) : _reactor(reactor)
+AcceptHandler::AcceptHandler(int port, const std::string &host, EventLoop &reactor) : _reactor(reactor)
 {
-	setupSocket(port);
+	setupSocket(port, host);
+	std::cout << "[ACCEPTHANDLER] _fd = " << _fd << std::endl;
 }
 
 /*
@@ -120,22 +125,39 @@ void	AcceptHandler::handleWrite()
 ** are queued by the kernel until handleRead() accepts
 ** them.
 */
-void	AcceptHandler::setupSocket(int port)
+void AcceptHandler::setupSocket(int port, const std::string &host)
 {
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
+    _fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (_fd < 0)
+    {
+        std::cerr << "socket() failed: " << strerror(errno) << std::endl;
+        return ;
+    }
 
-	int	opt = 1;
-	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    int opt = 1;
+    setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-	sockaddr_in	addr;
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(port);
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    if (host.empty() || host == "0.0.0.0")
+        addr.sin_addr.s_addr = INADDR_ANY;
+    else
+        addr.sin_addr.s_addr = inet_addr(host.c_str());
+    addr.sin_port = htons(port);
 
-	bind(_fd, (sockaddr*)&addr, sizeof(addr));
-	listen(_fd, 10);
+    if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
+    {
+        std::cerr << "bind() failed: " << strerror(errno) << std::endl;
+        return ;
+    }
 
-	std::cout << "listening on " << port << "..." << std::endl;
+    if (listen(_fd, 10) < 0)
+    {
+        std::cerr << "listen() failed: " << strerror(errno) << std::endl;
+        return ;
+    }
+
+    std::cout << "listening on " << host << ":" << port << "..." << std::endl;
 }
 
 /*
