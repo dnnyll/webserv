@@ -9,7 +9,7 @@ static std::string	chooseBestValue(const std::string &official, const std::strin
 }
 
 //construction de la effconfig
-void	RequestHandler::resolverBuildConfig()
+void	RequestHandler::resolveBuildConfig()
 {
 	if (!this->_location)
 	{

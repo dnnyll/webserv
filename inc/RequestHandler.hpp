@@ -43,21 +43,21 @@ class	RequestHandler
 
 
 		//resolver
-		void	resolverBuildConfig();
+		void				resolveBuildConfig();
 
 		int					checkMethod();
 		std::string			getPathAbsolute(std::string uri, std::string root,
 								std::string path);
 
 		//filesystem
+		void				resolveDirectory();
 		void				resolveFileSystem();
 
 		//responder
+		void				handleGet();
+		void				handlePost();
+		void				handleDelete();
 
-
-		//void	handleGet();
-		//void	handlePost();
-		//void	handleDelete();
 		//bool executeCGI();
 		//void	generateErrorPage(int statusCode);
 

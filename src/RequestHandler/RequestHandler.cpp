@@ -9,22 +9,29 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 HttpResponse RequestHandler::processRequest()
 {
 	this->_location = getLocation();
-	resolverBuildConfig();
+	resolveBuildConfig();
 	if (checkMethod())
-		std::cout << " 405 method not allowed" << std::endl;
+	{
+		this->_response = HttpResponse::make(405, "Method not allowed");
+		return (_response);
+	}
 	if (this->_request.uri.empty() || this->_effconf.root.empty()
 			|| this->_effconf.path.empty())
 	{
-		std::cout << "empty requestUri | locationRoot | locationPath" << std::endl;
+		this->_response = HttpResponse::make(500, "Interal Server Error");
 		return (_response);
 	}
 	_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
 			this->_effconf.path);
 	resolveFileSystem();
-
-
-
-	std::cout << "fin de process" << std::endl;
+	if (this->_request.method == "GET")
+		handleGet();
+	else if (this->_request.method == "POST")
+		handlePost();
+	else if (this->_request.method == "DELETE")
+		handleDelete();
+	else
+		this->_response = HttpResponse::make(501, "Not Implemented");
 	return (_response);
 }
 

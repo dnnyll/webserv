@@ -1,10 +1,11 @@
 #include "RequestHandler.hpp"
+#include <sys/stat.h>
 
 void	RequestHandler::resolveDirectory()
 {
 	struct stat	statbuf;
 
-	if (!this->_effconf.index.empty())
+	if (this->_effconf.index.empty())
 	{
 		if (this->_effconf.autoindex)
 			this->_effconf.status = DIRECTORY_LISTING;
@@ -15,7 +16,7 @@ void	RequestHandler::resolveDirectory()
 
 	std::string	indexPath = this->_pathAbsolute;
 
-	if (indexPath.back() != '/')
+	if (indexPath[indexPath.size() - 1] != '/')
 		indexPath += "/";
 	indexPath += this->_effconf.index;
 	if (stat(indexPath.c_str(), &statbuf) == -1)

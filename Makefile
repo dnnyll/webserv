@@ -16,11 +16,14 @@ SRCS			= main.cpp\
 				  HttpResponse.cpp\
 				  RequestHandler/RequestHandler.cpp\
 				  RequestHandler/getLocation.cpp\
-				  RequestHandler/resolverBuildConfig.cpp\
+				  RequestHandler/resolveBuildConfig.cpp\
 				  RequestHandler/getPathAbsolute.cpp\
 				  RequestHandler/checkMethod.cpp\
 				  RequestHandler/resolveFileSystem.cpp\
-				  RequestHandler/resolveDirectory.cpp
+				  RequestHandler/resolveDirectory.cpp\
+				  RequestHandler/handleGet.cpp\
+				  RequestHandler/handlePost.cpp\
+				  RequestHandler/handleDelete.cpp
 				 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
