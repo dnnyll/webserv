@@ -2,7 +2,6 @@
 #include    "../inc/AcceptHandler.hpp"
 #include    "../inc/Config.hpp"
 #include	<iostream>
-
 int main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -15,20 +14,21 @@ int main(int argc, char **argv)
 	config.parse(argv[1]);
 
 	EventLoop reactor;
-	std::vector<AcceptHandler*> listeners;
 
 	const std::vector<ServerBlock> &servers = config.getServers();
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		AcceptHandler	*listener = new AcceptHandler(servers[i].port, servers[i].host, reactor);
-		listeners.push_back(listener);
+		AcceptHandler *listener = new AcceptHandler(servers[i].port, servers[i].host, reactor);
+		if (listener->getFd() < 0)
+		{
+			std::cerr << "Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
+			delete listener;
+			return (1);
+		}
 		reactor.addHandler(listener);
 	}
 
 	reactor.run();
-
-	for (size_t i = 0; i < listeners.size(); i++)
-		delete listeners[i];
 
 	return (0);
 }
