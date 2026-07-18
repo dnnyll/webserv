@@ -1,5 +1,5 @@
-#include "../inc/event_loop.hpp"
-#include "../inc/Config.hpp"
+#include "../../inc/event_loop.hpp"
+#include "../../inc/Config.hpp"
 #include <cerrno>
 
 static void	add_client(int socket_fd, std::vector<struct pollfd> &fds, std::map<int, Client> &clients)

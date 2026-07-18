@@ -34,3 +34,5 @@ class	Client
 };
 
 #endif
+
+//à supprimer - not use
