@@ -48,6 +48,18 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 	return loc;
 }
 
+static void check_config_value(ServerBlock server)
+{
+	if (server.port < 1 || server.port > 65535)
+		throw Config::ConfigException("The server " + server.server_name + " has a wrong port number, must be between 1 and 65535");
+	//if (server.host) check host is a IP adresse or localhost
+	if (server.root.empty())
+		throw Config::ConfigException("Server block missing 'root' directive");
+	if (server.client_max_body_size < 0)
+		throw Config::ConfigException("client_max_body_size cannot be negative");
+	if (server.)
+}
+
 static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &i)
 {
 	ServerBlock server;
@@ -86,6 +98,10 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 		throw Config::ConfigException("Expected '}' to close server block");
 
 	i++;
+
+	//check all value
+	check_config_value(server);
+
 	return server;
 }
 
@@ -127,6 +143,7 @@ static std::vector<std::string> tokenize(const std::string &filepath)
 	return tokens;
 }
 
+//a ajouter, check si deux serveur ont le meme host, port, name -> exception !!
 void Config::parse(const std::string &filepath)
 {
 	std::vector<std::string> tokens = tokenize(filepath);
@@ -155,3 +172,5 @@ const std::vector<ServerBlock>& Config::getServers() const
 {
 	return _servers;
 }
+
+//port valable entre 1 et 65535

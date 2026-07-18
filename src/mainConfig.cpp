@@ -1,9 +1,10 @@
 #include <iostream>
 #include "../inc/check_path.hpp"
 #include "../inc/Config.hpp"
-#include "../inc/event_loop.hpp"
+#include "../inc/EventLoop.hpp"
+#include "../inc/AcceptHandler.hpp"
 
-int	main(void)
+int	main(int argc, char* argv[])
 {
 	/*{
 		std::cout << "---------TEST CONFIG FILE---------" << std::endl;
@@ -49,19 +50,38 @@ int	main(void)
 			return (1);
 		}
 	}*/
+	if (argc != 2)
 	{
-		std::cout << "---------------- EVENT LOOP -------------------" << std::endl;
-		try
+		std::cerr << "Usage: ./webserv <config_file>" << std::endl;
+		return (1);
+	}
+
+	try
+	{
+		Config config;
+		config.parse(argv[1]);
+
+		EventLoop reactor;
+		std::vector<AcceptHandler*> listeners;
+
+		const std::vector<ServerBlock> &servers = config.getServers();
+		for (size_t i = 0; i < servers.size(); i++)
 		{
-			Config	config;
-			config.parse("config_files/server.conf");
-			return event_loop(config);
+			AcceptHandler	*listener = new AcceptHandler(servers[i].port, servers[i].host, reactor);
+			listeners.push_back(listener);
+			reactor.addHandler(listener);
 		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
+
+		reactor.run();
+
+		for (size_t i = 0; i < listeners.size(); i++)
+			delete listeners[i];
+
 		return (0);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
 	}
 
 }
