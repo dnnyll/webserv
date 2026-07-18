@@ -127,37 +127,37 @@ void	AcceptHandler::handleWrite()
 */
 void AcceptHandler::setupSocket(int port, const std::string &host)
 {
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (_fd < 0)
-    {
-        std::cerr << "socket() failed: " << strerror(errno) << std::endl;
-        return ;
-    }
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
+	{
+		std::cerr << "socket() failed: " << strerror(errno) << std::endl;
+		return ;
+	}
 
-    int opt = 1;
-    setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	int opt = 1;
+	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    if (host.empty() || host == "0.0.0.0")
-        addr.sin_addr.s_addr = INADDR_ANY;
-    else
-        addr.sin_addr.s_addr = inet_addr(host.c_str());
-    addr.sin_port = htons(port);
+	sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	if (host.empty() || host == "0.0.0.0")
+		addr.sin_addr.s_addr = INADDR_ANY;
+	else
+		addr.sin_addr.s_addr = inet_addr(host.c_str());
+	addr.sin_port = htons(port);
 
-    if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
-    {
-        std::cerr << "bind() failed: " << strerror(errno) << std::endl;
-        return ;
-    }
+	if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
+	{
+		std::cerr << "bind() failed: " << strerror(errno) << std::endl;
+		return ;
+	}
 
-    if (listen(_fd, 10) < 0)
-    {
-        std::cerr << "listen() failed: " << strerror(errno) << std::endl;
-        return ;
-    }
+	if (listen(_fd, 10) < 0)
+	{
+		std::cerr << "listen() failed: " << strerror(errno) << std::endl;
+		return ;
+	}
 
-    std::cout << "listening on " << host << ":" << port << "..." << std::endl;
+	std::cout << "listening on " << host << ":" << port << "..." << std::endl;
 }
 
 /*

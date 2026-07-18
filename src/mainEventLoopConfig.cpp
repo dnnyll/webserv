@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 	const std::vector<ServerBlock> &servers = config.getServers();
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		AcceptHandler *listener = new AcceptHandler(servers[i].port, servers[i].host, reactor);
+		AcceptHandler	*listener = new AcceptHandler(servers[i].port, servers[i].host, reactor);
 		listeners.push_back(listener);
 		reactor.addHandler(listener);
 	}
