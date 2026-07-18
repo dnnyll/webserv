@@ -28,10 +28,8 @@ AcceptHandler::AcceptHandler(int port, const std::string &host, EventLoop &react
 }
 
 /*
-** Cleanup for the listening socket.
-**
-** Closes the server socket and stops accepting new
-** client connections.
+	Cleanup for the listening socket.
+	Closes the server socket and stops accepting new client connections.
 */
 AcceptHandler::~AcceptHandler()
 {
