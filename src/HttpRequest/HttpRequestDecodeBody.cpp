@@ -21,10 +21,6 @@ void	HttpRequest::decodeBody()
 	debugParse("BODY", "contentLength", contentLength);
 	debugParse("BODY", "already read", _bodyBytesRead);
 
-	//	TODO (danny): add check if (contentLength > _maxBodySize)
-	//	add _maxBodySize private member of HttpRequest, set either in the constructor or via a setter once config is available.	
-	//	_state = ERROR_STATE
-
 	size_t	bytesNeeded = contentLength - _bodyBytesRead;
 	size_t	bytesAvailable = _buffer.size();
 

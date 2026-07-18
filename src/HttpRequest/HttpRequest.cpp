@@ -7,11 +7,16 @@ HttpRequest::HttpRequest()
 	, _chunkSize(0)
 	, _state(REQUEST_LINE)
 	, _bodyBytesRead(0)
+	, _maxBodySize(1000000)
 {
 	(void)_bodyBytesRead;
 }
 
-
+//	sets maxbodysize from Config
+void	HttpRequest::setMaxBodySize(size_t size)
+{
+	_maxBodySize = size;
+}
 //	append incoming bytes to internal buffer
 //	the buffer may already contain leftover bytes from last call
 bool	HttpRequest::getData(const std::string& chunk)

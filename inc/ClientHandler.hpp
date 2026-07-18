@@ -3,6 +3,7 @@
 
 #include	"../inc/HttpRequest.hpp"
 #include	"../inc/EventHandler.hpp"
+#include	"../inc/Config.hpp"
 
 /*
 ** ClientHandler
@@ -22,7 +23,7 @@
 class	ClientHandler : public	EventHandler
 {
 	public:
-		ClientHandler(int fd);
+		ClientHandler(int fd, const ServerBlock &sBlock);
 		~ClientHandler();
 
 		void	handleRead();

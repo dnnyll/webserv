@@ -3,6 +3,7 @@
 
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/EventLoop.hpp"
+#include	"../inc/Config.hpp"
 #include	<string>
 
 /*
@@ -43,12 +44,11 @@ class	AcceptHandler : public	EventHandler
 	private:
 		int			_fd;
 		EventLoop	&_reactor;
-		
+		ServerBlock _serverBlock;
+
 	//	methods
 	public:
-		AcceptHandler(int port, const std::string &host, EventLoop &reactor);
-		//means "a reference to an EventLoop, and I'll refer to it as reactor inside this class." 
-		//The & binds to the type, not the variable name.
+		AcceptHandler(const ServerBlock &block, EventLoop &reactor);
 		~AcceptHandler();
 
 		//	virtual overwritten methods

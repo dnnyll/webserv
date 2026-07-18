@@ -90,6 +90,8 @@ class	HttpRequest :public HttpMessage
 		//	accumulates the hex size line in chunked parsing
 		//	"1a\r\n" → parsed to size_t → then read that many bytes
 
+		size_t			_maxBodySize;
+		//	gets the value from -> Config -> AcceptHandler -> ClientHandler
 
 	//	methods
 
@@ -102,6 +104,9 @@ class	HttpRequest :public HttpMessage
 		// parseBody(std::stringsteam input);
 
 		// static void		decode(HttpMessage &msg, int stop_at = HttpMessage::decoding_done);
+
+		void	setMaxBodySize(size_t size);
+		//	set MaxBodySize from Config parsing ServerBlock: client_max_body_size
 
 		bool	getData(const std::string& chunk);
 		// append new raw bytes from recv() to internal buffer

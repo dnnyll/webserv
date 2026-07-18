@@ -52,7 +52,11 @@ void	HttpRequest::resolveBodyState()
 		std::istringstream ss(headers["Content-Length"]);
 		ss >> contentLength;
 
-		//	TODO (danny): insert here if (bodyLength > _maxBodySize), _state = ERROR_ST, 
+		if (contentLength > _maxBodySize)
+		{
+			_state = ERROR_STATE;
+			return ;
+		}
 		_state = BODY;
 	}
 	else

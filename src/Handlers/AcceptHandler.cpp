@@ -3,7 +3,6 @@
 #include	"../inc/ClientHandler.hpp"
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/Config.hpp"
-// #include	"../inc/EventLoop.hpp"
 #include	<iostream>
 #include	<sys/socket.h>
 #include	<fcntl.h>
@@ -21,9 +20,9 @@
 ** After construction, the socket is bound to the requested
 ** port and ready to accept incoming connections.
 */
-AcceptHandler::AcceptHandler(int port, const std::string &host, EventLoop &reactor) : _reactor(reactor)
+AcceptHandler::AcceptHandler(const ServerBlock &block, EventLoop &reactor) : _reactor(reactor), _serverBlock(block)
 {
-	setupSocket(port, host);
+	setupSocket(block.port, block.host);
 	std::cout << "[ACCEPTHANDLER] _fd = " << _fd << std::endl;
 }
 
@@ -91,8 +90,7 @@ void	AcceptHandler::handleRead()
 
 	std::cout << "[ACCEPTHANDLER] new client connected, fd=" << clientFd << std::endl;
 
-	ClientHandler	*client = new ClientHandler(clientFd);
-	_reactor.addHandler(client);
+	ClientHandler *client = new ClientHandler(clientFd, _serverBlock);	_reactor.addHandler(client);
 
 	std::cout << "[ACCEPTHANDLER] ClientHandler created and registered" << std::endl;
 }

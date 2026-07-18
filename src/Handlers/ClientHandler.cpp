@@ -1,12 +1,14 @@
 #include	"../inc/ClientHandler.hpp"
 #include	"../inc/EventHandler.hpp"
+#include	"../inc/Config.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
-ClientHandler::ClientHandler(int fd) : _fd(fd)
+ClientHandler::ClientHandler(int fd, const ServerBlock &block) : _fd(fd)
 {
 	_keepAlive = true;
 	_isClosed = false;
+	_request.setMaxBodySize(block.client_max_body_size);
 }
 
 ClientHandler::~ClientHandler()
