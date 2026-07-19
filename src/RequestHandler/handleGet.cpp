@@ -4,21 +4,25 @@
 
 void	RequestHandler::handleGet()
 {
-	std::ifstream	file(_pathAbsolute.c_str());
 
-	if (!file.is_open())
+	switch (this->_effconf.status)
 	{
-		//sorry not sorry
-	}
-	std::stringstream	buffer;
-	buffer << file.rdbuf();
-	std::string	content = buffer.str();
-
-//	switch (this->_effconf.status)
-//	{
-//		case FILE_FOUND:
-//			this->_response = HttpResponse::make(/*code*/, /*message*/);
-//			break;
+		case FILE_FOUND:
+		{
+			std::ifstream	file(_pathAbsolute.c_str());
+		
+			if (!file.is_open())
+			{
+				this->_response = HttpResponse::make(500, "Internal Server Error");
+				break;
+			}
+			std::stringstream	buffer;
+			buffer << file.rdbuf();
+			std::string	content = buffer.str();
+			this->_response = HttpResponse::make(200, "OK");
+			this->_response.body = content;
+			break;
+		}
 //		case DIRECTORY_LISTING:
 //			this->_response = HttpResponse::make(/*code*/, /*message*/);
 //			break;
@@ -34,6 +38,6 @@ void	RequestHandler::handleGet()
 //		case ERROR:
 //			this->_response = HttpResponse::make(/*code*/, /*message*/);
 //			break;
-//
-//	}
+
+	}
 }
