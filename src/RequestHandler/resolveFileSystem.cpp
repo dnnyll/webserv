@@ -18,7 +18,12 @@ void	RequestHandler::resolveFileSystem()
 	if (S_ISREG(statbuf.st_mode))
 		this->_effconf.status = FILE_FOUND;
 	else if (S_ISDIR(statbuf.st_mode))	//directory
-		resolveDirectory();
+	{
+		if (this->_request.method == "DELETE")
+			this->_effconf.status = FORBIDDEN;
+		else
+			resolveDirectory();
+	}
 	else
 		this->_effconf.status = ERROR;
 }

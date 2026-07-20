@@ -6,7 +6,7 @@ static std::string	getFileTypeFromPath(const std::string &path)
 {
 	size_t	dotPos = path.rfind('.');
 
-	if (dotPos == std::string::npos)
+	if (dotPos == std::string::npos) //val de npos == -1
 		return ("");
 	return (path.substr(dotPos + 1));
 }
@@ -66,19 +66,19 @@ void	RequestHandler::handleGet()
 			break;
 		}
 		case DIRECTORY_LISTING:
-		//	this->_response = HttpResponse::make(/*code*/, /*message*/);
+			this->_response = HttpResponse::make(501, "Not Implemented"); //TODO list
 			break;
 		case NOT_FOUND:
-		//	this->_response = HttpResponse::make(/*code*/, /*message*/);
+			this->_response = HttpResponse::make(404, "Not Found");
 			break;
 		case FORBIDDEN:
-		//	this->_response = HttpResponse::make(/*code*/, /*message*/);
+			this->_response = HttpResponse::make(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
-			//executeCGI();
+			//executeCGI(); //TODO
 			break;
 		case ERROR:
-		//	this->_response = HttpResponse::make(/*code*/, /*message*/);
+			this->_response = HttpResponse::make(500, "Internal Server Error");
 			break;
 
 	}
