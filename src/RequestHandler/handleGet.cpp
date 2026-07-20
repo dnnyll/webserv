@@ -14,7 +14,7 @@ static std::string	getFileTypeFromPath(const std::string &path)
 //mime multimedia internet mail extension
 static std::string	getContentType(const std::string &path)
 {
-	std::map<std::string, std::stringt> mimeTypes;
+	std::map<std::string, std::string> mimeTypes;
 	mimeTypes["html"] = "text/html";
 	mimeTypes["css"] = "text/css";
 	mimeTypes["js"] = "application/javascript";
@@ -22,7 +22,7 @@ static std::string	getContentType(const std::string &path)
 	mimeTypes["jpg"] = "image/jpeg";
 	mimeTypes["txt"] = "text/plain";
 
-	std::string fileType = getFileTypFromPath(path);
+	std::string fileType = getFileTypeFromPath(path);
 	std::map<std::string, std::string>::const_iterator iter = mimeTypes.find(fileType);
 	if (iter == mimeTypes.end())
 		return ("application/octet-stream");
@@ -53,7 +53,7 @@ void	RequestHandler::handleGet()
 
 			this->_response = HttpResponse::make(200, "OK");
 			this->_response.body = content;
-			this->_response.headers["Content-Length"] = length.Stream.str();
+			this->_response.headers["Content-Length"] = lengthStream.str();
 			this->_response.headers["Content-Type"] 
 				= getContentType(this->_pathAbsolute);
 
