@@ -1,0 +1,1 @@
+./webserv config_files : works without any file .config_files

@@ -1,7 +1,16 @@
 #include	"../inc/EventLoop.hpp"
 #include	<cstddef>
 #include	<iostream>
+#include	<csignal>
 
+static bool	g_isRunning = true;
+
+static void	signalHandler(int sig)
+{
+	(void)sig;
+	std::cout << std::endl;
+	g_isRunning = false;
+}
 
 EventLoop::EventLoop(){}
 
@@ -37,7 +46,10 @@ void	EventLoop::addHandler(EventHandler *handler)
 */
 void	EventLoop::run()
 {
-	while (true)
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+
+	while (g_isRunning)
 	{
 		buildPollFds();
 		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
@@ -45,6 +57,11 @@ void	EventLoop::run()
 	
 		if(pollReady == -1)
 		{
+			if (!g_isRunning)
+			{
+				std::cout << "[EVENTLOOP] signal killed (ctrl+c)" << std::endl;
+				break ;
+			}
 			std::cout << "[EVENTLOOP] poll() error" << std::endl;
 			//	TODO (danny) : HANDLE ERROR for edge case poll()
 			std::cout << "edgecase poll() returned -1. handle error" << std::endl;
@@ -56,6 +73,7 @@ void	EventLoop::run()
 		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
 		// break ;
 	}
+	std::cout << "Server shutting down cleanly..." << std::endl;
 }
 
 /*
