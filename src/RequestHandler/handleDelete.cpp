@@ -6,7 +6,7 @@ void	RequestHandler::handleDelete()
 	switch (this->_effconf.status)
 	{
 		case FILE_FOUND:
-			if (!std::remove(this->_pathAbsolute.c_str()))
+			if (std::remove(this->_pathAbsolute.c_str()))
 				this->_response = HttpResponse::make(500, "Internal Server Error");
 			else
 				this->_response = HttpResponse::make(200, "OK");
