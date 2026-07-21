@@ -1,7 +1,8 @@
-#include    "../inc/EventLoop.hpp"
-#include    "../inc/AcceptHandler.hpp"
-#include    "../inc/Config.hpp"
+#include	"../inc/EventLoop.hpp"
+#include	"../inc/AcceptHandler.hpp"
+#include	"../inc/Config.hpp"
 #include	<iostream>
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
