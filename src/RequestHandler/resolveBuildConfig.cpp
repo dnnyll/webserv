@@ -29,4 +29,7 @@ void	RequestHandler::resolveBuildConfig()
 	else
 		this->_effconf.methods = this->_config.methods;
 	this->_effconf.autoindex = this->_location->autoindex;
+	this->_effconf.upload_store = this->_location->upload_store;
+	this->_effconf.client_max_body_size = this->_config.client_max_body_size;
+	//gerer aussi le upload store !!!!!!!!!!
 }

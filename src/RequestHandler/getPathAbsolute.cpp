@@ -3,6 +3,8 @@
 std::string	RequestHandler::getPathAbsolute(std::string uri, std::string root,
 						 std::string locationPath)
 {
+	if (uri.find("..") != std::string::npos)
+		return ("");
 	return (uri.replace(0, locationPath.size(), root, 0, root.size()));
 }
 //basic_string& replace( size_type pos, size_type count,

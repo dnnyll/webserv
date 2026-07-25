@@ -23,6 +23,8 @@ typedef struct s_EffectiveConfig
 	std::vector<std::string>	methods;
 	bool						autoindex;
 	FileSystemStatus			status;
+	std::string					upload_store;
+	size_t						client_max_body_size;
 } t_EffectiveConfig;
 
 class	RequestHandler
