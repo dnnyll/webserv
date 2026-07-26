@@ -13,11 +13,22 @@ HttpResponse::HttpResponse(): statusCode("200"), statusMessage("OK"){}
 
 std::string	HttpResponse::serialize() const
 {
-	//	temporary hardcoded response, so Alfavre can test loop
-	//	real implementation will be added here by Daniefe2
-	//
-	//	real implementation must:
-	//		build status line:    "HTTP/1.1 200 OK\r\n"
+	std::string	statusLine;
+	std::string headerStr;
+	std::string	bodyStr;
+	std::string	responseStr;
+
+
+	//iter sur map de header pour remplir headerStr;
+	statusLine = this->version + this->statusCode + " "
+		+ this->statusMessage + "\r\n";
+	headerStr = "Content-Type: " + this->headers["Content-Type"] + "\r\n";
+	headerStr += "Content-Length: " + this->headers["Content-Length"] + "\r\n";
+	headerStr += "Connection: " + this->headers["Connection"] + "\r\n";
+	bodyStr = this
+
+		this->body;
+
 	//		iterate headers map:  "Content-Type: text/html\r\n"
 	//		always add:           "Content-Length: {body.size()}\r\n"
 	//		always add:           "Connection: keep-alive\r\n"
@@ -25,10 +36,7 @@ std::string	HttpResponse::serialize() const
 	//		add blank line:       "\r\n"
 	//		append body
 	//
-	return ("HTTP/1.1 200 OK\r\n\r\nh1");
-	//	stub: returns hardcoded response
-	//	Alfavre uses this to confirm the loop works end to end
-	//	Daniefe2 replaces this with real implementation
+	return (/*??*/);
 }
 
 HttpResponse	HttpResponse::make(int code, const std::string& message)

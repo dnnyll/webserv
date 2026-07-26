@@ -1,7 +1,7 @@
 #include	"HttpMessage.hpp"
 
 //  ── constructor ──────────────────────────────────────────────────────
-HttpMessage::HttpMessage()
+HttpMessage::HttpMessage() : version("HTTP/1.1")
 {
 	//	version, headers, body all default-constructed
 	//	string → empty, map → empty
