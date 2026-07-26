@@ -1,11 +1,5 @@
-/*
-	This is responsible for building the server’s reply to the client. 
-	It takes a status code, headers, and body, and converts everything into a properly 
-	formatted HTTP response string.
-	In the end, it produces the exact bytes that will be sent back over the socket.
-*/
-
 #include	"HttpResponse.hpp"
+#include	<sstream>
 
 //	constructor ──────────────────────────────────────────────────────
 
@@ -37,25 +31,15 @@ std::string	HttpResponse::serialize() const
 	//	Daniefe2 replaces this with real implementation
 }
 
-
-//	make ─────────────────────────────────────────────────────────────
-
 HttpResponse	HttpResponse::make(int code, const std::string& message)
 {
-	//	factory method for quick error/status responses
-	//	Router calls this instead of building responses manually:
-	//		return HttpResponse::make(404, "Not Found");
-	//
-	//	real implementation will build a minimal HTML body:
-	//		"404 Not Found"
-	//	and set Content-Type: text/html
-	//
 	HttpResponse	response;
-	response.statusCode = code;
+	std::stringstream	ss;
+
+	ss << code;
+	response.statusCode = ss.str();
 	response.statusMessage = message;
 	response.body = message;
-	//	stub: body is just the message string
-	//	real implementation builds a proper HTML error page
 	return (response);
 }
 

@@ -35,7 +35,7 @@ void	RequestHandler::handlePost()
 		this->_response = HttpResponse::make(400, "Bad Request");
 		return ;
 	}
-	struct stat	dirStat; //TODO faire en 2 fois parce que pas ok
+	struct stat	dirStat;
 	if (stat(this->_effconf.upload_store.c_str(), &dirStat) == -1
 			|| !S_ISDIR(dirStat.st_mode))
 	{
