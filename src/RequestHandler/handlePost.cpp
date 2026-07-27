@@ -39,7 +39,7 @@ void	RequestHandler::handlePost()
 	if (stat(this->_effconf.upload_store.c_str(), &dirStat) == -1
 			|| !S_ISDIR(dirStat.st_mode))
 	{
-		this->_response = HttpResponse::make(404, "Not Found");
+		this->_response = HttpResponse::make(500, "Internal Server Error");
 		return ;
 	}
 	this->_pathAbsolute = this->_effconf.upload_store;

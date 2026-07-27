@@ -58,7 +58,6 @@ void	RequestHandler::handleGet()
 				= getContentType(this->_pathAbsolute);
 
 
-			//version	written into status line "HTTP/1.1"
 			//body
 				//populated by Router
 					//file contents, error page, CGI output
