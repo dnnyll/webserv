@@ -15,36 +15,6 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
-
-/*
-enum HttpMethod
-{
-	METHOD_GET,
-	METHOD_POST,
-	METHOD_DELETE,
-	METHOD_UNKNOWN
-};
-
-			HttpMessage
-			───────────
-			headers
-			body
-			version
-		/         \
-HttpRequest       HttpResponse
-───────────       ────────────
-method            statusCode
-uri               statusMessage
-_state            serialize()
-_buffer           make()
-contentLength
-isChunked
-feed()
-isComplete()
-hasError()
-
-*/
-
 class	HttpRequest :public HttpMessage
 {
 	public:
@@ -150,52 +120,3 @@ class	HttpRequest :public HttpMessage
 };
 
 #endif
-
-
-/*
-
-	flow exmple:
-
-	socket recv()
-		↓
-	HttpRequest::feed(chunk)
-		↓
-	parse progressively
-		↓
-	request complete?
-		├── no → wait for more packets
-		└── yes → "request ready"
-
-
-new request
-     │
-     ▼
-REQUEST_LINE
-     │
-     ▼
-HEADERS
-     │
-     ├──────────────► ERROR_STATE
-     │
-     ├─ Content-Length
-     │
-     ▼
-BODY
-     │
-     ▼
-COMPLETE
-
-or
-
-REQUEST_LINE
-     │
-     ▼
-HEADERS
-     │
-     ├─ Transfer-Encoding: chunked
-     ▼
-CHUNKED
-     │
-     ▼
-COMPLETE
-*/

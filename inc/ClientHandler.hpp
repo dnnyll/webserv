@@ -23,7 +23,7 @@
 class	ClientHandler : public	EventHandler
 {
 	public:
-		ClientHandler(int fd, const ServerBlock &sBlock);
+		ClientHandler(int fd, const ServerBlock &Block);
 		~ClientHandler();
 
 		void	handleRead();
@@ -34,6 +34,7 @@ class	ClientHandler : public	EventHandler
 	private:
 		int				_fd;			//	the client's socket fd
 										//	needed for recv()/send()/close(), and to implement getFd()
+		const ServerBlock	&_config;
 		HttpRequest		_request;		//	accumulates incoming bytes, parses them
 										//	holds the parsing state machine across multiple handleRead() calls
 		std::string		_outBuffer;		//	bytes waiting to be sent back

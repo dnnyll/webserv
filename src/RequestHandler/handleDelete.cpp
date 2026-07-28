@@ -1,0 +1,30 @@
+#include "RequestHandler.hpp"
+#include <cstdio>
+
+void	RequestHandler::handleDelete()
+{
+	switch (this->_effconf.status)
+	{
+		case FILE_FOUND:
+			if (std::remove(this->_pathAbsolute.c_str()))
+				this->_response = HttpResponse::make(500, "Internal Server Error");
+			else
+				this->_response = HttpResponse::make(200, "OK");
+			break;
+		case DIRECTORY_LISTING: //normalement impossible
+			this->_response = HttpResponse::make(403, "Forbidden");
+			break;
+		case NOT_FOUND:
+			this->_response = HttpResponse::make(404, "Not Found");
+			break;
+		case FORBIDDEN:
+			this->_response = HttpResponse::make(403, "Forbidden");
+			break;
+		case CGI_NEEDED:
+			//executeCGI(); //TODO
+			break;
+		case ERROR:
+			this->_response = HttpResponse::make(500, "Internal Server Error");
+			break;
+	}
+}

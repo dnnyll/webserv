@@ -13,10 +13,10 @@ struct	Location
 	std::vector<std::string>	methods;
 	bool						autoindex;
 	std::string					upload_store;
-	std::string					cgi_extension;
+	std::string					cgi_extension;//TODO enum cgi none python php
 	std::string					cgi_path;
 	std::string					redirect;
-
+	//size_t						client_max_body_size;
 	Location() : autoindex(false) {}
 };
 
@@ -42,9 +42,12 @@ struct	ServerBlock
 	std::map<int, std::string>	error_pages;
 	std::vector<Location>		locations;
 	std::string					root;
+	std::string					index;
+	std::vector<std::string>	methods;
 	size_t						client_max_body_size;
+	bool						autoindex;
 
-	ServerBlock() : port(0), client_max_body_size(1000000) {}
+	ServerBlock() : port(0), client_max_body_size(1000000), autoindex(false) {}
 };
 
 class	Config

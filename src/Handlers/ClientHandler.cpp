@@ -1,10 +1,12 @@
 #include	"../inc/ClientHandler.hpp"
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/Config.hpp"
+#include	"../inc/RequestHandler.hpp"
+#include	"../inc/HttpResponse.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
-ClientHandler::ClientHandler(int fd, const ServerBlock &block) : _fd(fd)
+ClientHandler::ClientHandler(int fd, const ServerBlock &block) : _fd(fd), _config(block)
 {
 	_keepAlive = true;
 	_isClosed = false;
@@ -75,7 +77,9 @@ void	ClientHandler::handleRead()
 	if (_request.hasError())
 	{
 		std::cout << "ERROR detected, would build error response here" << std::endl;
-		//	TODO (danny): needs implementation -> _outBuffer = errorResponse.serialize();
+		//	TODO ??????? code error response a voir
+		HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
+		_outBuffer = errorResponse.serialize();
 		_keepAlive = false;
 	}
 	else if (_request.isComplete())
@@ -90,11 +94,13 @@ void	ClientHandler::handleRead()
 		std::cout << "  body: "				<< _request.body << std::endl;
 
 		//	TODO (danny): temporary mesure
-		//	needs implementation ->	HttpResponse res = router.route(_request);
-		//							_outBuffer = res.serialize();
+		//	needs implementation ->
+		RequestHandler	createResponse(_request, _config);
+		HttpResponse res = createResponse.processRequest();
+		_outBuffer = res.serialize();
 		//	I need Jule's response
 		
-		_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
+		//_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
 	}
 }
 

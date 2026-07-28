@@ -25,8 +25,18 @@ SRCS			=	mainEventLoopConfig.cpp \
 					HttpRequest/HttpRequest.cpp \
 					HttpRequest/HttpRequestDecodeRequestLine.cpp \
 					HttpRequest/HttpRequestDecodeHeaders.cpp \
-					Loop/EventLoop.cpp
-
+					HttpResponse.cpp\
+					Loop/EventLoop.cpp\
+					RequestHandler/RequestHandler.cpp\
+					RequestHandler/getLocation.cpp\
+					RequestHandler/resolveBuildConfig.cpp\
+					RequestHandler/getPathAbsolute.cpp\
+					RequestHandler/checkMethod.cpp\
+					RequestHandler/resolveFileSystem.cpp\
+					RequestHandler/resolveDirectory.cpp\
+					RequestHandler/handleGet.cpp\
+					RequestHandler/handlePost.cpp\
+					RequestHandler/handleDelete.cpp
 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
