@@ -34,6 +34,7 @@ HttpResponse RequestHandler::processRequest()
 	{
 		this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
 				this->_effconf.path);
+		std::cout << "[DEBUG] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
 		if (this->_pathAbsolute.empty())
 		{
 			this->_response = HttpResponse::make(400, "Bad Request");

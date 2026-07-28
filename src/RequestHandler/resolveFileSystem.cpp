@@ -22,7 +22,7 @@ void	RequestHandler::resolveFileSystem()
 		if (this->_request.method == "DELETE")
 			this->_effconf.status = FORBIDDEN;
 		else
-			resolveDirectory();
+			resolveFileSystemDirectory();
 	}
 	else
 		this->_effconf.status = ERROR;

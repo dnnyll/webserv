@@ -5,6 +5,8 @@ std::string	RequestHandler::getPathAbsolute(std::string uri, std::string root,
 {
 	if (uri.find("..") != std::string::npos)
 		return ("");
+	if (root[root.size() - 1] != '/')
+		root += "/";
 	return (uri.replace(0, locationPath.size(), root, 0, root.size()));
 }
 //basic_string& replace( size_type pos, size_type count,

@@ -33,7 +33,7 @@ SRCS			=	mainEventLoopConfig.cpp \
 					RequestHandler/getPathAbsolute.cpp\
 					RequestHandler/checkMethod.cpp\
 					RequestHandler/resolveFileSystem.cpp\
-					RequestHandler/resolveDirectory.cpp\
+					RequestHandler/resolveFileSystemDirectory.cpp\
 					RequestHandler/handleGet.cpp\
 					RequestHandler/handlePost.cpp\
 					RequestHandler/handleDelete.cpp

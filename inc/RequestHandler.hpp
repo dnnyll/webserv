@@ -52,7 +52,7 @@ class	RequestHandler
 								std::string path);
 
 		//filesystem
-		void				resolveDirectory();
+		void				resolveFileSystemDirectory();
 		void				resolveFileSystem();
 
 		//responder

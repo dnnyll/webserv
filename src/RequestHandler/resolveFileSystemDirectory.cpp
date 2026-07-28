@@ -1,7 +1,7 @@
 #include "RequestHandler.hpp"
 #include <sys/stat.h>
 
-void	RequestHandler::resolveDirectory()
+void	RequestHandler::resolveFileSystemDirectory()
 {
 	struct stat	statbuf;
 
