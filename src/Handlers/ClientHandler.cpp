@@ -68,7 +68,7 @@ void	ClientHandler::handleRead()
 		else
 			std::cout << c;
 	}
-	std::cout << "\n----- END OF CHUNK -----\n";
+	std::cout << "\n----- END OF CHUNK -----\n" << std::endl;
 
 	_request.getData(std::string (buffer, bytesReceived));
 
@@ -76,9 +76,14 @@ void	ClientHandler::handleRead()
 	{
 		std::cout << "ERROR detected, would build error response here" << std::endl;
 		//	TODO (danny): needs implementation -> _outBuffer = errorResponse.serialize();
+		_keepAlive = false;
 	}
 	else if (_request.isComplete())
 	{
+		//	check Connection header before setting response
+		if (_request.headers.count("Connection") && _request.headers["Connection"] == "close")
+			_keepAlive = false;
+
 		std::cout << "Request COMPLETE:"	<< std::endl;
 		std::cout << "  method: "			<< _request.method << std::endl;
 		std::cout << "  uri: "				<< _request.uri << std::endl;

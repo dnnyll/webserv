@@ -82,11 +82,15 @@ void	AcceptHandler::handleRead()
 {
 	int	clientFd = accept(_fd, NULL, NULL);
 
+
+	
 	if (clientFd < 0)
 	{
 		std::cout << "[ACCEPTHANDLER] accept() failed" << std::endl;
 		return ;
 	}
+
+ 	fcntl(clientFd, F_SETFL, O_NONBLOCK); //	sets client socket non-blocking
 
 	std::cout << "[ACCEPTHANDLER] new client connected, fd=" << clientFd << std::endl;
 

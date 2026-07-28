@@ -109,8 +109,7 @@ void	EventLoop::buildPollFds()
 }
 
 /*
-** Dispatch events to the appropriate handlers after p
-oll() returns.
+** Dispatch events to the appropriate handlers after poll() returns.
 **
 ** Iterates through the pollfd array and checks revents on each entry:
 ** POLLIN  — data is available to read  → handleRead()
