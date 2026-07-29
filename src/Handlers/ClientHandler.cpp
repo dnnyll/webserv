@@ -143,7 +143,6 @@ void	ClientHandler::handleWrite()
 		return ;
 	}
 
-	//	very important: we MUST delete what was sent
 	_outBuffer.erase(0, bytesSent);
 
 	if (_outBuffer.empty())
