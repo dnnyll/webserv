@@ -159,10 +159,7 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 				throw Config::ConfigException("Duplicate 'client_max_body_size' directive");
 			if (!is_number(tokens[i]))
 				throw Config::ConfigException("Invalid client_max_body_size value");
-			server.client_max_body_size = std::atoi(tokens[i].c_str());
-			if (server.client_max_body_size < 0)
-				throw Config::ConfigException("client_max_body_size can't be negative");
-			i++;
+			server.client_max_body_size = std::atoi(tokens[i++].c_str());
 			client_max_body_size_set = true;
 		}
 		else if (key == "error_page")
