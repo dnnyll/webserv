@@ -1,6 +1,6 @@
 #include	"HttpRequest.hpp"
 
-// TODO (danny): write this fucking function, dont be lazy
+// TODO (danny): check maxBodySize a prendre de la config
 HttpRequest::HttpRequest()
 	: contentLength(0)
 	, isChunked(false)
@@ -78,10 +78,6 @@ void	HttpRequest::reset()
 	isChunked = false;
 
 	_state = REQUEST_LINE;
-	// TODO (danny): I removed this line to fix a bug. not sure why it works. maybe the bug was elsewhere
-	// must verify before removing the comment.
-	//
-	// _buffer.clear();
 	_bodyBytesRead = 0;
 	_chunkSize = 0;
 }

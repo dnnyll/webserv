@@ -4,3 +4,4 @@ parsing pas ok parce que uri: /etc/passwd
 
 
 post not working with curl -v -X POST http://127.0.0.1:8080/upload.txt -d "contenu de test"
+!!!!!!!!!!!!!!!!!!rejeter post dans upload_store
