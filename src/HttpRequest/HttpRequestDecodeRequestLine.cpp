@@ -49,16 +49,23 @@ bool	HttpRequest::validateRequestLine()
 	}
 
 	if (uri.empty() || uri[0] != '/')
-		{
-			_state = ERROR_STATE;
-			return (false);
-		}
+	{
+		_state = ERROR_STATE;
+		return (false);
+	}
+
+	if (uri.find("..") != std::string::npos)
+	{
+		_state = ERROR_STATE;
+		std::cerr << "found directory traveling '../'" << std::endl;
+		return (false);
+	}
 
 	if (version != "HTTP/1.1")
-		{
-			_state = ERROR_STATE;
-			return (false);
-		}
+	{
+		_state = ERROR_STATE;
+		return (false);
+	}
 
 	return (true);
 }

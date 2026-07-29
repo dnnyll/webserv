@@ -1,4 +1,5 @@
 #include "RequestHandler.hpp"
+#include <cerrno>
 #include <sys/stat.h>
 
 void	RequestHandler::resolveFileSystemDirectory()
