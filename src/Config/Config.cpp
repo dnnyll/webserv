@@ -48,21 +48,67 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 	return loc;
 }
 
-static void check_config_value(ServerBlock server)
+static void expect_value(const std::vector<std::string> &tokens, size_t i, const std::string &key)
 {
-	if (server.port < 1 || server.port > 65535)
-		throw Config::ConfigException("The server " + server.server_name + " has a wrong port number, must be between 1 and 65535");
-	//if (server.host) check host is a IP adresse or localhost
-	if (server.root.empty())
-		throw Config::ConfigException("Server block missing 'root' directive");
-	if (server.client_max_body_size < 0)
-		throw Config::ConfigException("client_max_body_size cannot be negative");
-	if (server.)
+	if (i >= tokens.size())
+		throw Config::ConfigException("Missing value after '" + key + "'");
+}
+
+static bool is_number(const std::string &s)
+{
+	if (s.empty())
+		return (false);
+	size_t start = (s[0] == '-') ? 1 : 0;
+	if (start == s.size())
+		return (false);
+	for (size_t k = start; k < s.size(); ++k)
+		if (!std::isdigit(static_cast<unsigned char>(s[k])))
+			return (false);
+	return (true);
+}
+
+static bool is_valid_ip(const std::string &ip)
+{
+	if (ip == "localhost")
+		return (true);
+	
+	int dots = 0;
+	size_t start = 0;
+
+	for(size_t pos = 0; pos <= ip.size(); ++pos)
+	{
+		if (pos == ip.size() || ip[pos] == '.')
+		{
+			if (pos == start)
+				return (false); //segment vide
+			
+			std::string segment = ip.substr(start, pos - start);
+			if (segment.size() > 3)
+				return false;
+			for (size_t k = 0; k < segment.size(); ++k)
+				if (!std::isdigit(static_cast<unsigned char>(segment[k])))
+					return (false);
+
+			int value = std::atoi(segment.c_str());
+			if (value < 0 || value > 255)
+				return (false);
+
+			if (pos != ip.size())
+				dots++;
+			start = pos + 1;
+		}
+	}
+	return dots == 3;
 }
 
 static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &i)
 {
 	ServerBlock server;
+
+	bool listen_set = false;
+	bool host_set = false;
+	bool root_set = false;
+	bool client_max_body_size_set = false;
 
 	if (tokens[i++] != "{")
 		throw Config::ConfigException("Expected '{' after server");
@@ -72,18 +118,64 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 		std::string key = tokens[i++];
 
 		if (key == "listen")
+		{
+			expect_value(tokens, i, key);
+			if (listen_set)
+				throw Config::ConfigException("Duplicate 'listen' directive");
+			if (!is_number(tokens[i]))
+				throw Config::ConfigException("Invalid port value: " + tokens[i]);
 			server.port = std::atoi(tokens[i++].c_str());
+			listen_set = true;
+		}
 		else if (key == "host")
+		{
+			expect_value(tokens, i, key);
+			if (host_set)
+				throw Config::ConfigException("Duplicate 'host' directive");
+			if (!is_valid_ip(tokens[i]))
+				throw Config::ConfigException("Invalid host/IP: " + tokens[i]);
 			server.host = tokens[i++];
+			host_set = true;
+		}
 		else if (key == "server_name")
+		{
+			expect_value(tokens, i, key);
 			server.server_name = tokens[i++];
+		}
 		else if (key == "root")
+		{
+			expect_value(tokens, i, key);
+			if (root_set)
+				throw Config::ConfigException("Duplicate 'root' directive");
+			if (tokens[i].empty())
+				throw Config::ConfigException("'root' can't be empty");
 			server.root = tokens[i++];
+			root_set = true;
+		}
 		else if (key == "client_max_body_size")
-			server.client_max_body_size = std::atoi(tokens[i++].c_str());
+		{
+			expect_value(tokens, i, key);
+			if (client_max_body_size_set)
+				throw Config::ConfigException("Duplicate 'client_max_body_size' directive");
+			if (!is_number(tokens[i]))
+				throw Config::ConfigException("Invalid client_max_body_size value");
+			server.client_max_body_size = std::atoi(tokens[i].c_str());
+			if (server.client_max_body_size < 0)
+				throw Config::ConfigException("client_max_body_size can't be negative");
+			i++;
+			client_max_body_size_set = true;
+		}
 		else if (key == "error_page")
 		{
+			expect_value(tokens, i, key);
+			if (!is_number(tokens[i]))
+				throw Config::ConfigException("Invalid error_page code: " + tokens[i]);
 			int code = std::atoi(tokens[i++].c_str());
+			if (code < 100 || code > 599)
+				throw Config::ConfigException("error_page code must be between 100 and 599");
+			expect_value(tokens, i, "error_page");
+			if (tokens[i].empty())
+				throw Config::ConfigException("error_page path can't be empty");
 			server.error_pages[code] = tokens[i++];
 		}
 		else if (key == "location")
@@ -94,13 +186,26 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 		if (i < tokens.size() && tokens[i] == ";")
 			i++;
 	}
-	if (tokens[i] != "}")
+	if (i >= tokens.size() || tokens[i] != "}")
 		throw Config::ConfigException("Expected '}' to close server block");
 
 	i++;
 
 	//check all value
-	check_config_value(server);
+	if (!listen_set)
+		throw Config::ConfigException("Server block missing 'listen' directive");
+
+	if (server.port < 1 || server.port > 65535)
+		throw Config::ConfigException("The server " + server.server_name + " has a wrong port number, must be between 1 and 65535");
+
+	if (!root_set)
+		throw Config::ConfigException("Server block missing 'root' directive");
+
+	if (server.locations.empty())
+		throw Config::ConfigException("Server block must define at least one 'location'");
+
+	if (!host_set)
+		server.host = "0.0.0.0";
 
 	return server;
 }
@@ -172,5 +277,3 @@ const std::vector<ServerBlock>& Config::getServers() const
 {
 	return _servers;
 }
-
-//port valable entre 1 et 65535
