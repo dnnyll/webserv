@@ -1,6 +1,7 @@
 #include "RequestHandler.hpp"
 #include <fstream>
 #include <sstream>
+#include <dirent.h>
 
 static std::string	getFileTypeFromPath(const std::string &path)
 {
