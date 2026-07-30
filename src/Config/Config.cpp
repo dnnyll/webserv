@@ -4,50 +4,6 @@
 #include <sstream>
 #include <cstdlib>
 
-static Location parse_location(const std::vector<std::string> &tokens, size_t &i)
-{
-	Location loc;
-	loc.path = tokens[i++]; //le path vient juste après "location"
-
-	if (tokens[i++] != "{")
-		throw Config::ConfigException("Expected '{' after location path");
-	
-	while (i < tokens.size() && tokens[i] != "}")
-	{
-		std::string key = tokens[i++];
-
-		if (key == "root")
-			loc.root = tokens[i++];
-		else if (key == "index")
-			loc.index = tokens[i++];
-		else if (key == "autoindex")
-			loc.autoindex = (tokens[i++] == "on");
-		else if (key == "upload_store")
-			loc.upload_store = tokens[i++];
-		else if (key == "redirect")
-			loc.redirect = tokens[i++];
-		else if (key == "cgi_pass")
-		{
-			loc.cgi_extension	= tokens[i++];
-			loc.cgi_path		= tokens[i++];
-		}
-		else if (key == "methods")
-		{
-			while (i < tokens.size() && tokens[i] != ";")
-				loc.methods.push_back(tokens[i++]);
-		}
-		else
-			throw Config::ConfigException("Unknown location directive: " + key);
-	
-		if (tokens[i] == ";")
-			i++;
-	}
-	if (tokens[i] != "}")
-		throw Config::ConfigException("Expected '}' to close location block");
-	i++;
-	return loc;
-}
-
 static void expect_value(const std::vector<std::string> &tokens, size_t i, const std::string &key)
 {
 	if (i >= tokens.size())
@@ -101,6 +57,112 @@ static bool is_valid_ip(const std::string &ip)
 	return dots == 3;
 }
 
+static Location parse_location(const std::vector<std::string> &tokens, size_t &i)
+{
+	Location loc;
+
+	expect_value(tokens, i, "location");
+	if (tokens[i].empty())
+		throw Config::ConfigException("Location path can't ne empty");
+	loc.path = tokens[i++]; //le path vient juste après "location"
+
+	expect_value(tokens, i, "location path");
+	if (tokens[i++] != "{")
+		throw Config::ConfigException("Expected '{' after location path");
+	
+	bool root_set = false;
+	bool index_set = false;
+	bool autoindex_set = false;
+	bool upload_store_set = false;
+	bool redirect_set = false;
+	bool cgi_pass_set = false;
+	bool methods_set = false;
+	
+	while (i < tokens.size() && tokens[i] != "}")
+	{
+		std::string key = tokens[i++];
+
+		if (key == "root")
+		{
+			expect_value(tokens, i, key);
+			if (root_set)
+				throw Config::ConfigException("Duplicate 'root' directive in location " + loc.path);
+			if (tokens[i].empty())
+				throw Config::ConfigException("'root' can't be empty in location " + loc.path);
+			loc.root = tokens[i++];
+			root_set = true;
+		}
+		else if (key == "index")
+		{
+			expect_value(tokens, i, key);
+			if (index_set)
+				throw Config::ConfigException("Duplicate 'index' directive in location " + loc.path);
+			loc.index = tokens[i++];
+			index_set = true;
+		}
+		else if (key == "autoindex")
+		{
+			expect_value(tokens, i, key);
+			if (autoindex_set)
+				throw Config::ConfigException("Duplicate 'root' directive in location " + loc.path);
+			if (tokens[i] != "on" && tokens[i] != "off")
+				throw Config::ConfigException("'autoindex' must be 'on' or 'off' in location " + loc.path + ", got: " + tokens[i]);
+			loc.autoindex = (tokens[i++] == "on");
+			autoindex_set = true;
+		}
+		else if (key == "upload_store")
+		{
+			expect_value(tokens, i, key);
+			if (upload_store_set)
+				throw Config::ConfigException("Duplicate 'upload_store' directive in location " + loc.path);
+			loc.upload_store = tokens[i++];
+			upload_store_set = true;
+		}
+		else if (key == "redirect")
+		{
+			expect_value(tokens, i, key);
+			if (redirect_set)
+				throw Config::ConfigException("Duplicate 'redirect' directive in location " + loc.path);
+			loc.redirect = tokens[i++];
+			redirect_set = true;
+		}
+		else if (key == "cgi_pass")
+		{
+			if (cgi_pass_set)
+				throw Config::ConfigException("Duplicate 'cgi_pass' directive in location " + loc.path);
+			expect_value(tokens, i, "cgi_pass extension");
+			loc.cgi_extension = tokens[i++];
+			expect_value(tokens, i, "cgi_pass path");
+			loc.cgi_path		= tokens[i++];
+			cgi_pass_set = true;
+		}
+		else if (key == "methods")
+		{
+			if (methods_set)
+				throw Config::ConfigException("Duplicate 'methods' directive in location " + loc.path);
+			while (i < tokens.size() && tokens[i] != ";")
+			{
+				const std::string &m = tokens[i];
+				if (m != "GET" && m != "POST" && m != "DELETE")
+					throw Config::ConfigException("Unsupported HTTP method: " + m);
+				loc.methods.push_back(tokens[i++]);
+			}
+			if (loc.methods.empty())
+				throw Config::ConfigException("'methods' directive can't be empty in location " + loc.path);
+			methods_set = true;
+		}
+		else
+			throw Config::ConfigException("Unknown location directive: " + key);
+	
+		if (i < tokens.size() && tokens[i] == ";")
+			i++;
+	}
+	if (i >= tokens.size() || tokens[i] != "}")
+		throw Config::ConfigException("Expected '}' to close location block");
+	i++;
+	return loc;
+}
+
 static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &i)
 {
 	ServerBlock server;
@@ -116,6 +178,8 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 	while (i < tokens.size() && tokens[i] != "}")
 	{
 		std::string key = tokens[i++];
+
+		std::cout << "DEBUG: key = " << key << std::endl;
 
 		if (key == "listen")
 		{
@@ -195,9 +259,6 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 	if (server.port < 1 || server.port > 65535)
 		throw Config::ConfigException("The server " + server.server_name + " has a wrong port number, must be between 1 and 65535");
 
-	if (!root_set)
-		throw Config::ConfigException("Server block missing 'root' directive");
-
 	if (server.locations.empty())
 		throw Config::ConfigException("Server block must define at least one 'location'");
 
@@ -245,6 +306,24 @@ static std::vector<std::string> tokenize(const std::string &filepath)
 	return tokens;
 }
 
+static void validate_root_inheritance(const std::vector<ServerBlock> &servers)
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		const ServerBlock &server = servers[i];
+
+		for(size_t j = 0; j < server.locations.size(); ++i)
+		{
+			const Location &loc = server.locations[j];
+
+			if (loc.root.empty() && server.root.empty())
+			{
+				throw Config::ConfigException("No 'root' defined for location \"" + loc.path + "\" and no server-level fallback");
+			}
+		}
+	}
+}
+
 //a ajouter, check si deux serveur ont le meme host, port, name -> exception !!
 void Config::parse(const std::string &filepath)
 {
@@ -261,6 +340,8 @@ void Config::parse(const std::string &filepath)
 		else
 			throw Config::ConfigException("Expected 'server' block, got : " + tokens[i]);
 	}
+
+	validate_root_inheritance(_servers);
 
 	for (size_t s = 0; s < _servers.size(); s++)
 	{
