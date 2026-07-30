@@ -3,10 +3,14 @@
 #include	"../inc/Config.hpp"
 #include	"../inc/RequestHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
+#include	"../inc/EventLoop.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
-ClientHandler::ClientHandler(int fd, const ServerBlock &block) : _fd(fd), _config(block)
+ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reactor)
+	: _fd(fd),
+	_config(block),
+	_reactor(reactor)
 {
 	_keepAlive = true;
 	_isClosed = false;
@@ -18,32 +22,6 @@ ClientHandler::~ClientHandler()
 	close(_fd);
 }
 
-/*
-** Read incoming data from the client socket.
-**
-** recv() copies available bytes from the kernel socket buffer into a
-** temporary local buffer. The received data is then passed to the
-** HttpRequest parser, which accumulates bytes across multiple reads
-** until a complete HTTP request is available.
-**
-** Possible outcomes:
-**
-** - recv() == 0:
-**     Client performed a clean disconnect.
-**
-** - recv() < 0:
-**     Socket error occurred.
-**
-** - request parser detects an error:
-**     An HTTP error response should be generated.
-**
-** - request becomes complete:
-**     Build a response and store it in _outBuffer.
-**     Actual sending happens later in handleWrite().
-**
-** This function only receives and parses data.
-** It does not send anything back to the client.
-*/
 void	ClientHandler::handleRead()
 {
 	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
@@ -93,57 +71,48 @@ void	ClientHandler::handleRead()
 		std::cout << "  uri: "				<< _request.uri << std::endl;
 		std::cout << "  body: "				<< _request.body << std::endl;
 
-		//	TODO (danny): 	needs CGI questioning implementation
-		//					if not CGI:	_outBuffer = res.serialize
-		//					if CGI:		 
-		/*								gets CgiInfo (script path, env vars, and body to forward)
-										creates a CgiHandler with the CGI pipes
-										schedules it in the reactor
-										does not set _outBuffer yet (or sets it later when CGI output is ready)
-										prevents handleWrite() from sending a “normal” response prematurely
 
+		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
 
-		*/
+		// RequestHandler handler(_request, _config);
+
+		// RequestResult result = handler.processRequest();
+
+		// switch (result.action)
+		// {
+		// 	case ACTION_RESPONSE:
+		// 		_outBuffer = result.response.serialize();
+		// 		break;
+
+		// 	case ACTION_CGI:
+		// 		CgiHandler	*cgi = new CgiHandler(result.cgi, this);
+		// 		_reactor.addHandler(cgi);
+		// 		break;
+		// }
+		
+		// or
+
+		// RequestHandler handler(_request, _config);
+
+		// handler.processRequest();
+
+		// if (handler.isCGI())
+		// {
+		// 	CgiInfo info = handler.getCgiInfo();
+		// }
+		// else
+		// {
+		// 	HttpResponse res = handler.getResponse();
+		// }
+		
+		//
+		
 		RequestHandler	createResponse(_request, _config);
 		HttpResponse res = createResponse.processRequest();
 		_outBuffer = res.serialize();
-		/*	TODO (danny):	replace previous 3 lines
-							if CGI:
-								build CgiInfo (via Router)
-								create CgiHandler(...)
-								mark client handler as “waiting for CGI” (so handleWrite() won’t run yet)
-							else:
-								keep current createResponse logic
-		*/
-		
-		//_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
 	}
 }
 
-/*
-** Send pending response data to the client.
-**
-** _outBuffer contains serialized HTTP response bytes waiting to be
-** transmitted. Because sockets may be non-blocking, send() might
-** write only part of the buffer.
-**
-** After each successful send:
-**
-** - remove the bytes that were transmitted
-** - keep the remaining bytes for the next write event
-**
-** Once the entire response has been sent:
-**
-** - if keep-alive is enabled:
-**       reset the request parser and wait for another request on the
-**       same TCP connection
-**
-** - otherwise:
-**       mark the connection for closure
-**
-** This function never generates responses; it only transmits bytes
-** already prepared by handleRead().
-*/
 void	ClientHandler::handleWrite()
 {
 	std::cout << "[CLIENTHANDLER] handleWrite() fd=" << _fd << std::endl;
@@ -163,10 +132,6 @@ void	ClientHandler::handleWrite()
 
 	if (_outBuffer.empty())
 	{
-		//	TODO (danny):	create a flag to wait for CGI to be complete before writing
-		//					might not be needed at all
-		// if (_waitCgi)	
-		// 	return ;
 		if (_keepAlive)
 			_request.reset();
 		else
