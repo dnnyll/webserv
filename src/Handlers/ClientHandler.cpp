@@ -93,12 +93,28 @@ void	ClientHandler::handleRead()
 		std::cout << "  uri: "				<< _request.uri << std::endl;
 		std::cout << "  body: "				<< _request.body << std::endl;
 
-		//	TODO (danny): temporary mesure
-		//	needs implementation ->
+		//	TODO (danny): 	needs CGI questioning implementation
+		//					if not CGI:	_outBuffer = res.serialize
+		//					if CGI:		 
+		/*								gets CgiInfo (script path, env vars, and body to forward)
+										creates a CgiHandler with the CGI pipes
+										schedules it in the reactor
+										does not set _outBuffer yet (or sets it later when CGI output is ready)
+										prevents handleWrite() from sending a “normal” response prematurely
+
+
+		*/
 		RequestHandler	createResponse(_request, _config);
 		HttpResponse res = createResponse.processRequest();
 		_outBuffer = res.serialize();
-		//	I need Jule's response
+		/*	TODO (danny):	replace previous 3 lines
+							if CGI:
+								build CgiInfo (via Router)
+								create CgiHandler(...)
+								mark client handler as “waiting for CGI” (so handleWrite() won’t run yet)
+							else:
+								keep current createResponse logic
+		*/
 		
 		//_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
 	}
@@ -147,6 +163,10 @@ void	ClientHandler::handleWrite()
 
 	if (_outBuffer.empty())
 	{
+		//	TODO (danny):	create a flag to wait for CGI to be complete before writing
+		//					might not be needed at all
+		// if (_waitCgi)	
+		// 	return ;
 		if (_keepAlive)
 			_request.reset();
 		else
