@@ -26,28 +26,28 @@ HttpResponse RequestHandler::processRequest()
 		this->_response = HttpResponse::make(500, "Internal Server Error");
 		return (this->_response);
 	}
-	if (this->_request.method == "POST") //ou est ce que je gere l'upload store
+	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
+			this->_effconf.path);
+	std::cout << "[DEBUG ROUTER] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
+	if (this->_pathAbsolute.empty()) //TODO si methode POST ne pas sortir
 	{
+		this->_response = HttpResponse::make(400, "Bad Request");
+		return (this->_response);
+	}
+	resolveFileSystem(); //TODO
+	if (this->_effconf.status == CGI_NEEDED)
+	{
+		//executeCGI();
+		std::cout << "[DEBUG CGI] is a CGI" << std::endl;
+	}
+	else if (this->_request.method == "POST")
 		handlePost();
-	}
+	else if (this->_request.method == "GET")
+		handleGet();
+	else if (this->_request.method == "DELETE")
+		handleDelete();
 	else
-	{
-		this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
-				this->_effconf.path);
-		std::cout << "[DEBUG] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
-		if (this->_pathAbsolute.empty())
-		{
-			this->_response = HttpResponse::make(400, "Bad Request");
-			return (this->_response);
-		}
-		resolveFileSystem();
-		if (this->_request.method == "GET")
-			handleGet();
-		else if (this->_request.method == "DELETE")
-			handleDelete();
-		else
-			this->_response = HttpResponse::make(501, "Not Implemented");
-	}
+		this->_response = HttpResponse::make(501, "Not Implemented");
 	return (this->_response);
 }
 

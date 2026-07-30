@@ -97,6 +97,7 @@ void	ClientHandler::handleRead()
 		//	needs implementation ->
 		RequestHandler	createResponse(_request, _config);
 		HttpResponse res = createResponse.processRequest();
+		//TODO (jules) if CGI -> executeCGI
 		_outBuffer = res.serialize();
 		//	I need Jule's response
 		

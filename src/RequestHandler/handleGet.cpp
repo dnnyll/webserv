@@ -3,15 +3,6 @@
 #include <sstream>
 #include <dirent.h>
 
-static std::string	getFileTypeFromPath(const std::string &path)
-{
-	size_t	dotPos = path.rfind('.');
-
-	if (dotPos == std::string::npos) //val de npos == -1
-		return ("");
-	return (path.substr(dotPos + 1));
-}
-
 //mime multimedia internet mail extension
 static std::string	getContentType(const std::string &path)
 {
@@ -23,7 +14,7 @@ static std::string	getContentType(const std::string &path)
 	mimeTypes["jpg"] = "image/jpeg";
 	mimeTypes["txt"] = "text/plain";
 
-	std::string fileType = getFileTypeFromPath(path);
+	std::string fileType = RequestHandler::getFileTypeFromPath(path);
 	std::map<std::string, std::string>::const_iterator iter = mimeTypes.find(fileType);
 	if (iter == mimeTypes.end())
 		return ("application/octet-stream");
