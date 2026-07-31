@@ -39,8 +39,10 @@ HttpResponse RequestHandler::processRequest()
 	{
 		//executeCGI();
 		//TODO ou est ce que make (000, "CGI") ??
-		this->_response = HttpResponse::make(-1, "CGI");
-		std::cout << "[DEBUG CGI] is a CGI" << std::endl;
+		//this->_response = HttpResponse::make(-1, "CGI");
+		//obj cgi
+		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
+		return NULL;
 	}
 	else if (this->_request.method == "POST")
 		handlePost();
