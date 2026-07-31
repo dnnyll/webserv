@@ -77,7 +77,8 @@ void	ClientHandler::handleRead()
 	if (_request.hasError())
 	{
 		std::cout << "ERROR detected, would build error response here" << std::endl;
-		//	TODO ??????? code error response a voir
+		//	TODO (jules) code error response a voir
+		// TODO (jules) si request a une erreur ne doit pas quitter
 		HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
 		_outBuffer = errorResponse.serialize();
 		_keepAlive = false;
