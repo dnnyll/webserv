@@ -77,13 +77,24 @@ void	ClientHandler::handleRead()
 		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
 
 		RequestHandler	createResponse(_request, _config);
-		HttpResponse res = createResponse.processRequest();
-		if (res.statusMessage == "CGI")
+		HttpResponse	res;
+		
+		CgiInfo cgi;
+		bool isCgi = createResponse.processRequest(res, cgi);
+		if (isCgi)
 		{
 			std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-			// CgiHandler	*cgi = new CgiHandler(void);
-			// _reactor.addHandler(cgi);
+			CgiHandler* cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
+			_reactor.addHandler(cgiHandler);
+			// CgiHandler will fill _outBuffer asynchronously via _reactor.}
 		}
+
+		// if (res.statusMessage == "CGI")
+		// {
+		// 	std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
+		// 	// CgiHandler	*cgi = new CgiHandler(void);
+		// 	// _reactor.addHandler(cgi);
+		// }
 		else
 		{
 			std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
