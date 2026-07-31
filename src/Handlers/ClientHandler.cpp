@@ -78,27 +78,21 @@ void	ClientHandler::handleRead()
 
 		RequestHandler	createResponse(_request, _config);
 		HttpResponse	res;
+		CgiInfo 		cgi;
 		
-		CgiInfo cgi;
-		bool isCgi = createResponse.processRequest(res, cgi);
-		if (isCgi)
+		ResponseType type = createResponse.processRequest(res, cgi);
+		switch (type)
 		{
-			std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-			CgiHandler* cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
-			_reactor.addHandler(cgiHandler);
-			// CgiHandler will fill _outBuffer asynchronously via _reactor.}
-		}
-
-		// if (res.statusMessage == "CGI")
-		// {
-		// 	std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-		// 	// CgiHandler	*cgi = new CgiHandler(void);
-		// 	// _reactor.addHandler(cgi);
-		// }
-		else
-		{
-			std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
-			_outBuffer = res.serialize();
+			case CGI_PENDING:
+				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
+				(void)cgi;
+				//CgiHandler* cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
+				//_reactor.addHandler(cgiHandler);
+				// CgiHandler will fill _outBuffer asynchronously via _reactor.}
+				break;
+			case RESPONSE_READY:
+				std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
+				_outBuffer = res.serialize();
 		}
 	}
 }

@@ -6,19 +6,19 @@
 #include	<sys/types.h>
 #include	<ctime>
 
-// TODO(jules): stock information in new structure during routing/response
-/*
-	// CgiInfo.hpp
-	#include <string>
-	#include <vector>
+//TODO(jules): stock information in new structure during routing/response
 
-	struct CgiInfo
-	{
-		std::string scriptPath;			// full path to script/executable
-		std::string interpreterPath;	// program to exec (e.g. /usr/bin/php-cgi)
-		std::vector<std::string> env;	// KEY=VALUE strings for execve
-	};
-*/
+ // CgiInfo.hpp
+ #include <string>
+ #include <vector>
+
+ struct CgiInfo
+ {
+ 	std::string scriptPath;			// full path to script/executable
+ 	std::string interpreterPath;	// program to exec (e.g. /usr/bin/php-cgi)
+ 	std::vector<std::string> env;	// KEY=VALUE strings for execve
+ };
+
 
 // TODO(danny): build cgihandler prototype
 

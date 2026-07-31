@@ -4,6 +4,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Config.hpp"
+#include "CgiHandler.hpp"
 
 enum	FileSystemStatus
 {
@@ -63,14 +64,13 @@ class	RequestHandler
 		void				handlePost();
 		void				handleDelete();
 
-		//bool executeCGI();
 		//void	generateErrorPage(int statusCode);
 
 	public:
 		static std::string			getFileTypeFromPath(const std::string &path);
 		RequestHandler(const HttpRequest &request, const ServerBlock &config);
 
-		HttpResponse	processRequest();
+		ResponseType	processRequest(HttpResponse &res, CgiInfo &cgi);
 };
 
 
