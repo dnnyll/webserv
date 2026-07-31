@@ -2,6 +2,8 @@
 #include	<cstddef>
 #include	<iostream>
 #include	<csignal>
+#include	<cerrno>
+#include	<cstring>
 
 static bool	g_isRunning = true;
 
@@ -33,16 +35,15 @@ void	EventLoop::addHandler(EventHandler *handler)
 }
 
 /*
-** Main event-processing loop.
-**
-** Repeats indefinitely:
-**     1. rebuild the pollfd array from active handlers
-**     2. wait in poll() until at least one fd is ready
-**     3. dispatch ready events to their handlers
-**     4. remove handlers marked for closing
-**
-** poll() blocks indefinitely (-1 timeout) until an event occurs.
-** If poll() fails, the iteration is skipped and the loop continues.
+	Main event-processing loop.
+	Runs indefinitely while the server is marked as running:
+	1) rebuild the pollfd array from the current set of active handlers
+	2) block in poll() until at least one fd becomes ready (timeout = -1)
+	3) dispatch ready events to their corresponding handlers
+	4) remove handlers that have been marked for closing
+	If poll() fails:
+	- when errno == EINTR, the loop continues (signal interrupted the wait)
+	- for other errors, the loop breaks and the server shuts down
 */
 void	EventLoop::run()
 {
@@ -53,19 +54,39 @@ void	EventLoop::run()
 	{
 		buildPollFds();
 		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
+		std::cout << "[EVENTLOOP] pollfds.size()=" << _pollfds.size() << std::endl;
+
+	if (_pollfds.empty())
+	{
+		std::cout << "[EVENTLOOP] _pollfds.empty() " << std::endl;
+		continue;
+	}
+
+		
 		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
 	
 		if(pollReady == -1)
 		{
+
+			 std::cout << "[EVENTLOOP][RUN] errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
+
 			if (!g_isRunning)
 			{
-				std::cout << "[EVENTLOOP] signal killed (ctrl+c)" << std::endl;
+				std::cout << "[EVENTLOOP][RUN] signal killed (potentially ctrl+c)" << std::endl;
 				break ;
 			}
-			std::cout << "[EVENTLOOP] poll() error" << std::endl;
-			//	TODO (danny) : HANDLE ERROR for edge case poll()
-			std::cout << "edgecase poll() returned -1. handle error" << std::endl;
-			continue ;
+
+			// EINTR means poll() was interrupted by a signal while it was blocking.
+			// this is not necessarily fatal, so we retry by continuing the loop.
+			if (errno == EINTR)
+			{
+				std::cout << "[EVENTLOOP][RUN] pollReady == -1 & errno == EINTR" << std::endl;
+				continue ;
+			}
+			// Any other errno means poll() failed for a “real” reason (not just interruption).
+			// We treat it as unrecoverable, log it, and stop the server loop.
+			std::cout << "[EVENTLOOP][RUN] poll() error: " << std::strerror(errno) << std::endl;
+			break ;
 		}
 		std::cout << "[EVENTLOOP] " << pollReady << " fd(s) ready" << std::endl;
 		dispatch();
@@ -77,16 +98,15 @@ void	EventLoop::run()
 }
 
 /*
-** Build the pollfd array from the current list of handlers.
-**
-** Called at the start of each event loop iteration to
-** reflect the current state of all active handlers.
-** Clears the previous array and rebuilds it fresh since
-** handlers can be added or removed between iterations.
-**
-** POLLIN  is always registered — every handler can receive data.
-** POLLOUT is only registered when the handler has data to send,
-** to avoid waking up poll() unnecessarily.
+	Build the pollfd array from the current list of handlers.
+	Called at the start of each event loop iteration to
+	reflect the current state of all active handlers.
+	Clears the previous array and rebuilds it fresh since
+	handlers can be added or removed between iterations.
+
+	POLLIN  is always registered — every handler can receive data.
+	POLLOUT is only registered when the handler has data to send,
+	to avoid waking up poll() unnecessarily.
 */
 void	EventLoop::buildPollFds()
 {
@@ -109,15 +129,15 @@ void	EventLoop::buildPollFds()
 }
 
 /*
-** Dispatch events to the appropriate handlers after poll() returns.
-**
-** Iterates through the pollfd array and checks revents on each entry:
-** POLLIN  — data is available to read  → handleRead()
-** POLLOUT — fd is ready to write       → handleWrite()
-** POLLERR — error on fd                → mark handler for closing
-**
-** _handlers[i] and _pollfds[i] always correspond to the same handler
-** since both are built in the same order by buildPollFds().
+	Dispatch events to the appropriate handlers after poll() returns.
+
+	Iterates through the pollfd array and checks revents on each entry:
+	POLLIN  — data is available to read  → handleRead()
+	POLLOUT — fd is ready to write       → handleWrite()
+	POLLERR — error on fd                → mark handler for closing
+
+	_handlers[i] and _pollfds[i] always correspond to the same handler
+	since both are built in the same order by buildPollFds().
 */
 void	EventLoop::dispatch()
 {
@@ -141,15 +161,9 @@ void	EventLoop::dispatch()
 }
 
 /*
-** Remove and destroy handlers that have been marked for closing.
-**
-** Iterates through the handler list and checks each handler's
-** close state. Closed handlers are deleted and removed from
-** the vector immediately.
-**
-** erase() shifts all following elements one position to the left,
-** so the index is only incremented when no removal occurs.
-** This ensures no handlers are skipped during iteration.
+	Remove and destroy handlers that are marked for closing.
+	Walk through the handler list and, when a handler reports it is closed, delete it and erase it from the vector immediately.
+	Since erase() shifts remaining elements left, only increment the index when no removal happens to avoid skipping handlers.
 */
 void	EventLoop::removeClosedHandlers()
 {
