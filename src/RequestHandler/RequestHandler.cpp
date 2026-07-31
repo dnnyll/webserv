@@ -29,7 +29,7 @@ HttpResponse RequestHandler::processRequest()
 	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
 			this->_effconf.path);
 	std::cout << "[DEBUG ROUTER] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
-	if (this->_pathAbsolute.empty()) //TODO si methode POST ne pas sortir
+	if (this->_pathAbsolute.empty())
 	{
 		this->_response = HttpResponse::make(400, "Bad Request");
 		return (this->_response);
@@ -38,6 +38,7 @@ HttpResponse RequestHandler::processRequest()
 	if (this->_effconf.status == CGI_NEEDED)
 	{
 		//executeCGI();
+		//TODO ou est ce que make (000, "CGI") ??
 		std::cout << "[DEBUG CGI] is a CGI" << std::endl;
 	}
 	else if (this->_request.method == "POST")

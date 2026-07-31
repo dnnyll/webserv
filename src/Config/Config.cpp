@@ -28,7 +28,7 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 			loc.redirect = tokens[i++];
 		else if (key == "cgi_pass")
 		{
-			loc.cgi_extension	= tokens[i++];
+			loc.cgi_extension	= tokens[i++]; //TODO (jules) avec '.' ou sans ??
 			loc.cgi_path		= tokens[i++];
 		}
 		else if (key == "methods")
