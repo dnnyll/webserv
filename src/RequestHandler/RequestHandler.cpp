@@ -39,9 +39,8 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 	resolveFileSystem(); //TODO
 	if (this->_effconf.status == CGI_NEEDED)
 	{
-		//TODO (jules) remplir cgi
-		(void)cgi;
 		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
+		cgi = getCgiInfo();
 		return (CGI_PENDING);
 	}
 	else if (this->_request.method == "POST")

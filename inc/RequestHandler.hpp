@@ -59,6 +59,9 @@ class	RequestHandler
 		void				resolveFileSystemDirectory();
 		void				resolveFileSystem();
 
+		//cgi
+		CgiInfo				getCgiInfo();
+
 		//responder
 		void				handleGet();
 		void				handlePost();
