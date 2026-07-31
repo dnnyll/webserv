@@ -4,6 +4,7 @@
 #include	"../inc/RequestHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
 #include	"../inc/EventLoop.hpp"
+#include	"../inc/CgiHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
@@ -74,42 +75,20 @@ void	ClientHandler::handleRead()
 
 		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
 
-		// RequestHandler handler(_request, _config);
-
-		// RequestResult result = handler.processRequest();
-
-		// switch (result.action)
-		// {
-		// 	case ACTION_RESPONSE:
-		// 		_outBuffer = result.response.serialize();
-		// 		break;
-
-		// 	case ACTION_CGI:
-		// 		CgiHandler	*cgi = new CgiHandler(result.cgi, this);
-		// 		_reactor.addHandler(cgi);
-		// 		break;
-		// }
-		
-		// or
-
-		// RequestHandler handler(_request, _config);
-
-		// handler.processRequest();
-
-		// if (handler.isCGI())
-		// {
-		// 	CgiInfo info = handler.getCgiInfo();
-		// }
-		// else
-		// {
-		// 	HttpResponse res = handler.getResponse();
-		// }
-		
-		//
-		
 		RequestHandler	createResponse(_request, _config);
 		HttpResponse res = createResponse.processRequest();
-		_outBuffer = res.serialize();
+
+		if (res.statusMessage == "CGI")
+		{
+			std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
+			// CgiHandler	*cgi = new CgiHandler(void);
+			// _reactor.addHandler(cgi);
+		}
+		else
+		{
+			std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
+			_outBuffer = res.serialize();
+		}
 	}
 }
 
