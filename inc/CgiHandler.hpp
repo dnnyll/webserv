@@ -15,8 +15,21 @@
  struct CgiInfo
  {
  	std::string scriptPath;			// full path to script/executable
+	std::string	workingDirectory;
  	std::string interpreterPath;	// program to exec (e.g. /usr/bin/php-cgi)
  	std::vector<std::string> env;	// KEY=VALUE strings for execve
+	/*
+		REQUEST_METHOD		this->_request.method
+		QUERY_STRING		uri.find('?') -> substr
+		CONTENT_LENGTH		this->_request.contentLength
+		CONTENT_TYPE		this->_request.headers["Content-Type"]
+		SCRIPT_NAME			uri.find('?') -> substr 
+		SERVER_PROTOCOL		HTTP/1.1
+		SERVER_NAME			this->_config.host
+		SERVER_PORT			this->_config.port
+		GATEWAY_INTERFACE	"CGI/1.1"
+		REDIRECT_STATUS		=200
+	 */
  };
 
 

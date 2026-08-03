@@ -38,7 +38,7 @@ struct	Location
 struct	ServerBlock
 {
 	std::string					host;
-	int							port;
+	size_t						port;
 	std::string					server_name;
 	std::map<int, std::string>	error_pages;
 	std::vector<Location>		locations;
