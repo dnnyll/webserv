@@ -1,69 +1,59 @@
-#ifndef		CGIHANDLER_HPP
-# define	CGIHANDLER_HPP
+#ifndef CGIHANDLER_HPP
+# define CGIHANDLER_HPP
 
-#include	"../inc/EventHandler.hpp"
-#include	<string>
-#include	<sys/types.h>
-#include	<ctime>
-
-//TODO(jules): stock information in new structure during routing/response
-
- // CgiInfo.hpp
- #include <string>
- #include <vector>
-
- struct CgiInfo
- {
- 	std::string scriptPath;			// full path to script/executable
- 	std::string interpreterPath;	// program to exec (e.g. /usr/bin/php-cgi)
- 	std::vector<std::string> env;	// KEY=VALUE strings for execve
- };
+#include "../inc/EventHandler.hpp"
+#include <string>
+#include <sys/types.h>
+#include <vector>
 
 
-// TODO(danny): build cgihandler prototype
+struct	CgiInfo
+{
+	std::string scriptPath;			// full path to script/executable
+	std::string interpreterPath;	// program to exec (e.g. /usr/bin/php-cgi)
+	std::vector<std::string> env;	// KEY=VALUE strings for execve
+};
 
-// class	CgiHandler : public	EventHandler
-// {
-// 	public:
-// 		// stdin/stdout are connected inside this handler (it will create pipes + fork/exec)
-// 		CgiHandler(const CgiInfo& info, std::string* outBuffer, const std::string& requestBody);
-// 		~CgiHandler();
 
-// 		// EventHandler interface
-// 		void	handleRead();
-// 		void	handleWrite();
-// 		int		getFd() const;
-// 		bool	isClosed() const;
-// 		bool	isWritable() const;
+class	CgiHandler : public EventHandler
+{
+	public:
+		CgiHandler(const CgiInfo& info, std::string* outBuffer, const std::string& requestBody);
+		~CgiHandler();
 
-// 	private:
-// 		CgiHandler(const CgiHandler&);		// non-copyable (optional in C++98 style)
-// 		CgiHandler& operator=(const CgiHandler&);
+		// EventHandler interface
+		void	handleRead();
+		void	handleWrite();
 
-// 		void		forkAndExec(const CgiInfo& info);
-// 		void		closeFd(int fd);
+		int		getFd() const;
+		bool	isWritable() const;
+		bool	isClosed() const;
 
-// 	private:
-// 		// pipes (parent side)
-// 		int			_pipeInWrite;		// parent writes -> CGI stdin
-// 		int			_pipeOutRead;		// CGI stdout -> parent reads
+	private:
+		// CgiHandler(const CgiHandler&);
+		// CgiHandler& operator=(const CgiHandler&);
 
-// 		pid_t		_pid;
+		void	launchCgi(const CgiInfo& info);
+		void	closeFd(int& fd);
 
-// 		std::string* _outBuffer;		// non-owning pointer to ClientHandler::_outBuffer
+	private:
+		// Parent-side pipe descriptors
+		int				_pipeInWrite;		// parent -> CGI stdin
+		int				_pipeOutRead;		// CGI stdout -> parent
 
-// 		// request body streaming into CGI stdin
-// 		std::string	_requestBody;
-// 		size_t		_bodySent;
+		// Child process
+		pid_t			_pid;
 
-// 		// CGI stdout accumulation
-// 		std::string	_outputBuffer;
+		// ClientHandler response buffer (non-owning)
+		std::string*	_outBuffer;
 
-// 		bool		_isClosed;
-// 		bool		_stdinClosed;
+		// POST body
+		std::string		_requestBody;
+		size_t			_bodySent;
 
-// 		// timeout (optional; you can implement later)
-// 		time_t		_startTime;
-// };
+		// State
+		bool			_stdinClosed;
+		bool			_isClosed;
+};
 
 #endif

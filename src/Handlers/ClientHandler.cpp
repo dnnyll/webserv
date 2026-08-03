@@ -84,15 +84,20 @@ void	ClientHandler::handleRead()
 		switch (type)
 		{
 			case CGI_PENDING:
+			{
 				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-				(void)cgi;
-				//CgiHandler* cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
-				//_reactor.addHandler(cgiHandler);
+				// (void)cgi;
+				CgiHandler*	cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
+				_reactor.addHandler(cgiHandler);
 				// CgiHandler will fill _outBuffer asynchronously via _reactor.}
 				break;
+			}
 			case RESPONSE_READY:
+			{
 				std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
 				_outBuffer = res.serialize();
+				break ;
+			}
 		}
 	}
 }
