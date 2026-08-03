@@ -19,6 +19,7 @@ SRCS			=	mainEventLoopConfig.cpp \
 					Config/Config.cpp \
 					Handlers/AcceptHandler.cpp \
 					Handlers/CgiHandler.cpp \
+					Handlers/CgiHandlerLaunchCgi.cpp\
 					Handlers/ClientHandler.cpp \
 					HttpMessage.cpp \
 					HttpRequest/HttpRequestDecodeBody.cpp \

@@ -14,10 +14,6 @@ CgiHandler::~CgiHandler()
 {
 }
 
-void	CgiHandler::launchCgi(const CgiInfo& info)
-{
-	(void)info;
-}
 // void	CgiHandler::closeFd(int& fd)
 // {
 
