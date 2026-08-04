@@ -46,11 +46,20 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		return (CGI_PENDING);
 	}
 	else if (this->_request.method == "POST")
+	{	
 		handlePost();
+		res = this->_response;
+	}
 	else if (this->_request.method == "GET")
+	{
 		handleGet();
+		res = this->_response;
+	}
 	else if (this->_request.method == "DELETE")
+	{
 		handleDelete();
+		res = this->_response;
+	}
 	else
 		res = HttpResponse::make(501, "Not Implemented");
 	return (RESPONSE_READY);
