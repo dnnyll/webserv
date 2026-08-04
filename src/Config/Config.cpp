@@ -61,6 +61,8 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 {
 	Location loc;
 
+	std::cout << "DEBUG : start location parsing" << std::endl;
+
 	expect_value(tokens, i, "location");
 	if (tokens[i].empty())
 		throw Config::ConfigException("Location path can't ne empty");
@@ -175,6 +177,8 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 	if (tokens[i++] != "{")
 		throw Config::ConfigException("Expected '{' after server");
 	
+	std::cout << "DEBUG : start server parsing" << std::endl;
+
 	while (i < tokens.size() && tokens[i] != "}")
 	{
 		std::string key = tokens[i++];
@@ -312,7 +316,7 @@ static void validate_root_inheritance(const std::vector<ServerBlock> &servers)
 	{
 		const ServerBlock &server = servers[i];
 
-		for(size_t j = 0; j < server.locations.size(); ++i)
+		for(size_t j = 0; j < server.locations.size(); ++j)
 		{
 			const Location &loc = server.locations[j];
 
@@ -329,6 +333,8 @@ void Config::parse(const std::string &filepath)
 {
 	std::vector<std::string> tokens = tokenize(filepath);
 	size_t i = 0;
+
+	std::cout << "DEBUG : start global parsing" << std::endl;
 
 	while (i < tokens.size())
 	{
