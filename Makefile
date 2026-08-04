@@ -18,6 +18,8 @@ SRCS			=	mainEventLoopConfig.cpp \
 					Config/check_path.cpp \
 					Config/Config.cpp \
 					Handlers/AcceptHandler.cpp \
+					Handlers/CgiHandler.cpp \
+					Handlers/CgiHandlerLaunchCgi.cpp\
 					Handlers/ClientHandler.cpp \
 					HttpMessage.cpp \
 					HttpRequest/HttpRequestDecodeBody.cpp \
@@ -32,8 +34,10 @@ SRCS			=	mainEventLoopConfig.cpp \
 					RequestHandler/resolveBuildConfig.cpp\
 					RequestHandler/getPathAbsolute.cpp\
 					RequestHandler/checkMethod.cpp\
+					RequestHandler/getFileTypeFromPath.cpp\
 					RequestHandler/resolveFileSystem.cpp\
 					RequestHandler/resolveFileSystemDirectory.cpp\
+					RequestHandler/getCgiInfo.cpp\
 					RequestHandler/handleGet.cpp\
 					RequestHandler/handlePost.cpp\
 					RequestHandler/handleDelete.cpp

@@ -5,6 +5,12 @@
 #include	<map>
 #include	"HttpMessage.hpp"
 
+enum	ResponseType
+{
+	CGI_PENDING,
+	RESPONSE_READY
+};
+
 class	HttpResponse : public HttpMessage
 {
 	public:

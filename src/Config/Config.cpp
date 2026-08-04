@@ -133,7 +133,7 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 			if (cgi_pass_set)
 				throw Config::ConfigException("Duplicate 'cgi_pass' directive in location " + loc.path);
 			expect_value(tokens, i, "cgi_pass extension");
-			loc.cgi_extension = tokens[i++];
+			loc.cgi_extension	= tokens[i++]; //TODO (jules) avec '.' ou sans ??
 			expect_value(tokens, i, "cgi_pass path");
 			loc.cgi_path		= tokens[i++];
 			cgi_pass_set = true;

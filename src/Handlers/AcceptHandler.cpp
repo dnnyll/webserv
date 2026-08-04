@@ -11,6 +11,7 @@
 #include	<arpa/inet.h>
 #include	<cerrno>
 #include	<cstring>
+
 /*
 ** Create a listening socket handler.
 **
@@ -94,7 +95,7 @@ void	AcceptHandler::handleRead()
 
 	std::cout << "[ACCEPTHANDLER] new client connected, fd=" << clientFd << std::endl;
 
-	ClientHandler *client = new ClientHandler(clientFd, _serverBlock);	_reactor.addHandler(client);
+	ClientHandler *client = new ClientHandler(clientFd, _serverBlock, _reactor);	_reactor.addHandler(client);
 
 	std::cout << "[ACCEPTHANDLER] ClientHandler created and registered" << std::endl;
 }

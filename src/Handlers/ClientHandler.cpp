@@ -3,10 +3,15 @@
 #include	"../inc/Config.hpp"
 #include	"../inc/RequestHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
+#include	"../inc/EventLoop.hpp"
+#include	"../inc/CgiHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
-ClientHandler::ClientHandler(int fd, const ServerBlock &block) : _fd(fd), _config(block)
+ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reactor)
+	: _fd(fd),
+	_config(block),
+	_reactor(reactor)
 {
 	_keepAlive = true;
 	_isClosed = false;
@@ -18,32 +23,6 @@ ClientHandler::~ClientHandler()
 	close(_fd);
 }
 
-/*
-** Read incoming data from the client socket.
-**
-** recv() copies available bytes from the kernel socket buffer into a
-** temporary local buffer. The received data is then passed to the
-** HttpRequest parser, which accumulates bytes across multiple reads
-** until a complete HTTP request is available.
-**
-** Possible outcomes:
-**
-** - recv() == 0:
-**     Client performed a clean disconnect.
-**
-** - recv() < 0:
-**     Socket error occurred.
-**
-** - request parser detects an error:
-**     An HTTP error response should be generated.
-**
-** - request becomes complete:
-**     Build a response and store it in _outBuffer.
-**     Actual sending happens later in handleWrite().
-**
-** This function only receives and parses data.
-** It does not send anything back to the client.
-*/
 void	ClientHandler::handleRead()
 {
 	std::cout << "[CLIENTHANDLER] handleRead() fd=" << _fd << std::endl;
@@ -77,7 +56,8 @@ void	ClientHandler::handleRead()
 	if (_request.hasError())
 	{
 		std::cout << "ERROR detected, would build error response here" << std::endl;
-		//	TODO ??????? code error response a voir
+		//	TODO (jules) code error response a voir
+		// TODO (jules) si request a une erreur ne doit pas quitter
 		HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
 		_outBuffer = errorResponse.serialize();
 		_keepAlive = false;
@@ -93,41 +73,35 @@ void	ClientHandler::handleRead()
 		std::cout << "  uri: "				<< _request.uri << std::endl;
 		std::cout << "  body: "				<< _request.body << std::endl;
 
-		//	TODO (danny): temporary mesure
-		//	needs implementation ->
+
+		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
+
 		RequestHandler	createResponse(_request, _config);
-		HttpResponse res = createResponse.processRequest();
-		_outBuffer = res.serialize();
-		//	I need Jule's response
+		HttpResponse	res;
+		CgiInfo 		cgi;
 		
-		//_outBuffer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
+		ResponseType type = createResponse.processRequest(res, cgi);
+		switch (type)
+		{
+			case CGI_PENDING:
+			{
+				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
+				// (void)cgi;
+				CgiHandler*	cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
+				_reactor.addHandler(cgiHandler);
+				// CgiHandler will fill _outBuffer asynchronously via _reactor.}
+				break;
+			}
+			case RESPONSE_READY:
+			{
+				std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
+				_outBuffer = res.serialize();
+				break ;
+			}
+		}
 	}
 }
 
-/*
-** Send pending response data to the client.
-**
-** _outBuffer contains serialized HTTP response bytes waiting to be
-** transmitted. Because sockets may be non-blocking, send() might
-** write only part of the buffer.
-**
-** After each successful send:
-**
-** - remove the bytes that were transmitted
-** - keep the remaining bytes for the next write event
-**
-** Once the entire response has been sent:
-**
-** - if keep-alive is enabled:
-**       reset the request parser and wait for another request on the
-**       same TCP connection
-**
-** - otherwise:
-**       mark the connection for closure
-**
-** This function never generates responses; it only transmits bytes
-** already prepared by handleRead().
-*/
 void	ClientHandler::handleWrite()
 {
 	std::cout << "[CLIENTHANDLER] handleWrite() fd=" << _fd << std::endl;
@@ -143,7 +117,6 @@ void	ClientHandler::handleWrite()
 		return ;
 	}
 
-	//	very important: we MUST delete what was sent
 	_outBuffer.erase(0, bytesSent);
 
 	if (_outBuffer.empty())

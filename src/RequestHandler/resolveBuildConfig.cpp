@@ -11,6 +11,7 @@ static std::string	chooseBestValue(const std::string &official, const std::strin
 //construction de la effconfig
 void	RequestHandler::resolveBuildConfig()
 {
+	this->_effconf.client_max_body_size = this->_config.client_max_body_size;
 	if (!this->_location)
 	{
 		this->_effconf.path = "/";
@@ -30,6 +31,5 @@ void	RequestHandler::resolveBuildConfig()
 		this->_effconf.methods = this->_config.methods;
 	this->_effconf.autoindex = this->_location->autoindex;
 	this->_effconf.upload_store = this->_location->upload_store;
-	this->_effconf.client_max_body_size = this->_config.client_max_body_size;
 	//gerer aussi le upload store !!!!!!!!!!
 }

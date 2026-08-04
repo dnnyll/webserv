@@ -1,11 +1,12 @@
 #include "RequestHandler.hpp"
+#include <cerrno>
 #include <sys/stat.h>
 
 void	RequestHandler::resolveFileSystem()
 {
 	struct stat	statbuf;
 
-	if (stat(_pathAbsolute.c_str(), &statbuf) == -1)
+	if (stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
 	{
 		if (errno == ENOENT)
 			this->_effconf.status = NOT_FOUND;
@@ -16,14 +17,16 @@ void	RequestHandler::resolveFileSystem()
 		return ;
 	}
 	if (S_ISREG(statbuf.st_mode))
-		this->_effconf.status = FILE_FOUND;
-	else if (S_ISDIR(statbuf.st_mode))	//directory
 	{
-		if (this->_request.method == "DELETE")
-			this->_effconf.status = FORBIDDEN;
+		std::string path_extension = getFileTypeFromPath(this->_pathAbsolute);
+		if (this->_effconf.cgi_extension == path_extension 
+				&& this->_effconf.cgi_extension != "")
+			this->_effconf.status = CGI_NEEDED;
 		else
-			resolveFileSystemDirectory();
+			this->_effconf.status = FILE_FOUND;
 	}
+	else if (S_ISDIR(statbuf.st_mode))
+		resolveFileSystemDirectory();
 	else
 		this->_effconf.status = ERROR;
 }

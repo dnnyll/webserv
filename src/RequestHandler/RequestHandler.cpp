@@ -1,4 +1,6 @@
 #include "RequestHandler.hpp"
+#include "HttpResponse.hpp"
+#include "CgiHandler.hpp"
 
 RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)
@@ -6,49 +8,50 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 	std::cout << "Constructor with parameter RequestHandler create" << std::endl;
 }
 
-HttpResponse RequestHandler::processRequest()
+ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
 	resolveBuildConfig();
 	if (checkMethod())
 	{
-		this->_response = HttpResponse::make(405, "Method not allowed");
-		return (this->_response);
+		res = HttpResponse::make(405, "Method not allowed");
+		return (RESPONSE_READY);
 	}
 	if (this->_request.body.size() > this->_effconf.client_max_body_size)
 	{
-		this->_response = HttpResponse::make(413, "Payload Too Large");
-		return (this->_response);
+		res = HttpResponse::make(413, "Payload Too Large");
+		return (RESPONSE_READY);
 	}
 	if (this->_request.uri.empty() || this->_effconf.root.empty()
 			|| this->_effconf.path.empty()) //TODO check utile avant le post ???
 	{
-		this->_response = HttpResponse::make(500, "Internal Server Error");
-		return (this->_response);
+		res = HttpResponse::make(500, "Internal Server Error");
+		return (RESPONSE_READY);
 	}
-	if (this->_request.method == "POST") //ou est ce que je gere l'upload store
+	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
+			this->_effconf.path);
+	std::cout << "[DEBUG ROUTER] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
+	if (this->_pathAbsolute.empty())
 	{
+		res = HttpResponse::make(400, "Bad Request");
+		return (RESPONSE_READY);
+	}
+	resolveFileSystem(); //TODO
+	if (this->_effconf.status == CGI_NEEDED)
+	{
+		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
+		cgi = getCgiInfo();
+		return (CGI_PENDING);
+	}
+	else if (this->_request.method == "POST")
 		handlePost();
-	}
+	else if (this->_request.method == "GET")
+		handleGet();
+	else if (this->_request.method == "DELETE")
+		handleDelete();
 	else
-	{
-		this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
-				this->_effconf.path);
-		std::cout << "[DEBUG] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
-		if (this->_pathAbsolute.empty())
-		{
-			this->_response = HttpResponse::make(400, "Bad Request");
-			return (this->_response);
-		}
-		resolveFileSystem();
-		if (this->_request.method == "GET")
-			handleGet();
-		else if (this->_request.method == "DELETE")
-			handleDelete();
-		else
-			this->_response = HttpResponse::make(501, "Not Implemented");
-	}
-	return (this->_response);
+		res = HttpResponse::make(501, "Not Implemented");
+	return (RESPONSE_READY);
 }
 
 //router

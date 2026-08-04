@@ -4,6 +4,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Config.hpp"
+#include "CgiHandler.hpp"
 
 enum	FileSystemStatus
 {
@@ -25,6 +26,8 @@ typedef struct s_EffectiveConfig
 	FileSystemStatus			status;
 	std::string					upload_store;
 	size_t						client_max_body_size;
+	std::string					cgi_extension;
+	std::string					cgi_path;
 } t_EffectiveConfig;
 
 class	RequestHandler
@@ -51,22 +54,26 @@ class	RequestHandler
 		std::string			getPathAbsolute(std::string uri, std::string root,
 								std::string path);
 
+
 		//filesystem
 		void				resolveFileSystemDirectory();
 		void				resolveFileSystem();
+
+		//cgi
+		CgiInfo				getCgiInfo();
 
 		//responder
 		void				handleGet();
 		void				handlePost();
 		void				handleDelete();
 
-		//bool executeCGI();
 		//void	generateErrorPage(int statusCode);
 
 	public:
+		static std::string			getFileTypeFromPath(const std::string &path);
 		RequestHandler(const HttpRequest &request, const ServerBlock &config);
 
-		HttpResponse	processRequest();
+		ResponseType	processRequest(HttpResponse &res, CgiInfo &cgi);
 };
 
 
