@@ -10,7 +10,7 @@ static bool	g_isRunning = true;
 static void	signalHandler(int sig)
 {
 	(void)sig;
-	std::cout << std::endl;
+	// << std::endl;
 	g_isRunning = false;
 }
 
@@ -31,7 +31,7 @@ EventLoop::~EventLoop()
 void	EventLoop::addHandler(EventHandler *handler)
 {
 	_handlers.push_back(handler);
-	std::cout << "[EVENTLOOP] handler added, total: " << _handlers.size() << std::endl;
+	// << "[EVENTLOOP] handler added, total: " << _handlers.size() << std::endl;
 }
 
 /*
@@ -55,11 +55,11 @@ void EventLoop::run()
 	{
 		buildPollFds();
 
-		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers | pollfds.size()=" << _pollfds.size() << std::endl;
+		// << "[EVENTLOOP] polling " << _handlers.size() << " handlers | pollfds.size()=" << _pollfds.size() << std::endl;
 
 		if (_pollfds.empty())
 		{
-			std::cout << "[EVENTLOOP] _pollfds.empty(), continue" << std::endl;
+			// << "[EVENTLOOP] _pollfds.empty(), continue" << std::endl;
 			continue ;
 		}
 
@@ -67,7 +67,7 @@ void EventLoop::run()
 
 		if (pollReady == -1)
 		{
-			std::cout << "[EVENTLOOP][RUN] poll() error: errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
+			// << "[EVENTLOOP][RUN] poll() error: errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
 
 			if (!g_isRunning)
 				break ;
@@ -81,23 +81,23 @@ void EventLoop::run()
 
 		if (pollReady == 0)
 		{
-			std::cout << "[EVENTLOOP][RUN] poll() timeout (1000ms) - no fds ready"
-					<< std::endl;
+			// << "[EVENTLOOP][RUN] poll() timeout (1000ms) - no fds ready"
+					//<< std::endl;
 		}
 		else
 		{
-			std::cout << "[EVENTLOOP][RUN] " << pollReady << " fd(s) ready"
-					<< std::endl;
+			// << "[EVENTLOOP][RUN] " << pollReady << " fd(s) ready"
+					//<< std::endl;
 		}
 
 		// Even on timeout, dispatch()/removeClosedHandlers() run so timeouts in CgiWriteHandler/CgiReadHandler can still be evaluated.
 		dispatch();
 		removeClosedHandlers();
 
-		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
+		// << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
 	}
 
-	std::cout << "Server shutting down cleanly..." << std::endl;
+	// << "Server shutting down cleanly..." << std::endl;
 }
 
 
@@ -149,7 +149,7 @@ void	EventLoop::dispatch()
 
 	while (i < _pollfds.size())
 	{
-		std::cout << "[DISPATCH] fd=" << _pollfds[i].fd << " revents=" << _pollfds[i].revents << std::endl;
+		// << "[DISPATCH] fd=" << _pollfds[i].fd << " revents=" << _pollfds[i].revents << std::endl;
 		if (_pollfds[i].revents & POLLIN && _pollfds[i].fd >= 0)
 			_handlers[i]->handleRead();
 
@@ -177,7 +177,7 @@ void	EventLoop::removeClosedHandlers()
 	{
 		if (_handlers[i]->isClosed())
 		{
-			std::cout << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
+			// << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
 			delete _handlers[i];
 			_handlers.erase(_handlers.begin() + i);
 		}
