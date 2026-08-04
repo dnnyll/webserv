@@ -45,57 +45,61 @@ void	EventLoop::addHandler(EventHandler *handler)
 	- when errno == EINTR, the loop continues (signal interrupted the wait)
 	- for other errors, the loop breaks and the server shuts down
 */
-void	EventLoop::run()
+void EventLoop::run()
 {
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN); // avoid dying on write() to a pipe whose reader is gone
 
 	while (g_isRunning)
 	{
 		buildPollFds();
-		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
-		std::cout << "[EVENTLOOP] pollfds.size()=" << _pollfds.size() << std::endl;
 
-	if (_pollfds.empty())
-	{
-		std::cout << "[EVENTLOOP] _pollfds.empty() " << std::endl;
-		continue;
-	}
+		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers | pollfds.size()=" << _pollfds.size() << std::endl;
 
-		
-		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
-	
-		if(pollReady == -1)
+		if (_pollfds.empty())
 		{
+			std::cout << "[EVENTLOOP] _pollfds.empty(), continue" << std::endl;
+			continue ;
+		}
 
-			 std::cout << "[EVENTLOOP][RUN] errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
+		int pollReady = poll(&_pollfds[0], _pollfds.size(), 1000);
+
+		if (pollReady == -1)
+		{
+			std::cout << "[EVENTLOOP][RUN] poll() error: errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
 
 			if (!g_isRunning)
-			{
-				std::cout << "[EVENTLOOP][RUN] signal killed (potentially ctrl+c)" << std::endl;
 				break ;
-			}
 
-			// EINTR means poll() was interrupted by a signal while it was blocking.
-			// this is not necessarily fatal, so we retry by continuing the loop.
+			// EINTR = interrupted by signal while waiting (not necessarily fatal)
 			if (errno == EINTR)
-			{
-				std::cout << "[EVENTLOOP][RUN] pollReady == -1 & errno == EINTR" << std::endl;
 				continue ;
-			}
-			// Any other errno means poll() failed for a “real” reason (not just interruption).
-			// We treat it as unrecoverable, log it, and stop the server loop.
-			std::cout << "[EVENTLOOP][RUN] poll() error: " << std::strerror(errno) << std::endl;
+
 			break ;
 		}
-		std::cout << "[EVENTLOOP] " << pollReady << " fd(s) ready" << std::endl;
+
+		if (pollReady == 0)
+		{
+			std::cout << "[EVENTLOOP][RUN] poll() timeout (1000ms) - no fds ready"
+					<< std::endl;
+		}
+		else
+		{
+			std::cout << "[EVENTLOOP][RUN] " << pollReady << " fd(s) ready"
+					<< std::endl;
+		}
+
+		// Even on timeout, dispatch()/removeClosedHandlers() run so timeouts in CgiWriteHandler/CgiReadHandler can still be evaluated.
 		dispatch();
 		removeClosedHandlers();
+
 		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
-		// break ;
 	}
+
 	std::cout << "Server shutting down cleanly..." << std::endl;
 }
+
 
 /*
 	Build the pollfd array from the current list of handlers.

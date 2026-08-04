@@ -18,7 +18,6 @@ SRCS			=	mainEventLoopConfig.cpp \
 					Config/check_path.cpp \
 					Config/Config.cpp \
 					Handlers/AcceptHandler.cpp \
-					Handlers/CgiHandler.cpp \
 					Handlers/ClientHandler.cpp \
 					HttpMessage.cpp \
 					HttpRequest/HttpRequestDecodeBody.cpp \
@@ -39,7 +38,11 @@ SRCS			=	mainEventLoopConfig.cpp \
 					RequestHandler/getCgiInfo.cpp\
 					RequestHandler/handleGet.cpp\
 					RequestHandler/handlePost.cpp\
-					RequestHandler/handleDelete.cpp
+					RequestHandler/handleDelete.cpp \
+					Cgi/CgiContext.cpp \
+					Cgi/CgiLaunch.cpp \
+					Cgi/CgiReadHandler.cpp \
+					Cgi/CgiWriteHandler.cpp
 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)

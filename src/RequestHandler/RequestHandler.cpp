@@ -1,6 +1,8 @@
 #include "RequestHandler.hpp"
 #include "HttpResponse.hpp"
-#include "CgiHandler.hpp"
+// #include "CgiHandler.hpp"
+#include "../inc/CgiLaunch.hpp"
+
 
 RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)

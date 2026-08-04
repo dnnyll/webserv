@@ -1,5 +1,6 @@
 #include "RequestHandler.hpp"
-#include "CgiHandler.hpp"
+// #include "CgiHandler.hpp"
+#include "../inc/CgiLaunch.hpp"
 #include <sstream>
 
 static std::string	sizetToString(size_t number)

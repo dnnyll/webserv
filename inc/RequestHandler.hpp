@@ -4,7 +4,9 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Config.hpp"
-#include "CgiHandler.hpp"
+// #include "CgiHandler.hpp"
+#include "../inc/CgiLaunch.hpp"
+
 
 enum	FileSystemStatus
 {
