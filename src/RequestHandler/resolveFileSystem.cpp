@@ -1,5 +1,6 @@
 #include "RequestHandler.hpp"
 #include <sys/stat.h>
+#include <cerrno>
 
 void	RequestHandler::resolveFileSystem()
 {

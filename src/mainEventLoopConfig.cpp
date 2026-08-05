@@ -1,6 +1,7 @@
 #include	"../inc/EventLoop.hpp"
 #include	"../inc/AcceptHandler.hpp"
 #include	"../inc/Config.hpp"
+#include	"../inc/check_path.hpp"
 #include	<iostream>
 
 int main(int argc, char **argv)
@@ -10,16 +11,17 @@ int main(int argc, char **argv)
 		std::cerr << "Usage: ./webserv <config_file>" << std::endl;
 		return (1);
 	}
-
+	
 	Config config;
 
 	try
 	{
+		check(argv[1]);
 		config.parse(argv[1]);
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		return (1);
 	}
 
