@@ -4,22 +4,36 @@
 #include	"../inc/RequestHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
 #include	"../inc/EventLoop.hpp"
-#include	"../inc/CgiHandler.hpp"
+#include	"../inc/CgiContext.hpp"
+#include	"../inc/CgiLaunch.hpp"
+#include	"../inc/CgiWriteHandler.hpp"
+#include	"../inc/CgiReadHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 
 ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reactor)
 	: _fd(fd),
 	_config(block),
-	_reactor(reactor)
+	_reactor(reactor),
+	_clientAlive(NULL)	//	only allocated if/when a CGI request actually starts
 {
 	_keepAlive = true;
 	_isClosed = false;
 	_request.setMaxBodySize(block.client_max_body_size);
 }
 
+/*
+	If a CGI invocation is still in flight when this client disconnects,
+	_clientAlive is not deleted here — it's owned by the CgiContext at
+	this point (see CgiContext::release()) and freed once the last
+	CGI handler referencing it is destroyed. We only flip it to false
+	so CgiReadHandler stops touching _outBuffer, which is about to be
+	destroyed along with the rest of this object.
+*/
 ClientHandler::~ClientHandler()
 {
+	if (_clientAlive)
+		*_clientAlive = false;
 	close(_fd);
 }
 
@@ -84,15 +98,38 @@ void	ClientHandler::handleRead()
 		switch (type)
 		{
 			case CGI_PENDING:
+			{
 				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-				(void)cgi;
-				//CgiHandler* cgiHandler = new CgiHandler(cgi, &_outBuffer, _request.body);
-				//_reactor.addHandler(cgiHandler);
-				// CgiHandler will fill _outBuffer asynchronously via _reactor.}
-				break;
+				// (void)cgi;
+				if (!_clientAlive)
+					_clientAlive = new bool(true);
+
+				CgiContext	*ctx = new CgiContext();
+				ctx->requestBody = _request.body;
+				ctx->outBuffer   = &_outBuffer;
+				ctx->clientAlive = _clientAlive;
+
+				if (!launchCgi(cgi, ctx))
+				{
+					//	setup failed before fork/pipes could be handed
+					//	to any handler — nothing has taken ownership
+					//	of ctx yet, so we free it directly here
+					delete ctx;
+					HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
+					_outBuffer = errorResponse.serialize();
+					break ;
+				}
+
+				_reactor.addHandler(new CgiWriteHandler(ctx));
+				_reactor.addHandler(new CgiReadHandler(ctx));
+				break ;
+			}
 			case RESPONSE_READY:
+			{
 				std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
 				_outBuffer = res.serialize();
+				break ;
+			}
 		}
 	}
 }

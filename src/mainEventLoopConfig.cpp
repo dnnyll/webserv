@@ -12,7 +12,16 @@ int main(int argc, char **argv)
 	}
 
 	Config config;
-	config.parse(argv[1]);
+
+	try
+	{
+		config.parse(argv[1]);
+	}
+	catch (std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+		return (1);
+	}
 
 	EventLoop reactor;
 
@@ -28,8 +37,6 @@ int main(int argc, char **argv)
 		}
 		reactor.addHandler(listener);
 	}
-
 	reactor.run();
-
 	return (0);
 }

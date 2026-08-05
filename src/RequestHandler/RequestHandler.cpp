@@ -1,6 +1,8 @@
 #include "RequestHandler.hpp"
 #include "HttpResponse.hpp"
-#include "CgiHandler.hpp"
+// #include "CgiHandler.hpp"
+#include "../inc/CgiLaunch.hpp"
+
 
 RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)
@@ -39,17 +41,25 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 	resolveFileSystem(); //TODO
 	if (this->_effconf.status == CGI_NEEDED)
 	{
-		//TODO (jules) remplir cgi
-		(void)cgi;
 		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
+		cgi = getCgiInfo();
 		return (CGI_PENDING);
 	}
 	else if (this->_request.method == "POST")
+	{	
 		handlePost();
+		res = this->_response;
+	}
 	else if (this->_request.method == "GET")
+	{
 		handleGet();
+		res = this->_response;
+	}
 	else if (this->_request.method == "DELETE")
+	{
 		handleDelete();
+		res = this->_response;
+	}
 	else
 		res = HttpResponse::make(501, "Not Implemented");
 	return (RESPONSE_READY);

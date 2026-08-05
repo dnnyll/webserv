@@ -35,9 +35,14 @@ SRCS			=	mainEventLoopConfig.cpp \
 					RequestHandler/getFileTypeFromPath.cpp\
 					RequestHandler/resolveFileSystem.cpp\
 					RequestHandler/resolveFileSystemDirectory.cpp\
+					RequestHandler/getCgiInfo.cpp\
 					RequestHandler/handleGet.cpp\
 					RequestHandler/handlePost.cpp\
-					RequestHandler/handleDelete.cpp
+					RequestHandler/handleDelete.cpp \
+					Cgi/CgiContext.cpp \
+					Cgi/CgiLaunch.cpp \
+					Cgi/CgiReadHandler.cpp \
+					Cgi/CgiWriteHandler.cpp
 
 
 OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)

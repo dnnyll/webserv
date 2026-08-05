@@ -10,7 +10,7 @@ static bool	g_isRunning = true;
 static void	signalHandler(int sig)
 {
 	(void)sig;
-	std::cout << std::endl;
+	// << std::endl;
 	g_isRunning = false;
 }
 
@@ -31,7 +31,7 @@ EventLoop::~EventLoop()
 void	EventLoop::addHandler(EventHandler *handler)
 {
 	_handlers.push_back(handler);
-	std::cout << "[EVENTLOOP] handler added, total: " << _handlers.size() << std::endl;
+	// << "[EVENTLOOP] handler added, total: " << _handlers.size() << std::endl;
 }
 
 /*
@@ -45,57 +45,61 @@ void	EventLoop::addHandler(EventHandler *handler)
 	- when errno == EINTR, the loop continues (signal interrupted the wait)
 	- for other errors, the loop breaks and the server shuts down
 */
-void	EventLoop::run()
+void EventLoop::run()
 {
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN); // avoid dying on write() to a pipe whose reader is gone
 
 	while (g_isRunning)
 	{
 		buildPollFds();
-		std::cout << "[EVENTLOOP] polling " << _handlers.size() << " handlers" << std::endl;
-		std::cout << "[EVENTLOOP] pollfds.size()=" << _pollfds.size() << std::endl;
 
-	if (_pollfds.empty())
-	{
-		std::cout << "[EVENTLOOP] _pollfds.empty() " << std::endl;
-		continue;
-	}
+		// << "[EVENTLOOP] polling " << _handlers.size() << " handlers | pollfds.size()=" << _pollfds.size() << std::endl;
 
-		
-		int	pollReady = poll(&_pollfds[0], _pollfds.size(), -1);
-	
-		if(pollReady == -1)
+		if (_pollfds.empty())
 		{
+			// << "[EVENTLOOP] _pollfds.empty(), continue" << std::endl;
+			continue ;
+		}
 
-			 std::cout << "[EVENTLOOP][RUN] errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
+		int pollReady = poll(&_pollfds[0], _pollfds.size(), 1000);
+
+		if (pollReady == -1)
+		{
+			// << "[EVENTLOOP][RUN] poll() error: errno=" << errno << " (" << ::strerror(errno) << ")" << std::endl;
 
 			if (!g_isRunning)
-			{
-				std::cout << "[EVENTLOOP][RUN] signal killed (potentially ctrl+c)" << std::endl;
 				break ;
-			}
 
-			// EINTR means poll() was interrupted by a signal while it was blocking.
-			// this is not necessarily fatal, so we retry by continuing the loop.
+			// EINTR = interrupted by signal while waiting (not necessarily fatal)
 			if (errno == EINTR)
-			{
-				std::cout << "[EVENTLOOP][RUN] pollReady == -1 & errno == EINTR" << std::endl;
 				continue ;
-			}
-			// Any other errno means poll() failed for a “real” reason (not just interruption).
-			// We treat it as unrecoverable, log it, and stop the server loop.
-			std::cout << "[EVENTLOOP][RUN] poll() error: " << std::strerror(errno) << std::endl;
+
 			break ;
 		}
-		std::cout << "[EVENTLOOP] " << pollReady << " fd(s) ready" << std::endl;
+
+		if (pollReady == 0)
+		{
+			// << "[EVENTLOOP][RUN] poll() timeout (1000ms) - no fds ready"
+					//<< std::endl;
+		}
+		else
+		{
+			// << "[EVENTLOOP][RUN] " << pollReady << " fd(s) ready"
+					//<< std::endl;
+		}
+
+		// Even on timeout, dispatch()/removeClosedHandlers() run so timeouts in CgiWriteHandler/CgiReadHandler can still be evaluated.
 		dispatch();
 		removeClosedHandlers();
-		std::cout << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
-		// break ;
+
+		// << "[EVENTLOOP] " << _handlers.size() << " handlers remaining" << std::endl;
 	}
-	std::cout << "Server shutting down cleanly..." << std::endl;
+
+	// << "Server shutting down cleanly..." << std::endl;
 }
+
 
 /*
 	Build the pollfd array from the current list of handlers.
@@ -145,7 +149,7 @@ void	EventLoop::dispatch()
 
 	while (i < _pollfds.size())
 	{
-		std::cout << "[DISPATCH] fd=" << _pollfds[i].fd << " revents=" << _pollfds[i].revents << std::endl;
+		// << "[DISPATCH] fd=" << _pollfds[i].fd << " revents=" << _pollfds[i].revents << std::endl;
 		if (_pollfds[i].revents & POLLIN && _pollfds[i].fd >= 0)
 			_handlers[i]->handleRead();
 
@@ -173,7 +177,7 @@ void	EventLoop::removeClosedHandlers()
 	{
 		if (_handlers[i]->isClosed())
 		{
-			std::cout << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
+			// << "[EVENTLOOP] removing handler fd=" << _handlers[i]->getFd() << std::endl;
 			delete _handlers[i];
 			_handlers.erase(_handlers.begin() + i);
 		}
