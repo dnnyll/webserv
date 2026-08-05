@@ -37,6 +37,7 @@ SRCS			=	mainEventLoopConfig.cpp \
 					RequestHandler/resolveFileSystemDirectory.cpp\
 					RequestHandler/getCgiInfo.cpp\
 					RequestHandler/handleGet.cpp\
+					RequestHandler/directoryListing.cpp\
 					RequestHandler/handlePost.cpp\
 					RequestHandler/handleDelete.cpp \
 					Cgi/CgiContext.cpp \

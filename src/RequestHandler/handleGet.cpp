@@ -48,16 +48,13 @@ void	RequestHandler::handleGet()
 			this->_response.headers["Content-Length"] = lengthStream.str();
 			this->_response.headers["Content-Type"] 
 				= getContentType(this->_pathAbsolute);
-
-
 			//body
 				//populated by Router
 					//file contents, error page, CGI output
-
 			break;
 		}
 		case DIRECTORY_LISTING:
-			this->_response = HttpResponse::make(501, "Not Implemented"); //TODO list
+			directoryListing();
 			break;
 		case NOT_FOUND:
 			this->_response = HttpResponse::make(404, "Not Found");

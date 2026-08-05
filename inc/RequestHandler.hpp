@@ -66,6 +66,7 @@ class	RequestHandler
 
 		//responder
 		void				handleGet();
+		void				directoryListing();
 		void				handlePost();
 		void				handleDelete();
 
