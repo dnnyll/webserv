@@ -37,16 +37,13 @@ void	HttpRequest::decodeChunked()
 
 	if (_chunkSize == 0)
 	{
+		if (!parseChunkSize())
+			return ;
 		if (_chunkSize == 0)
 		{
-			if (!parseChunkSize())
-				return ;
-			if (_chunkSize == 0)
-			{
-				debugParse("CHUNKED", "status", "final chunk received");
-				_state = COMPLETE;
-				return ;
-			}
+			debugParse("CHUNKED", "status", "final chunk received");
+			_state = COMPLETE;
+			return ;
 		}
 	}
 
@@ -63,6 +60,14 @@ void	HttpRequest::decodeChunked()
 
 		body += _buffer.substr(0, _chunkSize);
 		debugParse("CHUNKED", "body so far", body);
+
+		if (body.size() > _maxBodySize)
+		{
+			debugParse("CHUNKED", "status", "body exceeds max body size");
+			_state = ERROR_STATE;
+			_errorReason = BODY_TOO_LARGE;
+			return ;
+		}
 
 		_buffer.erase(0, _chunkSize + 2);
 		debugParse("CHUNKED", "remaining buffer size", _buffer.size());

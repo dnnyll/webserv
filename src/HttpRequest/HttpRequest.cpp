@@ -1,13 +1,13 @@
 #include	"HttpRequest.hpp"
 
-// TODO (danny): check maxBodySize a prendre de la config
 HttpRequest::HttpRequest()
 	: contentLength(0)
 	, isChunked(false)
 	, _chunkSize(0)
 	, _state(REQUEST_LINE)
+	, _errorReason(NO_ERROR)
 	, _bodyBytesRead(0)
-	, _maxBodySize(1000000)
+	, _maxBodySize(100000)
 {
 	(void)_bodyBytesRead;
 }
@@ -78,6 +78,7 @@ void	HttpRequest::reset()
 	isChunked = false;
 
 	_state = REQUEST_LINE;
+	_errorReason = NO_ERROR;
 	_bodyBytesRead = 0;
 	_chunkSize = 0;
 }
@@ -92,3 +93,7 @@ bool	HttpRequest::hasError() const
 	return (_state == ERROR_STATE);
 }
 
+ErrorReason	HttpRequest::getErrorReason() const
+{
+	return (_errorReason);
+}

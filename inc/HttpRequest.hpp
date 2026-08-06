@@ -15,6 +15,13 @@ enum	ParseState
 	ERROR_STATE			//	malformed request
 };
 
+enum	ErrorReason
+{
+	NO_ERROR,
+	BODY_TOO_LARGE,
+	MALFORMED_REQUEST
+};
+
 class	HttpRequest :public HttpMessage
 {
 	public:
@@ -45,6 +52,8 @@ class	HttpRequest :public HttpMessage
 		//	only feed() is allowed to advance this
 		//	public code reads state via isComplete() / hasError() only
 		//	for switch case acess to ParseState enum
+
+		ErrorReason		_errorReason;
 
 		std::string		_buffer;
 		//	raw bytes waiting to be parsed
@@ -98,6 +107,8 @@ class	HttpRequest :public HttpMessage
 		//	returns true when state == ERROR_STATE
 		//	ClientHandler checks this to decide 400 or 505 response
 
+		ErrorReason	getErrorReason() const;
+		
 	private:
 		//	DecodeRequestLine
 		bool	extractRequestLine(std::string &line);

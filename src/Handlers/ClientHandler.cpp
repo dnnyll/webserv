@@ -69,10 +69,14 @@ void	ClientHandler::handleRead()
 
 	if (_request.hasError())
 	{
-		std::cout << "ERROR detected, would build error response here" << std::endl;
-		//	TODO (jules) code error response a voir
-		// TODO (jules) si request a une erreur ne doit pas quitter
-		HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
+		
+		HttpResponse errorResponse;
+
+		if (_request.getErrorReason() == BODY_TOO_LARGE)
+			errorResponse = HttpResponse::make(413, "Payload Too Large");
+		else
+			errorResponse = HttpResponse::make(400, "Bad Request");
+
 		_outBuffer = errorResponse.serialize();
 		_keepAlive = false;
 	}

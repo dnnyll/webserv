@@ -17,7 +17,7 @@ struct	Location
 	std::string					cgi_extension;
 	std::string					cgi_path;
 	std::string					redirect;
-	//size_t						client_max_body_size;
+	// size_t						client_max_body_size;
 	Location() : autoindex(false) {}
 };
 

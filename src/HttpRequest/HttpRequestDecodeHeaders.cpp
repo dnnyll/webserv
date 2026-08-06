@@ -55,6 +55,7 @@ void	HttpRequest::resolveBodyState()
 		if (contentLength > _maxBodySize)
 		{
 			_state = ERROR_STATE;
+			_errorReason = BODY_TOO_LARGE;
 			return ;
 		}
 		_state = BODY;

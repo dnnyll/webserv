@@ -14,8 +14,15 @@
 */
 void	HttpRequest::decodeBody()
 {
-
 	std::cout << "=====\tdecodeBody()" << std::endl;
+
+	if (contentLength > _maxBodySize)
+	{
+		debugParse("BODY", "status", "content-length exceeds max body size");
+		_state = ERROR_STATE;
+		_errorReason = BODY_TOO_LARGE;
+		return ;
+	}
 
 	debugParse("BODY", "buffer size", _buffer.size());
 	debugParse("BODY", "contentLength", contentLength);
@@ -39,6 +46,14 @@ void	HttpRequest::decodeBody()
 
 	body += _buffer.substr(0, toRead);
 	_bodyBytesRead += toRead;
+
+	if (_bodyBytesRead > _maxBodySize)
+	{
+		debugParse("BODY", "status", "body exceeds max body size");
+		_state = ERROR_STATE;
+		_errorReason = BODY_TOO_LARGE;
+		return ;
+	}
 
 	debugParse("BODY", "body", body);
 
