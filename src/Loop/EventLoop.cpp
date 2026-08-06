@@ -10,7 +10,6 @@ static bool	g_isRunning = true;
 static void	signalHandler(int sig)
 {
 	(void)sig;
-	// << std::endl;
 	g_isRunning = false;
 }
 

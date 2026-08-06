@@ -1,15 +1,42 @@
-#include "RequestHandler.hpp"
+#include	"../inc/EventLoop.hpp"
+#include	"../inc/AcceptHandler.hpp"
+#include	"../inc/Config.hpp"
+#include	<iostream>
 
-int main(void)
+int main(int argc, char **argv)
 {
-	ServerBlock c;
-	HttpRequest r;
-	//hardcode config + request
+	if (argc != 2)
+	{
+		std::cerr << "Usage: ./webserv <config_file>" << std::endl;
+		return (1);
+	}
 
-	RequestHandler a(r, c);
+	Config config;
 
-	a.processRequest();
-	std::cout << "ok im working" << std::endl;
-	return (1);
+	try
+	{
+		config.parse(argv[1]);
+	}
+	catch (std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+		return (1);
+	}
+
+	EventLoop reactor;
+
+	const std::vector<ServerBlock> &servers = config.getServers();
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		AcceptHandler *listener = new AcceptHandler(servers[i], reactor);
+		if (listener->getFd() < 0)
+		{
+			std::cerr << "Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
+			delete listener;
+			return (1);
+		}
+		reactor.addHandler(listener);
+	}
+	reactor.run();
+	return (0);
 }
-

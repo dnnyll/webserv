@@ -14,7 +14,7 @@ CXXFLAGS += -DDEBUG
 endif
 
 # sources and objects
-SRCS			=	mainEventLoopConfig.cpp \
+SRCS			=	main.cpp \
 					Config/check_path.cpp \
 					Config/Config.cpp \
 					Handlers/AcceptHandler.cpp \

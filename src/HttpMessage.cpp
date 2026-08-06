@@ -1,6 +1,5 @@
 #include	"../inc/HttpMessage.hpp"
 
-//  ── constructor ──────────────────────────────────────────────────────
 HttpMessage::HttpMessage() : version("HTTP/1.1")
 {
 }
