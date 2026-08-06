@@ -13,6 +13,13 @@ RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &co
 ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
+	//TODO (jules) verifier avec alexi le format des redir
+	if (this->_location && !this->_location->redirect.empty())
+	{
+		res = HttpResponse::make(301, "Moved Permanently");
+		res.headers["Location"] = this->_location->redirect;
+		return (RESPONSE_READY);
+	}
 	resolveBuildConfig();
 	if (checkMethod())
 	{
