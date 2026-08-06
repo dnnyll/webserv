@@ -1,7 +1,5 @@
 JULES
 Response
-	redirection
-	verifier le content-length avec le client max body size
 	check permission fichiers etc
 
 DANY
