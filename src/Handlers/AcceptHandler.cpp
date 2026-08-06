@@ -128,7 +128,7 @@ void	AcceptHandler::handleWrite()
 */
 void AcceptHandler::setupSocket(int port, const std::string &host)
 {
-	//	TODO: danny+alexis: fix config of ports outside the range
+	//	secondary check for port validation - also done in config parsing
 	if (port <= 0 || port > 65535)
 	{
 		std::cerr << "Invalid port: " << port << std::endl;
