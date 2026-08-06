@@ -1,0 +1,12 @@
+JULES
+Response
+	redirection
+	verifier le content-length avec le client max body size
+	check permission fichiers etc
+
+DANY
+verifier cgi + etudier
+
+ALEXIS
+adapter la config d'endrit pour notre parsing
+
