@@ -3,9 +3,12 @@ server {
     root www;
 
     location / {
+        methods GET;
         index index.html;
         autoindex on;
     }
+
+    location /old {
+        redirect /hello.txt;
+    }
 }
-
-

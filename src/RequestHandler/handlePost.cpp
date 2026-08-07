@@ -42,6 +42,11 @@ void	RequestHandler::handlePost()
 		this->_response = HttpResponse::make(500, "Internal Server Error");
 		return ;
 	}
+	if (access(this->_effconf.upload_store.c_str(), W_OK) == -1)
+	{
+		this->_response = HttpResponse::make(403, "Forbidden");
+		return ;
+	}
 	this->_pathAbsolute = this->_effconf.upload_store;
 	if (this->_pathAbsolute[this->_pathAbsolute.size() - 1] != '/')
 		this->_pathAbsolute += '/';

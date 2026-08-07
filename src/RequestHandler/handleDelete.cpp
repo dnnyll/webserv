@@ -1,16 +1,35 @@
 #include "RequestHandler.hpp"
 #include <cstdio>
+#include <unistd.h>
+
+static std::string	getParentDirectory(const std::string &path)
+{
+	size_t	pos = path.rfind('/');
+	if (pos == std::string::npos)
+		return ".";
+	if (pos == 0)
+		return "/";
+	return path.substr(0, pos);
+}
 
 void	RequestHandler::handleDelete()
 {
 	switch (this->_effconf.status)
 	{
 		case FILE_FOUND:
+		{
+			std::string	parentDir = getParentDirectory(this->_pathAbsolute);
+			if (access(parentDir.c_str(), W_OK) == -1)
+			{
+				this->_response = HttpResponse::make(403, "Forbidden");
+				break;
+			}
 			if (std::remove(this->_pathAbsolute.c_str()))
 				this->_response = HttpResponse::make(500, "Internal Server Error");
 			else
 				this->_response = HttpResponse::make(200, "OK");
 			break;
+		}
 		case DIRECTORY_LISTING: //normalement impossible
 			this->_response = HttpResponse::make(403, "Forbidden");
 			break;
