@@ -77,8 +77,8 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 	bool autoindex_set = false;
 	bool upload_store_set = false;
 	bool redirect_set = false;
-	bool cgi_pass_set = false;
 	bool methods_set = false;
+	bool client_max_body_size_set = false;
 	
 	while (i < tokens.size() && tokens[i] != "}")
 	{
@@ -120,23 +120,37 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 			loc.upload_store = tokens[i++];
 			upload_store_set = true;
 		}
-		else if (key == "redirect")
+		else if (key == "return")
 		{
-			expect_value(tokens, i, key);
 			if (redirect_set)
-				throw Config::ConfigException("Duplicate 'redirect' directive in location " + loc.path);
-			loc.redirect = tokens[i++];
+				throw Config::ConfigException("Duplicate 'return' directive in location " + loc.path);
+
+			expect_value(tokens, i, "return code");
+			if (!is_number(tokens[i]))
+				throw Config::ConfigException("Invalid return code: " + tokens[i]);
+			int code = std::atoi(tokens[i++].c_str());
+			if (code < 300 || code > 399)
+				throw Config::ConfigException("return code muste be a valid redirect code (300-399)");
+			
+			expect_value(tokens, i, "return url");
+			if (tokens[i].empty() || tokens[i] == ";")
+				throw Config::ConfigException("return url can't be empty in location " + loc.path);
+			
+			loc.redirect_url = tokens[i++];
+			loc.redirect_code = code;
 			redirect_set = true;
 		}
 		else if (key == "cgi_pass")
 		{
-			if (cgi_pass_set)
-				throw Config::ConfigException("Duplicate 'cgi_pass' directive in location " + loc.path);
 			expect_value(tokens, i, "cgi_pass extension");
-			loc.cgi_extension	= tokens[i++]; //TODO (jules) avec '.' ou sans ??
+			std::string ext = tokens[i++];
 			expect_value(tokens, i, "cgi_pass path");
-			loc.cgi_path		= tokens[i++];
-			cgi_pass_set = true;
+			std::string path = tokens[i++];
+
+			if (loc.cgi_pass.count(ext))
+				throw Config::ConfigException("Duplicate 'cgi_pass' for extension " + ext + " in location " + loc.path);
+			
+			loc.cgi_pass[ext] = path;
 		}
 		else if (key == "methods")
 		{
@@ -153,11 +167,22 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 				throw Config::ConfigException("'methods' directive can't be empty in location " + loc.path);
 			methods_set = true;
 		}
+		else if (key == "client_max_body_size")
+		{
+			expect_value(tokens, i, key);
+			if (client_max_body_size_set)
+				throw Config::ConfigException("Duplicate 'client_max_body_size' directive");
+			if (!is_number(tokens[i]))
+				throw Config::ConfigException("Invalid client_max_body_size value");
+			loc.client_max_body_size = std::atoi(tokens[i++].c_str());
+			client_max_body_size_set = true;
+		}
 		else
 			throw Config::ConfigException("Unknown location directive: " + key);
-	
-		if (i < tokens.size() && tokens[i] == ";")
-			i++;
+
+		if (i >= tokens.size() || tokens[i] != ";")
+			throw Config::ConfigException("Expected ';' after directive '" + key + "'");
+		i++;
 	}
 	if (i >= tokens.size() || tokens[i] != "}")
 		throw Config::ConfigException("Expected '}' to close location block");
@@ -244,12 +269,16 @@ static ServerBlock parse_server(const std::vector<std::string> &tokens, size_t &
 			server.error_pages[code] = tokens[i++];
 		}
 		else if (key == "location")
+		{
 			server.locations.push_back(parse_location(tokens, i));
+			continue;
+		}
 		else
 			throw Config::ConfigException("Unknown server directive : " + key);
 
-		if (i < tokens.size() && tokens[i] == ";")
-			i++;
+		if (i >= tokens.size() || tokens[i] != ";")
+			throw Config::ConfigException("Expected ';' after directive '" + key + "'");
+		i++;
 	}
 	if (i >= tokens.size() || tokens[i] != "}")
 		throw Config::ConfigException("Expected '}' to close server block");
@@ -310,20 +339,37 @@ static std::vector<std::string> tokenize(const std::string &filepath)
 	return tokens;
 }
 
-static void validate_root_inheritance(const std::vector<ServerBlock> &servers)
+//TODO (alexis) : fonction coherente ??
+static void validate_inheritance(std::vector<ServerBlock> &servers)
 {
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
-		const ServerBlock &server = servers[i];
+		ServerBlock &server = servers[i];
 
 		for(size_t j = 0; j < server.locations.size(); ++j)
 		{
-			const Location &loc = server.locations[j];
+			Location &loc = server.locations[j];
 
 			if (loc.root.empty() && server.root.empty())
-			{
 				throw Config::ConfigException("No 'root' defined for location \"" + loc.path + "\" and no server-level fallback");
-			}
+
+			if (loc.client_max_body_size == 0)
+				loc.client_max_body_size = server.client_max_body_size;
+		}
+	}
+}
+
+static void validate_no_duplicate_servers(const std::vector<ServerBlock> &servers)
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		for (size_t j = i + 1; j < servers.size(); ++j)
+		{
+			const ServerBlock &a = servers[i];
+			const ServerBlock &b = servers[j];
+
+			if (a.host == b.host && a.port == b.port && a.server_name == b.server_name)
+				throw Config::ConfigException ("Duplicate server is no possible");
 		}
 	}
 }
@@ -333,8 +379,6 @@ void Config::parse(const std::string &filepath)
 {
 	std::vector<std::string> tokens = tokenize(filepath);
 	size_t i = 0;
-
-	std::cout << "DEBUG : start global parsing" << std::endl;
 
 	while (i < tokens.size())
 	{
@@ -347,7 +391,8 @@ void Config::parse(const std::string &filepath)
 			throw Config::ConfigException("Expected 'server' block, got : " + tokens[i]);
 	}
 
-	validate_root_inheritance(_servers);
+	validate_inheritance(_servers);
+	validate_no_duplicate_servers(_servers);
 
 	for (size_t s = 0; s < _servers.size(); s++)
 	{

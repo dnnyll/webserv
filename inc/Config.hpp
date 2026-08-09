@@ -14,11 +14,12 @@ struct	Location
 	bool						autoindex;
 	std::string					upload_store;
 	//TODO (jules) transformer en map<std::string, std::string> cgi extension/cgi path
-	std::string					cgi_extension;
-	std::string					cgi_path;
-	std::string					redirect;
-	// size_t						client_max_body_size;
-	Location() : autoindex(false) {}
+	//std::string					cgi_extension;
+	std::map<std::string, std::string>	cgi_pass;
+	int							redirect_code;
+	std::string					redirect_url;
+	size_t						client_max_body_size;
+	Location() : autoindex(false), redirect_code(0), client_max_body_size(0) {}
 };
 
 //	TODO (danny or jules): manage client_max_body_size
