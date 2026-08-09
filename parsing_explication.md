@@ -387,4 +387,8 @@ static void validate_inheritance(std::vector<ServerBlock> &servers)
 
 ---
 
+### Lancer le site web
+
+Il peut arriver que lancer simplement http://localhost:8080/ ne fonctionne pas car le projet tourne sur WSL et le navigateur web sous Windows.
+Sous WSL faire la commande "hostname -I" puis récupérer l'adresse IP fournie et l'écrire à la place de localhost -> http://xxx.xxx.xxx:8080/
 
