@@ -9,6 +9,7 @@ void	RequestHandler::resolveFileSystem()
 
 	if (stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
 	{
+		std::cout << "PATH ABSOLUTE " << this->_pathAbsolute << std::endl;
 		if (errno == ENOENT)
 			this->_effconf.status = NOT_FOUND;
 		else if (errno == EACCES)

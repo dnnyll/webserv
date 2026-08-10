@@ -14,10 +14,11 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
 	//TODO (jules) verifier avec alexi le format des redir
-	if (this->_location && !this->_location->redirect.empty())
+	//TODO (alexis) le format a changé : location a un redirect.code & une redirect.url -> gestion du code?
+	if (this->_location && !this->_location->redirect_url.empty())
 	{
 		res = HttpResponse::make(301, "Moved Permanently");
-		res.headers["Location"] = this->_location->redirect;
+		res.headers["Location"] = this->_location->redirect_url;
 		return (RESPONSE_READY);
 	}
 	resolveBuildConfig();
@@ -37,8 +38,7 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		res = HttpResponse::make(500, "Internal Server Error");
 		return (RESPONSE_READY);
 	}
-	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
-			this->_effconf.path);
+	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root);
 	std::cout << "[DEBUG ROUTER] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
 	if (this->_pathAbsolute.empty())
 	{

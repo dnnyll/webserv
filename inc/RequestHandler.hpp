@@ -53,8 +53,7 @@ class	RequestHandler
 		void				resolveBuildConfig();
 
 		int					checkMethod();
-		std::string			getPathAbsolute(std::string uri, std::string root,
-								std::string path);
+		std::string			getPathAbsolute(std::string uri, std::string root);
 
 
 		//filesystem

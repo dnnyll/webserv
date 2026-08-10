@@ -8,6 +8,21 @@ static std::string	chooseBestValue(const std::string &official, const std::strin
 	return official;
 }
 
+#include <iostream>
+#include <vector>
+
+static void printVector(const std::vector<std::string>& vec)
+{
+    std::vector<std::string>::const_iterator it;
+
+	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
+    for (it = vec.begin(); it != vec.end(); ++it)
+	{
+        std::cout << *it << std::endl;
+	}
+	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
+}
+
 //construction de la effconfig
 void	RequestHandler::resolveBuildConfig()
 {
@@ -31,5 +46,8 @@ void	RequestHandler::resolveBuildConfig()
 		this->_effconf.methods = this->_config.methods;
 	this->_effconf.autoindex = this->_location->autoindex;
 	this->_effconf.upload_store = this->_location->upload_store;
+	//TODO
+	printVector(this->_effconf.methods);
+	
 	//gerer aussi le upload store !!!!!!!!!!
 }
