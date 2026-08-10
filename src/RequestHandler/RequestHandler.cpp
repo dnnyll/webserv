@@ -38,8 +38,7 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		res = HttpResponse::make(500, "Internal Server Error");
 		return (RESPONSE_READY);
 	}
-	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root,
-			this->_effconf.path);
+	this->_pathAbsolute = getPathAbsolute(this->_request.uri, this->_effconf.root);
 	std::cout << "[DEBUG ROUTER] pathAbsolute = [" << this->_pathAbsolute << "]" << std::endl;
 	if (this->_pathAbsolute.empty())
 	{
