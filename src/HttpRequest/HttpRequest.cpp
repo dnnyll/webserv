@@ -7,7 +7,7 @@ HttpRequest::HttpRequest()
 	, _state(REQUEST_LINE)
 	, _errorReason(NO_ERROR)
 	, _bodyBytesRead(0)
-	, _maxBodySize(100000)
+	, _maxBodySize(10000)
 {
 	(void)_bodyBytesRead;
 }

@@ -20,6 +20,7 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 	_keepAlive = true;
 	_isClosed = false;
 	_request.setMaxBodySize(block.client_max_body_size);
+	std::cout << "CLIENTHANLDER MAXBODY SIZE ASSING " << block.client_max_body_size << std::endl;
 }
 
 /*
@@ -66,6 +67,9 @@ void	ClientHandler::handleRead()
 	std::cout << "\n----- END OF CHUNK -----\n" << std::endl;
 
 	_request.getData(std::string (buffer, bytesReceived));
+
+	std::cout << "maxBodySize: " << _request._maxBodySize<< "\n" << "Content length" << _request.contentLength << std::endl;
+
 
 	if (_request.hasError())
 	{

@@ -26,9 +26,9 @@ static void printVector(const std::vector<std::string>& vec)
 //construction de la effconfig
 void	RequestHandler::resolveBuildConfig()
 {
-	this->_effconf.client_max_body_size = this->_config.client_max_body_size;
 	if (!this->_location)
 	{
+		this->_effconf.client_max_body_size = this->_config.client_max_body_size;
 		this->_effconf.path = "/";
 		this->_effconf.root = this->_config.root;
 		this->_effconf.index = this->_config.index;
@@ -36,6 +36,7 @@ void	RequestHandler::resolveBuildConfig()
 		this->_effconf.autoindex = this->_config.autoindex;
 		return ;
 	}
+	this->_effconf.client_max_body_size = this->_location->client_max_body_size;
 	this->_effconf.path = this->_location->path;
 	this->_effconf.root = chooseBestValue(this->_location->root, this->_config.root);
 	this->_effconf.index = chooseBestValue(this->_location->index,

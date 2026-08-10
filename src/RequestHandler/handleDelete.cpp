@@ -27,7 +27,7 @@ void	RequestHandler::handleDelete()
 			if (std::remove(this->_pathAbsolute.c_str()))
 				this->_response = HttpResponse::make(500, "Internal Server Error");
 			else
-				this->_response = HttpResponse::make(200, "OK");
+				this->_response = HttpResponse::make(204, "No Content");
 			break;
 		}
 		case DIRECTORY_LISTING: //normalement impossible
@@ -42,6 +42,9 @@ void	RequestHandler::handleDelete()
 		case CGI_NEEDED:
 			//executeCGI(); //TODO
 			break;
+		case REDIRECT:
+			this->_response = HttpResponse::make(301, "Moved Permanently");
+			// TODO (JULES): FIX THIS SHIT
 		case ERROR:
 			this->_response = HttpResponse::make(500, "Internal Server Error");
 			break;
