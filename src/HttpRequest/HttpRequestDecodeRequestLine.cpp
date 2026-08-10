@@ -45,6 +45,7 @@ bool	HttpRequest::validateRequestLine()
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
 		_state = ERROR_STATE;
+		_errorReason = METHOD_NOT_ALLOWED;
 		return (false);
 	}
 
