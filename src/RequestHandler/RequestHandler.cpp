@@ -7,7 +7,6 @@
 RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)
 {
-	std::cout << "Constructor with parameter RequestHandler create" << std::endl;
 }
 
 ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)

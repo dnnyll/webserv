@@ -13,6 +13,8 @@ static std::string	getContentType(const std::string &path)
 	mimeTypes["png"] = "image/png";
 	mimeTypes["jpg"] = "image/jpeg";
 	mimeTypes["txt"] = "text/plain";
+	mimeTypes["json"] = "application/json";
+	mimeTypes["svg"] = "image/svg+xml";
 
 	std::string fileType = RequestHandler::getFileTypeFromPath(path);
 	std::map<std::string, std::string>::const_iterator iter = mimeTypes.find(fileType);
