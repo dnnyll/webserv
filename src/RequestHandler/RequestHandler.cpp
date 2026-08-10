@@ -7,7 +7,6 @@
 RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)
 {
-	std::cout << "Constructor with parameter RequestHandler create" << std::endl;
 }
 
 ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
@@ -51,6 +50,12 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
 		cgi = getCgiInfo();
 		return (CGI_PENDING);
+	}
+	else if (this->_effconf.status == REDIRECT)
+	{
+		this->_response = HttpResponse::make(301, "Moved Permanently");
+		this->_response.headers["Location"] = this->_request.uri + "/";
+		res = this->_response;
 	}
 	else if (this->_request.method == "POST")
 	{	
