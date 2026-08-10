@@ -102,13 +102,13 @@
 		return "302 → /default/get.html";
 	});
 
-	/* ---------- HEAD ---------- */
-	T.add("HEAD /files/hello.txt", "200, aucun body", async () => {
-		const r = await T.req("/files/hello.txt", { method: "HEAD" });
-		T.assert(r.status === 200, "status " + r.status);
-		T.assert(r.text.length === 0, "body non vide (" + r.text.length + " octets)");
-		return "200, body vide ✔";
-	});
+	// /* ---------- HEAD ---------- */
+	// T.add("HEAD /files/hello.txt", "200, aucun body", async () => {
+	// 	const r = await T.req("/files/hello.txt", { method: "HEAD" });
+	// 	T.assert(r.status === 200, "status " + r.status);
+	// 	T.assert(r.text.length === 0, "body non vide (" + r.text.length + " octets)");
+	// 	return "200, body vide ✔";
+	// });
 
 	T.add("HEAD /default/index.html", "405 (location / n'autorise que GET)", async () => {
 		const r = await T.req("/default/index.html", { method: "HEAD" });

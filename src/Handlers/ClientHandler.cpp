@@ -79,7 +79,10 @@ void	ClientHandler::handleRead()
 		if (_request.getErrorReason() == BODY_TOO_LARGE)
 			errorResponse = HttpResponse::make(413, "Payload Too Large");
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
+		{
+			// std::cout << "test HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" << std::endl;
 			errorResponse = HttpResponse::make(405, "Method not Allowed");
+		}
 		else
 			errorResponse = HttpResponse::make(400, "Bad Request");
 
