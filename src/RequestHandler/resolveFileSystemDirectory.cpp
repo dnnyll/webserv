@@ -6,6 +6,12 @@ void	RequestHandler::resolveFileSystemDirectory()
 {
 	struct stat	statbuf;
 
+	if (this->_request.uri[this->_request.uri.size() - 1] != '/')
+	{
+		this->_effconf.status = REDIRECT;
+		return ;
+	}	
+
 	if (this->_effconf.index.empty())
 	{
 		if (this->_effconf.autoindex)

@@ -51,6 +51,12 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		cgi = getCgiInfo();
 		return (CGI_PENDING);
 	}
+	else if (this->_effconf.status == REDIRECT)
+	{
+		this->_response = HttpResponse::make(301, "Moved Permanently");
+		this->_response.headers["Location"] = this->_request.uri + "/";
+		res = this->_response;
+	}
 	else if (this->_request.method == "POST")
 	{	
 		handlePost();

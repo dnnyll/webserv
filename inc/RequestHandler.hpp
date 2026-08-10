@@ -15,6 +15,7 @@ enum	FileSystemStatus
 	NOT_FOUND,
 	FORBIDDEN,
 	CGI_NEEDED,
+	REDIRECT,
 	ERROR
 };
 
