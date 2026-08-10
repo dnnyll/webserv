@@ -70,14 +70,13 @@ class	HttpRequest :public HttpMessage
 		//	accumulates the hex size line in chunked parsing
 		//	"1a\r\n" → parsed to size_t → then read that many bytes
 
-		// size_t			_maxBodySize;
+		size_t			_maxBodySize;
 		//	gets the value from -> Config -> AcceptHandler -> ClientHandler
 
 	//	methods
 
 	public:
-	//TODO(JULES): DELTE THIS LINE FFS
-		size_t			_maxBodySize;
+
 		//	parsing/decoding
 		HttpRequest();
 

@@ -9,7 +9,6 @@ HttpRequest::HttpRequest()
 	, _bodyBytesRead(0)
 	, _maxBodySize(10000)
 {
-	(void)_bodyBytesRead;
 }
 
 //	sets maxbodysize from Config

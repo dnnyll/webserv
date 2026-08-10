@@ -20,7 +20,6 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 	_keepAlive = true;
 	_isClosed = false;
 	_request.setMaxBodySize(block.client_max_body_size);
-	std::cout << "CLIENTHANLDER MAXBODY SIZE ASSING " << block.client_max_body_size << std::endl;
 }
 
 /*
@@ -68,9 +67,6 @@ void	ClientHandler::handleRead()
 
 	_request.getData(std::string (buffer, bytesReceived));
 
-	std::cout << "maxBodySize: " << _request._maxBodySize<< "\n" << "Content length" << _request.contentLength << std::endl;
-
-
 	if (_request.hasError())
 	{
 		
@@ -80,8 +76,7 @@ void	ClientHandler::handleRead()
 			errorResponse = HttpResponse::make(413, "Payload Too Large");
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
 		{
-			// std::cout << "test HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" << std::endl;
-			errorResponse = HttpResponse::make(405, "Method not Allowed");
+			errorResponse = HttpResponse::make(501, "Not Implemented");
 		}
 		else
 			errorResponse = HttpResponse::make(400, "Bad Request");
