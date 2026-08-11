@@ -40,6 +40,7 @@ CgiInfo	RequestHandler::getCgiInfo()
 		script_name = this->_request.uri.substr(0, start_query);
 	}
 	ret.env.push_back("QUERY_STRING=" + query_string);
+	std::cout << "QUERY STRING : " << query_string << std::endl; //TODO
 	if (this->_request.contentLength)
 		ret.env.push_back("CONTENT_LENGTH="
 			+ sizetToString(this->_request.contentLength));

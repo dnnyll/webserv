@@ -45,6 +45,7 @@ void	RequestHandler::handleDelete()
 		case REDIRECT:
 			this->_response = HttpResponse::make(301, "Moved Permanently");
 			// TODO (JULES): FIX THIS SHIT
+			break;
 		case ERROR:
 			this->_response = HttpResponse::make(500, "Internal Server Error");
 			break;

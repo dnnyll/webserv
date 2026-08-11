@@ -9,7 +9,8 @@ void	RequestHandler::resolveFileSystem()
 
 	if (stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
 	{
-		std::cout << "PATH ABSOLUTE " << this->_pathAbsolute << std::endl;
+		std::cout << "PATH ABSOLUTE not working "
+			<< this->_pathAbsolute << std::endl; //TODO
 		if (errno == ENOENT)
 			this->_effconf.status = NOT_FOUND;
 		else if (errno == EACCES)
@@ -29,6 +30,7 @@ void	RequestHandler::resolveFileSystem()
 		if (this->_effconf.cgi_extension == path_extension 
 				&& this->_effconf.cgi_extension != "")
 		{
+			std::cout << "CGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 			if (access(this->_pathAbsolute.c_str(), X_OK) == -1)
 			{
 				this->_effconf.status = FORBIDDEN;

@@ -1,6 +1,6 @@
 JULES
-Response
-	check permission fichiers etc
+	check si meme client renvoie une requete 
+	si cree un nouveau client ou non
 
 DANY
 verifier cgi + etudier

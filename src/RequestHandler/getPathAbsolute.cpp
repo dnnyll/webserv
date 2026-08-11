@@ -2,6 +2,12 @@
 
 std::string	RequestHandler::getPathAbsolute(std::string uri, std::string root)
 {
+	//query string si cgi
+	size_t	npos = uri.find('?');
+	if (npos != std::string::npos)
+		uri = uri.substr(0, npos);
+
+
     if (uri.find("..") != std::string::npos)
 		return ("");
 	if (!root.empty() && root[root.size() - 1] == '/')
