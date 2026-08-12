@@ -62,7 +62,7 @@ class	RequestHandler
 		void				resolveFileSystem();
 
 		//cgi
-		CgiInfo				getCgiInfo();
+		int					getCgiInfo(CgiInfo &ret);
 
 		//responder
 		void				handleGet();

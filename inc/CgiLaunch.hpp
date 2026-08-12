@@ -12,6 +12,7 @@
 struct	CgiInfo
 {
 	std::string					scriptPath;
+	std::string					execScriptName;
 	std::string					workingDirectory;
 	std::string					interpreterPath;
 	std::vector<std::string>	env;

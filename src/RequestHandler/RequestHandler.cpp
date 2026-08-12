@@ -48,7 +48,11 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 	if (this->_effconf.status == CGI_NEEDED)
 	{
 		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
-		cgi = getCgiInfo();
+		if (getCgiInfo(cgi))
+		{
+			res = this->_response;
+			return (RESPONSE_READY);
+		}
 		return (CGI_PENDING);
 	}
 	else if (this->_effconf.status == REDIRECT)

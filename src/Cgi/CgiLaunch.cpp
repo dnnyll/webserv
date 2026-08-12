@@ -93,7 +93,7 @@ bool	launchCgi(const CgiInfo &info, CgiContext *ctx)
 
 		char	*argv[3];
 		argv[0] = const_cast<char*>(info.interpreterPath.c_str());
-		argv[1] = const_cast<char*>(info.scriptPath.c_str());
+		argv[1] = const_cast<char*>(info.execScriptName.c_str());
 		argv[2] = NULL;
 
 		char	**envp = buildEnvp(info.env);
