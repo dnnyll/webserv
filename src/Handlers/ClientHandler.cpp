@@ -4,10 +4,10 @@
 #include	"../inc/RequestHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
 #include	"../inc/EventLoop.hpp"
-#include	"../inc/CgiContext.hpp"
-#include	"../inc/CgiLaunch.hpp"
-#include	"../inc/CgiWriteHandler.hpp"
-#include	"../inc/CgiReadHandler.hpp"
+#include	"../inc/Cgi/CgiContext.hpp"
+#include	"../inc/Cgi/CgiLaunch.hpp"
+#include	"../inc/Cgi/CgiWriteHandler.hpp"
+#include	"../inc/Cgi/CgiReadHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
 

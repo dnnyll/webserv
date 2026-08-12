@@ -1,4 +1,4 @@
-#include	"../inc/CgiWriteHandler.hpp"
+#include	"../inc/Cgi/CgiWriteHandler.hpp"
 #include	<unistd.h>
 #include	<cerrno>
 #include	<iostream>

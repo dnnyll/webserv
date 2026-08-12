@@ -1,6 +1,6 @@
 #include "RequestHandler.hpp"
 // #include "CgiHandler.hpp"
-#include "../inc/CgiLaunch.hpp"
+#include "../inc/Cgi/CgiLaunch.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sstream>

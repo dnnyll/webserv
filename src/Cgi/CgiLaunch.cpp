@@ -1,4 +1,4 @@
-#include	"../inc/CgiLaunch.hpp"
+#include	"../inc/Cgi/CgiLaunch.hpp"
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<sys/wait.h>

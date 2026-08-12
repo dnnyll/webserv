@@ -1,7 +1,7 @@
 #ifndef		CGILAUNCH_HPP
 # define	CGILAUNCH_HPP
 
-#include	"../inc/CgiContext.hpp"
+#include	"../inc/Cgi/CgiContext.hpp"
 #include	<string>
 #include	<vector>
 

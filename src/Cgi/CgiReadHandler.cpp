@@ -1,4 +1,4 @@
-#include	"../inc/CgiReadHandler.hpp"
+#include	"../inc/Cgi/CgiReadHandler.hpp"
 #include	<unistd.h>
 #include	<sys/wait.h>
 #include	<cerrno>

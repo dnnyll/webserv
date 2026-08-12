@@ -26,7 +26,7 @@ SRCS			=	main.cpp \
 					HttpRequest/HttpRequestDecodeRequestLine.cpp \
 					HttpRequest/HttpRequestDecodeHeaders.cpp \
 					HttpResponse.cpp\
-					Loop/EventLoop.cpp\
+					EventLoop.cpp\
 					RequestHandler/RequestHandler.cpp\
 					RequestHandler/getLocation.cpp\
 					RequestHandler/resolveBuildConfig.cpp\

@@ -2,7 +2,7 @@
 # define	CGIREADHANDLER_HPP
 
 #include	"../inc/EventHandler.hpp"
-#include	"../inc/CgiContext.hpp"
+#include	"../inc/Cgi/CgiContext.hpp"
 
 /*
 ** CgiReadHandler

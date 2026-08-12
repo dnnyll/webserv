@@ -1,4 +1,4 @@
-#include	"../inc/CgiContext.hpp"
+#include	"../inc/Cgi/CgiContext.hpp"
 #include	<unistd.h>
 
 CgiContext::CgiContext()
