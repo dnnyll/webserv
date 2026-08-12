@@ -37,12 +37,12 @@ void	RequestHandler::resolveFileSystem()
 			this->_effconf.status = FORBIDDEN;
 			return;
 		}
-		std::string path_extension = "." + getFileTypeFromPath(this->_pathAbsolute);
+		this->_effconf.path_extension = "." + getFileTypeFromPath(this->_pathAbsolute);
 		//TODO (jules) sans le point core dump
-		std::cout << "PATH_EXTENSION : " << path_extension << std::endl;
+		std::cout << "PATH_EXTENSION : " << this->_effconf.path_extension << std::endl;
 		std::cout << "PRINT MAP CGI : " << std::endl;
 		printCgiPass(this->_effconf.cgi_pass);
-		if (this->_effconf.cgi_pass.count(path_extension) > 0)
+		if (this->_effconf.cgi_pass.count(this->_effconf.path_extension) > 0)
 		{
 			std::cout << "CGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;//TODO
 			if (access(this->_pathAbsolute.c_str(), X_OK) == -1)

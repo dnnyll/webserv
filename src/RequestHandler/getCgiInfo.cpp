@@ -16,7 +16,9 @@ CgiInfo	RequestHandler::getCgiInfo()
 	CgiInfo	ret;
 
 	ret.scriptPath = this->_pathAbsolute;
-	ret.interpreterPath = this->_effconf.cgi_path;
+	ret.interpreterPath = this->_effconf.cgi_pass[this->_effconf.path_extension];
+	std::cout << "interpret/path_extension CGI : " << ret.interpreterPath << std::endl;
+
 	//TODO (jules) verifier dir avec stat ? ou execve?
 	size_t directory_path = this->_pathAbsolute.rfind('/');
 	if (directory_path == std::string::npos)

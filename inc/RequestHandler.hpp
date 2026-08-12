@@ -30,6 +30,7 @@ typedef struct s_EffectiveConfig
 	std::string							upload_store;
 	size_t								client_max_body_size;
 	std::map<std::string, std::string>	cgi_pass;
+	std::string							path_extension;
 } t_EffectiveConfig;
 
 class	RequestHandler
