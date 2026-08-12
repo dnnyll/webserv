@@ -21,16 +21,15 @@ enum	FileSystemStatus
 
 typedef struct s_EffectiveConfig
 {
-	std::string					path;
-	std::string					root;
-	std::string					index;
-	std::vector<std::string>	methods;
-	bool						autoindex;
-	FileSystemStatus			status;
-	std::string					upload_store;
-	size_t						client_max_body_size;
-	std::string					cgi_extension;
-	std::string					cgi_path;
+	std::string							path;
+	std::string							root;
+	std::string							index;
+	std::vector<std::string>			methods;
+	bool								autoindex;
+	FileSystemStatus					status;
+	std::string							upload_store;
+	size_t								client_max_body_size;
+	std::map<std::string, std::string>	cgi_pass;
 } t_EffectiveConfig;
 
 class	RequestHandler

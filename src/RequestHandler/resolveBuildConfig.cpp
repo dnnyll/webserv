@@ -36,7 +36,6 @@ void	RequestHandler::resolveBuildConfig()
 		this->_effconf.autoindex = this->_config.autoindex;
 		return ;
 	}
-	this->_effconf.client_max_body_size = this->_location->client_max_body_size;
 	this->_effconf.path = this->_location->path;
 	this->_effconf.root = chooseBestValue(this->_location->root, this->_config.root);
 	this->_effconf.index = chooseBestValue(this->_location->index,
@@ -47,8 +46,8 @@ void	RequestHandler::resolveBuildConfig()
 		this->_effconf.methods = this->_config.methods;
 	this->_effconf.autoindex = this->_location->autoindex;
 	this->_effconf.upload_store = this->_location->upload_store;
-	//TODO
+	this->_effconf.client_max_body_size = this->_location->client_max_body_size;
+	this->_effconf.cgi_pass = this->_location->cgi_pass;
+	//TODO jules a supp ou non? debug?
 	//printVector(this->_effconf.methods);
-	
-	//gerer aussi le upload store !!!!!!!!!!
 }

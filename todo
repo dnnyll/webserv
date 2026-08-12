@@ -1,6 +1,9 @@
 JULES
-	check si meme client renvoie une requete 
+	-clean la branche -> renommer aussi les todos
+	-check si meme client renvoie une requete 
 	si cree un nouveau client ou non
+	-remonter plusieurs erreur cgi
+
 
 DANY
 verifier cgi + etudier

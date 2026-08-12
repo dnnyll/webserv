@@ -32,7 +32,7 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		return (RESPONSE_READY);
 	}
 	if (this->_request.uri.empty() || this->_effconf.root.empty()
-			|| this->_effconf.path.empty()) //TODO check utile avant le post ???
+			|| this->_effconf.path.empty()) //TODO jules check utile avant le post ???
 	{
 		res = HttpResponse::make(500, "Internal Server Error");
 		return (RESPONSE_READY);
@@ -44,7 +44,7 @@ ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
 		res = HttpResponse::make(400, "Bad Request");
 		return (RESPONSE_READY);
 	}
-	resolveFileSystem(); //TODO
+	resolveFileSystem();
 	if (this->_effconf.status == CGI_NEEDED)
 	{
 		std::cout << "[PROCESSREQUEST] is a CGI" << std::endl;
