@@ -13,6 +13,7 @@ class	EventHandler
 		virtual void	handleWrite() = 0;
 		virtual int		getFd() const = 0;
 		virtual bool	isClosed() const = 0;
+		virtual void	markClosed() = 0;
 		virtual bool	isWritable() const = 0;
 };
 

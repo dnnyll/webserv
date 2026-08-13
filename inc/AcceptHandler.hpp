@@ -56,8 +56,9 @@ class	AcceptHandler : public	EventHandler
 		void	handleWrite();
 		int		getFd() const;
 		bool	isClosed() const;
+		void	markClosed();
 		bool	isWritable() const;
-		
+
 	private:
 		void	setupSocket(int port, const std::string &host);
 };

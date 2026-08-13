@@ -1,55 +1,56 @@
 # webserv
 
 # definitions
-INC_DIR			=	inc
-SRC_DIR			=	src
-OBJ_DIR			=	obj
-BIN_DIR			=	bin
-NAME			=	webserv
-CXX				=	c++
-CXXFLAGS		=	-g3 -O0 -Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR)
+INC_DIR         =   inc
+SRC_DIR         =   src
+OBJ_DIR         =   obj
+BIN_DIR         =   bin
+NAME            =   webserv
+CXX             =   c++
+CXXFLAGS        =   -g3 -O0 -Wall -Wextra -Werror -std=c++98 -pedantic-errors -I$(INC_DIR) -MMD -MP
 
 ifdef DEBUG
 CXXFLAGS += -DDEBUG
 endif
 
 # sources and objects
-SRCS			=	main.cpp \
-					Config/check_path.cpp \
-					Config/Config.cpp \
-					Handlers/AcceptHandler.cpp \
-					Handlers/ClientHandler.cpp \
-					HttpMessage.cpp \
-					HttpRequest/HttpRequestDecodeBody.cpp \
-					HttpRequest/HttpRequestDecodeChunked.cpp \
-					HttpRequest/HttpRequest.cpp \
-					HttpRequest/HttpRequestDecodeRequestLine.cpp \
-					HttpRequest/HttpRequestDecodeHeaders.cpp \
-					HttpResponse.cpp\
-					EventLoop.cpp\
-					RequestHandler/RequestHandler.cpp\
-					RequestHandler/getLocation.cpp\
-					RequestHandler/resolveBuildConfig.cpp\
-					RequestHandler/getPathAbsolute.cpp\
-					RequestHandler/checkMethod.cpp\
-					RequestHandler/getFileTypeFromPath.cpp\
-					RequestHandler/resolveFileSystem.cpp\
-					RequestHandler/resolveFileSystemDirectory.cpp\
-					RequestHandler/getCgiInfo.cpp\
-					RequestHandler/handleGet.cpp\
-					RequestHandler/directoryListing.cpp\
-					RequestHandler/handlePost.cpp\
-					RequestHandler/handleDelete.cpp \
-					Cgi/CgiContext.cpp \
-					Cgi/CgiLaunch.cpp \
-					Cgi/CgiReadHandler.cpp \
-					Cgi/CgiWriteHandler.cpp
+SRCS            =   main.cpp \
+                    Config/check_path.cpp \
+                    Config/Config.cpp \
+                    Handlers/AcceptHandler.cpp \
+                    Handlers/ClientHandler.cpp \
+                    HttpMessage.cpp \
+                    HttpRequest/HttpRequestDecodeBody.cpp \
+                    HttpRequest/HttpRequestDecodeChunked.cpp \
+                    HttpRequest/HttpRequest.cpp \
+                    HttpRequest/HttpRequestDecodeRequestLine.cpp \
+                    HttpRequest/HttpRequestDecodeHeaders.cpp \
+                    HttpResponse.cpp\
+                    EventLoop.cpp\
+                    RequestHandler/RequestHandler.cpp\
+                    RequestHandler/getLocation.cpp\
+                    RequestHandler/resolveBuildConfig.cpp\
+                    RequestHandler/getPathAbsolute.cpp\
+                    RequestHandler/checkMethod.cpp\
+                    RequestHandler/getFileTypeFromPath.cpp\
+                    RequestHandler/resolveFileSystem.cpp\
+                    RequestHandler/resolveFileSystemDirectory.cpp\
+                    RequestHandler/getCgiInfo.cpp\
+                    RequestHandler/handleGet.cpp\
+                    RequestHandler/directoryListing.cpp\
+                    RequestHandler/handlePost.cpp\
+                    RequestHandler/handleDelete.cpp \
+                    Cgi/CgiContext.cpp \
+                    Cgi/CgiLaunch.cpp \
+                    Cgi/CgiReadHandler.cpp \
+                    Cgi/CgiWriteHandler.cpp
 
 
-OBJS			=	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
+OBJS            =   $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
+DEPS            =   $(OBJS:.o=.d)
 
 # compilation rule
-$(OBJ_DIR)/%.o:	$(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -63,27 +64,29 @@ debug:
 
 # linking binary
 $(BIN_DIR)/$(NAME): $(OBJS)
-						mkdir -p $(BIN_DIR)
-						$(CXX) $(CXXFLAGS) $(OBJS) -o $@
-						ln -sf $@ ./$(NAME)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
+	ln -sf $@ ./$(NAME)
 
 # create symlink in sources/ to access binary
-link:					$(BIN_DIR)/$(NAME)
-#						ln -sf $(BIN_DIR)/$(NAME) ./$(NAME)
+link:                   $(BIN_DIR)/$(NAME)
+#                       ln -sf $(BIN_DIR)/$(NAME) ./$(NAME)
 
 # cleaning
 #removes content of /bin and /obj directories
 clean:
-						rm -rf $(OBJ_DIR)/*
-						rm -rf $(BIN_DIR)/*
-						
+	rm -rf $(OBJ_DIR)/*
+	rm -rf $(BIN_DIR)/*
 #removes content and directories /bin and /obj
 fclean: clean
-						rm -rf $(OBJ_DIR)
-						rm -rf $(BIN_DIR)
-						rm -rf $(NAME)
+	rm -rf $(OBJ_DIR)
+	rm -rf $(BIN_DIR)
+	rm -rf $(NAME)
 
 re: fclean all
+
+# include auto-generated header dependencies (silently ignored if missing)
+-include $(DEPS)
 
 # PHONY
 

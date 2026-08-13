@@ -32,6 +32,8 @@ class	CgiReadHandler : public	EventHandler
 		int		getFd() const;
 		bool	isClosed() const;
 		bool	isWritable() const;
+		void	markClosed();
+
 
 	private:
 		CgiContext	*_ctx;
@@ -39,7 +41,7 @@ class	CgiReadHandler : public	EventHandler
 		static const time_t	TIMEOUT_SECONDS = 30;
 
 		bool	hasTimedOut() const;
-		void	reapChild() const;
+		void	reapChild(bool block) const;
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include	"../inc/Cgi/CgiWriteHandler.hpp"
 #include	<unistd.h>
-#include	<cerrno>
 #include	<iostream>
 
 CgiWriteHandler::CgiWriteHandler(CgiContext *ctx) : _ctx(ctx)
@@ -63,13 +62,12 @@ void	CgiWriteHandler::handleWrite()
 
 	if (n < 0)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return ;	//	try again next poll cycle
-
-		std::cout << "[CGIWRITE] write() error, aborting write side" << std::endl;
-		close(_ctx->pipeInWrite);
-		_ctx->pipeInWrite = -1;
-		_ctx->writeDone = true;
+		//	No errno inspection here: the subject forbids checking errno
+		//	after a read/write, and with handleWrite() gated on POLLOUT
+		//	the pipe is writable when we get here. A genuine failure
+		//	(e.g. the child exiting) surfaces as POLLERR and is handled
+		//	by markClosed(); anything transient is retried on the next
+		//	POLLOUT event.
 		return ;
 	}
 
@@ -86,4 +84,18 @@ void	CgiWriteHandler::handleWrite()
 void	CgiWriteHandler::handleRead()
 {
 	//	this handler is only ever polled for POLLOUT; nothing to do here
+}
+
+void	CgiWriteHandler::markClosed()
+{
+	if (_ctx->writeDone)
+		return ;
+
+	std::cout << "[CGIWRITE] POLLERR, closing pipeInWrite" << std::endl;
+	if (_ctx->pipeInWrite != -1)
+	{
+		close(_ctx->pipeInWrite);
+		_ctx->pipeInWrite = -1;
+	}
+	_ctx->writeDone = true;
 }

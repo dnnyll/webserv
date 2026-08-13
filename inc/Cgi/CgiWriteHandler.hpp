@@ -16,6 +16,7 @@ class	CgiWriteHandler : public	EventHandler
 		int		getFd() const;
 		bool	isClosed() const;
 		bool	isWritable() const;
+		void	markClosed();
 
 	private:
 		CgiContext	*_ctx;

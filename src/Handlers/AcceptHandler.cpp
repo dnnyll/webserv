@@ -179,3 +179,8 @@ bool	AcceptHandler::isWritable() const
 {
 	return (false);
 }
+
+void	AcceptHandler::markClosed()
+{
+	// listening socket getting POLLERR is unusual — no-op for now
+}

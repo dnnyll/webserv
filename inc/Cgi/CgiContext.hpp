@@ -5,6 +5,29 @@
 #include	<sys/types.h>
 #include	<ctime>
 
+/*
+	Shared "is the client still alive" flag.
+
+	Owned by no single side: the ClientHandler holds one reference and
+	each in-flight CgiContext holds one. The flag is only freed once
+	both are done with it, so neither side can touch freed memory.
+*/
+struct	CgiAlive
+{
+	bool	alive;
+	int		refs;
+
+	CgiAlive() : alive(true), refs(1) {}
+
+	void	addRef() { refs++; }
+	void	release()
+	{
+		refs--;
+		if (refs == 0)
+			delete this;
+	}
+};
+
 struct	CgiContext
 {
 	pid_t			pid;
@@ -15,13 +38,17 @@ struct	CgiContext
 	std::string		requestBody;
 	size_t			bodySent;
 
+	std::string		output;			//	raw CGI stdout, accumulated while the child runs
 	std::string		*outBuffer;		//	non-owning, points into ClientHandler::_outBuffer
-	bool			*clientAlive;	//	non-owning, shared flag: false once ClientHandler is destroyed
+	CgiAlive		*clientAlive;	//	shared flag: alive=false once ClientHandler is destroyed
 
 	bool			writeDone;
 	bool			readDone;
 
 	time_t			startTime;		//	used for timeout detection in isClosed()
+
+	int				exitStatus;		//	raw waitpid() status once the child is reaped,
+									//	-1 while it is still running / unknown
 
 	int				refCount;
 

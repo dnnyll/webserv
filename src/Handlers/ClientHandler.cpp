@@ -23,17 +23,20 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 }
 
 /*
-	If a CGI invocation is still in flight when this client disconnects,
-	_clientAlive is not deleted here — it's owned by the CgiContext at
-	this point (see CgiContext::release()) and freed once the last
-	CGI handler referencing it is destroyed. We only flip it to false
-	so CgiReadHandler stops touching _outBuffer, which is about to be
-	destroyed along with the rest of this object.
+	_clientAlive is refcounted: this handler holds one reference, and
+	each in-flight CgiContext holds one. We flip alive=false so any
+	surviving CgiReadHandler stops touching _outBuffer (about to be
+	destroyed), then drop our reference. The flag object itself is
+	only freed once the last CgiContext also releases it.
 */
 ClientHandler::~ClientHandler()
 {
 	if (_clientAlive)
-		*_clientAlive = false;
+	{
+		_clientAlive->alive = false;
+		_clientAlive->release();
+		_clientAlive = NULL;
+	}
 	close(_fd);
 }
 
@@ -110,18 +113,22 @@ void	ClientHandler::handleRead()
 				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
 				// (void)cgi;
 				if (!_clientAlive)
-					_clientAlive = new bool(true);
+					_clientAlive = new CgiAlive();
 
 				CgiContext	*ctx = new CgiContext();
 				ctx->requestBody = _request.body;
 				ctx->outBuffer   = &_outBuffer;
 				ctx->clientAlive = _clientAlive;
+				_clientAlive->addRef();	//	this CgiContext's reference
 
 				if (!launchCgi(cgi, ctx))
 				{
 					//	setup failed before fork/pipes could be handed
-					//	to any handler — nothing has taken ownership
-					//	of ctx yet, so we free it directly here
+					//	to any handler — nothing has taken ownership of
+					//	ctx yet, so drop its reference on the flag and
+					//	free it directly here
+					ctx->clientAlive = NULL;
+					_clientAlive->release();
 					delete ctx;
 					HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
 					_outBuffer = errorResponse.serialize();
@@ -181,4 +188,9 @@ bool	ClientHandler::isClosed() const
 bool	ClientHandler::isWritable() const
 {
 	return (!_outBuffer.empty());
+}
+
+void	ClientHandler::markClosed()
+{
+	_isClosed = true;
 }

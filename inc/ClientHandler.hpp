@@ -6,6 +6,8 @@
 #include	"../inc/Config.hpp"
 #include	"../inc/EventLoop.hpp"
 
+struct	CgiAlive;
+
 /*
 ** ClientHandler
 **
@@ -50,15 +52,15 @@ class	ClientHandler : public	EventHandler
 											//	you don't close the fd, 
 											//	you reset _request and wait for the next request
 		bool				_isClosed;		//	private data, ClintHandler only
-		bool				*_clientAlive;	//	heap bool, shared with any CgiContext spawned
-											//	from this client's request; set false in ~ClientHandler().
-											//	Freed by whichever CgiContext::release() reaches
-											//	refCount 0 last — NOT deleted here directly, since
-											//	a CgiReadHandler may still be reading it after this
-											//	ClientHandler is destroyed.
+		CgiAlive			*_clientAlive;	//	shared with any CgiContext spawned from this
+											//	client's request; refcounted so it outlives both
+											//	the ClientHandler and the in-flight CGI handler.
+											//	alive=false in ~ClientHandler(); freed by the last
+											//	holder (this handler or a CgiContext) to release it.
 
 		//	methods
 		bool	isClosed() const;
+		void	markClosed();
 };
 
 #endif
