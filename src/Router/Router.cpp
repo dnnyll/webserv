@@ -1,15 +1,15 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include "HttpResponse.hpp"
 // #include "CgiHandler.hpp"
 #include "../inc/Cgi/CgiLaunch.hpp"
 
 
-RequestHandler::RequestHandler(const HttpRequest &request, const ServerBlock &config) :
+Router::Router(const HttpRequest &request, const ServerBlock &config) :
 	_request(request), _config(config)
 {
 }
 
-ResponseType RequestHandler::processRequest(HttpResponse &res, CgiInfo &cgi)
+ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
 	//TODO (jules) verifier avec alexi le format des redir

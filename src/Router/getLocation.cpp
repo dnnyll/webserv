@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 
 static int	matchLocation(const std::string &uri, const std::string &path)
 {
@@ -14,7 +14,7 @@ static int	matchLocation(const std::string &uri, const std::string &path)
 	return 1;
 }
 
-const Location*	RequestHandler::getLocation()
+const Location*	Router::getLocation()
 {
 	std::vector<Location>::const_iterator iter = _config.locations.begin();
 	size_t	bestPathLocation = 0;

@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 
 static bool	isMethodAllowed(const std::string &method, const std::vector<std::string> 
 		&methods)
@@ -14,7 +14,7 @@ static bool	isMethodAllowed(const std::string &method, const std::vector<std::st
 	return false;
 }
 
-int RequestHandler::checkMethod()
+int Router::checkMethod()
 {
 	if (!isMethodAllowed(this->_request.method, this->_effconf.methods))
 		return 1;

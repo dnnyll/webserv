@@ -1,8 +1,8 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <cerrno>
 #include <sys/stat.h>
 
-void	RequestHandler::resolveFileSystemDirectory()
+void	Router::resolveFileSystemDirectory()
 {
 	struct stat	statbuf;
 

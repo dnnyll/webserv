@@ -33,7 +33,7 @@ typedef struct s_EffectiveConfig
 	std::string							path_extension;
 } t_EffectiveConfig;
 
-class	RequestHandler
+class	Router
 {
 	private:
 		const HttpRequest	&_request;
@@ -74,7 +74,7 @@ class	RequestHandler
 
 	public:
 		static std::string			getFileTypeFromPath(const std::string &path);
-		RequestHandler(const HttpRequest &request, const ServerBlock &config);
+		Router(const HttpRequest &request, const ServerBlock &config);
 
 		ResponseType	processRequest(HttpResponse &res, CgiInfo &cgi);
 };

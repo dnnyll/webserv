@@ -1,7 +1,7 @@
 #include	"../inc/ClientHandler.hpp"
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/Config.hpp"
-#include	"../inc/RequestHandler.hpp"
+#include	"../inc/Router.hpp"
 #include	"../inc/HttpResponse.hpp"
 #include	"../inc/EventLoop.hpp"
 #include	"../inc/Cgi/CgiContext.hpp"
@@ -101,7 +101,7 @@ void	ClientHandler::handleRead()
 
 		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
 
-		RequestHandler	createResponse(_request, _config);
+		Router	createResponse(_request, _config);
 		HttpResponse	res;
 		CgiInfo 		cgi;
 		

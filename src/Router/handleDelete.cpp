@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <cstdio>
 #include <unistd.h>
 
@@ -12,7 +12,7 @@ static std::string	getParentDirectory(const std::string &path)
 	return path.substr(0, pos);
 }
 
-void	RequestHandler::handleDelete()
+void	Router::handleDelete()
 {
 	switch (this->_effconf.status)
 	{

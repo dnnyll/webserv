@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <sstream>
 #include <dirent.h>
 
@@ -31,7 +31,7 @@ static std::string	escapeHtml(const std::string &str)
 	return ret;
 }
 
-void	RequestHandler::directoryListing()
+void	Router::directoryListing()
 {
 	std::cout << "DIRECTORY LISTING " << std::endl;
 	DIR	*dir = opendir(_pathAbsolute.c_str());

@@ -27,19 +27,19 @@ SRCS            =   main.cpp \
                     HttpRequest/HttpRequestDecodeHeaders.cpp \
                     HttpResponse.cpp\
                     EventLoop.cpp\
-                    RequestHandler/RequestHandler.cpp\
-                    RequestHandler/getLocation.cpp\
-                    RequestHandler/resolveBuildConfig.cpp\
-                    RequestHandler/getPathAbsolute.cpp\
-                    RequestHandler/checkMethod.cpp\
-                    RequestHandler/getFileTypeFromPath.cpp\
-                    RequestHandler/resolveFileSystem.cpp\
-                    RequestHandler/resolveFileSystemDirectory.cpp\
-                    RequestHandler/getCgiInfo.cpp\
-                    RequestHandler/handleGet.cpp\
-                    RequestHandler/directoryListing.cpp\
-                    RequestHandler/handlePost.cpp\
-                    RequestHandler/handleDelete.cpp \
+                    Router/Router.cpp\
+                    Router/getLocation.cpp\
+                    Router/resolveBuildConfig.cpp\
+                    Router/getPathAbsolute.cpp\
+                    Router/checkMethod.cpp\
+                    Router/getFileTypeFromPath.cpp\
+                    Router/resolveFileSystem.cpp\
+                    Router/resolveFileSystemDirectory.cpp\
+                    Router/getCgiInfo.cpp\
+                    Router/handleGet.cpp\
+                    Router/directoryListing.cpp\
+                    Router/handlePost.cpp\
+                    Router/handleDelete.cpp \
                     Cgi/CgiContext.cpp \
                     Cgi/CgiLaunch.cpp \
                     Cgi/CgiReadHandler.cpp \

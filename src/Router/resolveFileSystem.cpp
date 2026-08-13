@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,7 +14,7 @@ void printCgiPass(const std::map<std::string, std::string>& cgi_pass)
 		std::cout << "ext=[" << it->first << "] interpreter=[" << it->second << "]" << std::endl;
 }
 
-void	RequestHandler::resolveFileSystem()
+void	Router::resolveFileSystem()
 {
 	struct stat	statbuf;
 

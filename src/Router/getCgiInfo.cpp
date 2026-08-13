@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 // #include "CgiHandler.hpp"
 #include "../inc/Cgi/CgiLaunch.hpp"
 #include <sys/stat.h>
@@ -13,7 +13,7 @@ static std::string	sizetToString(size_t number)
 	return sizetStream.str();
 }
 
-int	RequestHandler::getCgiInfo(CgiInfo &ret)
+int	Router::getCgiInfo(CgiInfo &ret)
 {
 	//cgiCheck before all
 	struct stat	statbuf;

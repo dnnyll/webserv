@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <fstream>
 #include <sstream>
 #include <dirent.h>
@@ -16,7 +16,7 @@ static std::string	getContentType(const std::string &path)
 	mimeTypes["json"] = "application/json";
 	mimeTypes["svg"] = "image/svg+xml";
 
-	std::string fileType = RequestHandler::getFileTypeFromPath(path);
+	std::string fileType = Router::getFileTypeFromPath(path);
 	std::map<std::string, std::string>::const_iterator iter = mimeTypes.find(fileType);
 	if (iter == mimeTypes.end())
 		return ("application/octet-stream");
@@ -24,7 +24,7 @@ static std::string	getContentType(const std::string &path)
 }
 
 
-void	RequestHandler::handleGet()
+void	Router::handleGet()
 {
 
 	switch (this->_effconf.status)

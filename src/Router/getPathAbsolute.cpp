@@ -1,6 +1,6 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 
-std::string	RequestHandler::getPathAbsolute(std::string uri, std::string root)
+std::string	Router::getPathAbsolute(std::string uri, std::string root)
 {
 	//query string si cgi
 	size_t	npos = uri.find('?');

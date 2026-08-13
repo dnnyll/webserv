@@ -1,4 +1,4 @@
-#include "RequestHandler.hpp"
+#include "Router.hpp"
 #include <sys/stat.h>
 #include <fstream>
 #include <unistd.h>
@@ -21,7 +21,7 @@ static bool	isValidFilename(const std::string &filename)
 	return 1;
 }
 
-void	RequestHandler::handlePost()
+void	Router::handlePost()
 {
 	//TODO si uri correspond a CGI extension letsgo executeCGI
 	if (this->_effconf.upload_store.empty())
