@@ -4,7 +4,6 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Config.hpp"
-// #include "CgiHandler.hpp"
 #include "../inc//Cgi/CgiLaunch.hpp"
 
 
@@ -44,18 +43,10 @@ class	RequestHandler
 
 		const Location		*_location;
 		std::string			_pathAbsolute;
-
-		//router
 		const Location*		getLocation();
-		//void				verifier redirection();
-
-
-		//resolver
 		void				resolveBuildConfig();
-
 		int					checkMethod();
 		std::string			getPathAbsolute(std::string uri, std::string root);
-
 
 		//filesystem
 		void				resolveFileSystemDirectory();
@@ -70,14 +61,11 @@ class	RequestHandler
 		void				handlePost();
 		void				handleDelete();
 
-		//void	generateErrorPage(int statusCode);
-
 	public:
 		static std::string			getFileTypeFromPath(const std::string &path);
 		RequestHandler(const HttpRequest &request, const ServerBlock &config);
 
-		ResponseType	processRequest(HttpResponse &res, CgiInfo &cgi);
+		ResponseType				processRequest(HttpResponse &res, CgiInfo &cgi);
 };
-
 
 #endif

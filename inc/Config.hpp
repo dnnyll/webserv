@@ -13,28 +13,12 @@ struct	Location
 	std::vector<std::string>	methods;
 	bool						autoindex;
 	std::string					upload_store;
-	//TODO (jules) transformer en map<std::string, std::string> cgi extension/cgi path
-	//std::string					cgi_extension;
 	std::map<std::string, std::string>	cgi_pass;
 	int							redirect_code;
 	std::string					redirect_url;
 	size_t						client_max_body_size;
 	Location() : autoindex(false), redirect_code(0), client_max_body_size(0) {}
 };
-
-//	TODO (danny or jules): manage client_max_body_size
-
-// Option A — Check in HttpRequest:
-
-// Reject oversized bodies during parsing, before Router is even involved
-// Advantage: stops reading data early, saves bandwidth
-// Disadvantage: requires passing config into parsing layer
-
-// Option B — Check in Router (your teammate's responsibility):
-
-// Parser reads everything, Router checks size and returns 413
-// Advantage: clean separation — parsing doesn't know about config
-// Disadvantage: you've already read all the data before rejecting
 
 struct	ServerBlock
 {
