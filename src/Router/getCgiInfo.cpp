@@ -4,20 +4,20 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sstream>
+#include <cctype>
 
-static std::string	sizetToString(size_t number)
+static std::string  sizetToString(size_t number)
 {
-	std::stringstream	sizetStream;
-	
+	std::stringstream   sizetStream;
 	sizetStream << number;
 	return sizetStream.str();
 }
 
-int	Router::getCgiInfo(CgiInfo &ret)
+int Router::getCgiInfo(CgiInfo &ret)
 {
 	//cgiCheck before all
-	struct stat	statbuf;
-	if	(stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
+	struct stat statbuf;
+	if  (stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
 	{
 		this->_response = HttpResponse::make(404, "Not Found");
 		return (1);
@@ -43,11 +43,11 @@ int	Router::getCgiInfo(CgiInfo &ret)
 		ret.execScriptName = this->_pathAbsolute.substr(directory_path + 1);
 	}
 
-	std::string	query_string;
-	std::string	env_script_name;
+	std::string query_string;
+	std::string env_script_name;
 
 	ret.env.push_back("REQUEST_METHOD=" + this->_request.method);
-	size_t	start_query = this->_request.uri.find('?');
+	size_t  start_query = this->_request.uri.find('?');
 	if (start_query == std::string::npos)
 	{
 		query_string = "";
@@ -62,11 +62,37 @@ int	Router::getCgiInfo(CgiInfo &ret)
 	if (this->_request.contentLength)
 		ret.env.push_back("CONTENT_LENGTH="
 			+ sizetToString(this->_request.contentLength));
-	std::map<std::string, std::string>::const_iterator	iter =
+
+	std::map<std::string, std::string>::const_iterator  iter =
 		this->_request.headers.find("Content-Type");
 	if (iter != this->_request.headers.end())
 		ret.env.push_back("CONTENT_TYPE=" + iter->second);
+
+	//	convert every remaining header into HTTP_<NAME>, per RFC 3875:
+	//	dashes -> underscores, uppercased. Content-Type/Content-Length
+	//	already have dedicated variables above, skip them here.
+	for (std::map<std::string, std::string>::const_iterator hit = this->_request.headers.begin();
+		hit != this->_request.headers.end(); ++hit)
+	{
+		const std::string &key = hit->first;
+
+		if (key == "Content-Type" || key == "Content-Length")
+			continue ;
+
+		std::string name = "HTTP_";
+		for (size_t i = 0; i < key.size(); i++)
+		{
+			if (key[i] == '-')
+				name += '_';
+			else
+				name += std::toupper(static_cast<unsigned char>(key[i]));
+		}
+		ret.env.push_back(name + "=" + hit->second);
+	}
+
 	ret.env.push_back("SCRIPT_NAME=" + env_script_name);
+	ret.env.push_back("PATH_INFO=" + env_script_name);
+	ret.env.push_back("REQUEST_URI=" + this->_request.uri);
 	ret.env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	ret.env.push_back("SERVER_NAME=" + this->_config.host);
 	ret.env.push_back("SERVER_PORT=" + sizetToString(this->_config.port));
