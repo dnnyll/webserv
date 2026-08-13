@@ -47,7 +47,6 @@ class	ClientHandler : public	EventHandler
 		bool				_getClosed;
 		CgiAlive			*_clientAlive;
 
-		//	methods
 		bool	getClosed() const;
 		void	setClosed();
 };

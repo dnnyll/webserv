@@ -1,10 +1,6 @@
 #ifndef		EVENTHANDLER_HPP
 #define		EVENTHANDLER_HPP
 
-
-//	the event loop just wants to know if the fd is ready so it can
-//	call it's handler
-
 class	EventHandler
 {
 	public:

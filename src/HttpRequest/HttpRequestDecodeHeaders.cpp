@@ -3,12 +3,6 @@
 #include	<sstream>
 #include	<string>
 
-/*
-	Note on find function: if it doesn't find what it's looking for it
-	will return npos, thus checking for npos multiple times in case
-	we haven't found what we are looking for.
-*/
-
 bool	HttpRequest::extractHeaderLine(std::string &line, size_t &pos)
 {
 	pos = _buffer.find("\r\n");
@@ -66,42 +60,24 @@ void	HttpRequest::resolveBodyState()
 
 void	HttpRequest::decodeHeaders()
 {
-	std::cout << "=====\tdecodeHeaders()" << std::endl;
-
-	debugParse("HEADERS", "buffer size", _buffer.size());
-	
 	while (1)
 	{
 		std::string	line;
 		size_t		pos;
 
 		if (!extractHeaderLine(line, pos))
-		{
-			debugParse("HEADERS", "status", "incomplete header line");
 			return ;
-		}
 
 		if (pos == 0)
 		{
-			debugParse("HEADERS", "status", "end of headers found");
 			_buffer.erase(0, 2);
 			resolveBodyState();
-			debugParse("HEADERS", "state", _state);
 			return ;
 		}
-
-		debugParse("HEADERS", "header line", line);
 
 		if (!splitHeaderLine(line))
-		{
-			debugParse("HEADERS", "ERROR", "invalid header format");		
 			return ;
-		}
-
-		debugParse("HEADERS", "stored header", line);
 
 		_buffer.erase(0, pos + 2);
-		
-		debugParse("HEADERS", "remaining buffer size", _buffer.size());
 	}
 }

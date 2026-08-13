@@ -65,39 +65,19 @@ bool	HttpRequest::validateRequestLine()
 
 void	HttpRequest::decodeRequestLine()
 {
-	std::cout << "=====\tdecodeRequestLine()" << std::endl;
-	
 	std::string	line;
 
-	// skip leading blank lines (CRLF before request line)
 	while (_buffer.size() >= 2 && _buffer[0] == '\r' && _buffer[1] == '\n')
 		_buffer.erase(0, 2);
 
 	if (!extractRequestLine(line))
-	{
-		debugParse("REQUEST_LINE", "status", "incomplete");
 		return ;
-	}
-
-	debugParse("REQUEST_LINE", "line", line);
 
 	if (!splitRequestLine(line))
-	{
-		debugParse("REQUEST_LINE", "ERROR", "split failed");
 		return ;
-	}
-
-	debugParse("REQUEST_LINE", "method", method);
-	debugParse("REQUEST_LINE", "uri", uri);
-	debugParse("REQUEST_LINE", "version", version);
 
 	if (!validateRequestLine())
-	{
-		debugParse("REQUEST_LINE", "ERROR", "validation failed");
 		return ;
-	}
 
 	_state = HEADERS;
-
-	debugParse("REQUEST_LINE", "state", "HEADERS");
 }

@@ -110,8 +110,8 @@ void	ClientHandler::handleRead()
 		{
 			case CGI_PENDING:
 			{
-				std::cout << "[CLIENTHANDLER] CGI - create CgiHandler" << std::endl;
-				// (void)cgi;
+				std::cout << "[HANDLEREAD] CGI - create CgiHandler" << std::endl;
+
 				if (!_clientAlive)
 					_clientAlive = new CgiAlive();
 
@@ -141,7 +141,7 @@ void	ClientHandler::handleRead()
 			}
 			case RESPONSE_READY:
 			{
-				std::cout << "[CLIENTHANDLER] Response - serialize" << std::endl;
+				std::cout << "[HANDLEREAD] Response - serialize" << std::endl;
 				_outBuffer = res.serialize();
 				break ;
 			}
@@ -151,8 +151,6 @@ void	ClientHandler::handleRead()
 
 void	ClientHandler::handleWrite()
 {
-	//std::cout << "[CLIENTHANDLER] handleWrite() fd=" << _fd << std::endl;
-
 	if (_outBuffer.empty())
 		return ;
 
