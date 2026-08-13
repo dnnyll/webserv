@@ -11,13 +11,11 @@ HttpRequest::HttpRequest()
 {
 }
 
-//	sets maxbodysize from Config
 void	HttpRequest::setMaxBodySize(size_t size)
 {
 	_maxBodySize = size;
 }
-//	append incoming bytes to internal buffer
-//	the buffer may already contain leftover bytes from last call
+
 bool	HttpRequest::getData(const std::string& chunk)
 {
 	_buffer += chunk;
@@ -29,7 +27,7 @@ bool	HttpRequest::getData(const std::string& chunk)
 			break ;
 	}
 
-	std::cout << "final state: " << _state << std::endl;
+	std::cout << "[GETDATA] End Parse state: " << _state << std::endl;
 
 	return (_state == COMPLETE);
 }
