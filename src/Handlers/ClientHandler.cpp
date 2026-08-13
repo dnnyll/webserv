@@ -18,7 +18,7 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 	_clientAlive(NULL)	//	only allocated if/when a CGI request actually starts
 {
 	_keepAlive = true;
-	_isClosed = false;
+	_getClosed = false;
 	_request.setMaxBodySize(block.client_max_body_size);
 }
 
@@ -49,7 +49,7 @@ void	ClientHandler::handleRead()
 
 	if (bytesReceived <= 0)
 	{
-		_isClosed = true;
+		_getClosed = true;
 		return ;
 	}
 
@@ -160,7 +160,7 @@ void	ClientHandler::handleWrite()
 
 	if (bytesSent <= 0)
 	{
-		_isClosed = true;
+		_getClosed = true;
 		return ;
 	}
 
@@ -171,7 +171,7 @@ void	ClientHandler::handleWrite()
 		if (_keepAlive)
 			_request.reset();
 		else
-			_isClosed = true;
+			_getClosed = true;
 	}
 }
 
@@ -180,9 +180,9 @@ int		ClientHandler::getFd() const
 	return (_fd);
 }
 
-bool	ClientHandler::isClosed() const
+bool	ClientHandler::getClosed() const
 {
-	return (_isClosed);
+	return (_getClosed);
 }
 
 bool	ClientHandler::isWritable() const
@@ -190,7 +190,7 @@ bool	ClientHandler::isWritable() const
 	return (!_outBuffer.empty());
 }
 
-void	ClientHandler::markClosed()
+void	ClientHandler::setClosed()
 {
-	_isClosed = true;
+	_getClosed = true;
 }

@@ -28,7 +28,7 @@ bool	CgiWriteHandler::isWritable() const
 	the pipe closed here — CgiReadHandler will notice the child is
 	gone (EOF / error) on its own next handleRead() and reap it.
 */
-bool	CgiWriteHandler::isClosed() const
+bool	CgiWriteHandler::getClosed() const
 {
 	if (_ctx->writeDone)
 		return (true);
@@ -66,7 +66,7 @@ void	CgiWriteHandler::handleWrite()
 		//	after a read/write, and with handleWrite() gated on POLLOUT
 		//	the pipe is writable when we get here. A genuine failure
 		//	(e.g. the child exiting) surfaces as POLLERR and is handled
-		//	by markClosed(); anything transient is retried on the next
+		//	by setClosed(); anything transient is retried on the next
 		//	POLLOUT event.
 		return ;
 	}
@@ -86,7 +86,7 @@ void	CgiWriteHandler::handleRead()
 	//	this handler is only ever polled for POLLOUT; nothing to do here
 }
 
-void	CgiWriteHandler::markClosed()
+void	CgiWriteHandler::setClosed()
 {
 	if (_ctx->writeDone)
 		return ;

@@ -38,29 +38,18 @@ class	ClientHandler : public	EventHandler
 		bool	isWritable() const;
 		private:
 		
-		int					_fd;			//	the client's socket fd
-											//	needed for recv()/send()/close(), and to implement getFd()
+		int					_fd;
 		const ServerBlock	&_config;
-		EventLoop 			&_reactor;		//	this is added for CGI reasons..
-		HttpRequest			_request;		//	accumulates incoming bytes, parses them
-											//	holds the parsing state machine across multiple handleRead() calls
-		std::string			_outBuffer;		//	bytes waiting to be sent back
-											//	send() might not send everything in one call (non-blocking socket),
-											//	so you need to remember what's left to send
-		bool				_keepAlive;		//	should connection stay open after response?
-											//	HTTP/1.1 defaults to keep-alive; after a response is fully sent, 
-											//	you don't close the fd, 
-											//	you reset _request and wait for the next request
-		bool				_isClosed;		//	private data, ClintHandler only
-		CgiAlive			*_clientAlive;	//	shared with any CgiContext spawned from this
-											//	client's request; refcounted so it outlives both
-											//	the ClientHandler and the in-flight CGI handler.
-											//	alive=false in ~ClientHandler(); freed by the last
-											//	holder (this handler or a CgiContext) to release it.
+		EventLoop 			&_reactor;
+		HttpRequest			_request;
+		std::string			_outBuffer;
+		bool				_keepAlive;
+		bool				_getClosed;
+		CgiAlive			*_clientAlive;
 
 		//	methods
-		bool	isClosed() const;
-		void	markClosed();
+		bool	getClosed() const;
+		void	setClosed();
 };
 
 #endif

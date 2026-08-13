@@ -57,7 +57,7 @@ int	AcceptHandler::getFd() const
 ** Client connections may be removed, but the listening
 ** socket stays registered so new clients can connect.
 */
-bool	AcceptHandler::isClosed() const
+bool	AcceptHandler::getClosed() const
 {
 	return (false);
 }
@@ -180,7 +180,7 @@ bool	AcceptHandler::isWritable() const
 	return (false);
 }
 
-void	AcceptHandler::markClosed()
+void	AcceptHandler::setClosed()
 {
 	// listening socket getting POLLERR is unusual — no-op for now
 }

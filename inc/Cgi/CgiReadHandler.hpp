@@ -14,7 +14,7 @@
 **   _outBuffer (via CgiContext::outBuffer), guarded by clientAlive
 ** - on EOF, close the pipe, reap the child (waitpid), and mark itself
 **   closed
-** - report isClosed() once reading is finished OR the invocation has
+** - report getClosed() once reading is finished OR the invocation has
 **   timed out
 **
 ** Does NOT own the CgiContext — see CgiContext.hpp for the refcount
@@ -30,9 +30,9 @@ class	CgiReadHandler : public	EventHandler
 		void	handleRead();
 		void	handleWrite();		//	no-op: this handler is never watched for POLLOUT
 		int		getFd() const;
-		bool	isClosed() const;
+		bool	getClosed() const;
 		bool	isWritable() const;
-		void	markClosed();
+		void	setClosed();
 
 
 	private:

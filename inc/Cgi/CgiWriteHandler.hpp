@@ -14,9 +14,9 @@ class	CgiWriteHandler : public	EventHandler
 		void	handleRead();		//	no-op: this handler is never watched for POLLIN
 		void	handleWrite();
 		int		getFd() const;
-		bool	isClosed() const;
+		bool	getClosed() const;
 		bool	isWritable() const;
-		void	markClosed();
+		void	setClosed();
 
 	private:
 		CgiContext	*_ctx;

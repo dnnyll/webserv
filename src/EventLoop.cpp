@@ -105,7 +105,7 @@ void	EventLoop::dispatch()
 			_handlers[i]->handleWrite();
 
 		if (rev & (POLLERR | POLLNVAL))
-			_handlers[i]->markClosed();
+			_handlers[i]->setClosed();
 
 		i++;
 	}
@@ -117,7 +117,7 @@ void	EventLoop::removeClosedHandlers()
 
 	while (i < _handlers.size())
 	{
-		if (_handlers[i]->isClosed())
+		if (_handlers[i]->getClosed())
 		{
 			delete _handlers[i];
 			_handlers.erase(_handlers.begin() + i);

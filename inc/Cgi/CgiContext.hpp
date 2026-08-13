@@ -45,7 +45,7 @@ struct	CgiContext
 	bool			writeDone;
 	bool			readDone;
 
-	time_t			startTime;		//	used for timeout detection in isClosed()
+	time_t			startTime;		//	used for timeout detection in getClosed()
 
 	int				exitStatus;		//	raw waitpid() status once the child is reaped,
 									//	-1 while it is still running / unknown

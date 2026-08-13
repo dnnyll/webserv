@@ -143,7 +143,7 @@ bool	CgiReadHandler::isWritable() const
 	return (false);
 }
 
-bool	CgiReadHandler::isClosed() const
+bool	CgiReadHandler::getClosed() const
 {
 	if (_ctx->readDone)
 		return (true);
@@ -166,7 +166,7 @@ bool	CgiReadHandler::isClosed() const
 	return (false);
 }
 
-void	CgiReadHandler::markClosed()
+void	CgiReadHandler::setClosed()
 {
 	if (_ctx->readDone)
 		return ;
@@ -232,7 +232,7 @@ void	CgiReadHandler::handleRead()
 		//	is only dispatched when poll() reported POLLIN/POLLHUP; a
 		//	transient error (e.g. EINTR) is retried on the next readiness
 		//	event, and a persistent one surfaces as POLLERR/POLLNVAL and
-		//	is handled by markClosed().
+		//	is handled by setClosed().
 		return ;
 	}
 

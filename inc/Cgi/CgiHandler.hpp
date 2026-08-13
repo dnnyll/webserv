@@ -41,7 +41,7 @@ class	CgiHandler : public EventHandler
 
 		int		getFd() const;
 		bool	isWritable() const;
-		bool	isClosed() const;
+		bool	getClosed() const;
 
 	private:
 		// CgiHandler(const CgiHandler&);
@@ -67,7 +67,7 @@ class	CgiHandler : public EventHandler
 
 		// State
 		bool			_stdinClosed;
-		bool			_isClosed;
+		bool			_getClosed;
 };
 
 #endif
