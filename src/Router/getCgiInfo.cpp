@@ -30,9 +30,7 @@ int	Router::getCgiInfo(CgiInfo &ret)
 
 	ret.scriptPath = this->_pathAbsolute;
 	ret.interpreterPath = this->_effconf.cgi_pass[this->_effconf.path_extension];
-	std::cout << "interpret/path_extension CGI : " << ret.interpreterPath << std::endl;
 
-	//TODO (jules) verifier dir avec stat ? ou execve?
 	size_t directory_path = this->_pathAbsolute.rfind('/');
 	if (directory_path == std::string::npos)
 	{
@@ -61,7 +59,6 @@ int	Router::getCgiInfo(CgiInfo &ret)
 		env_script_name = this->_request.uri.substr(0, start_query);
 	}
 	ret.env.push_back("QUERY_STRING=" + query_string);
-	std::cout << "QUERY STRING : " << query_string << std::endl; //TODO
 	if (this->_request.contentLength)
 		ret.env.push_back("CONTENT_LENGTH="
 			+ sizetToString(this->_request.contentLength));

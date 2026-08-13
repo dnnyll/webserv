@@ -50,9 +50,6 @@ void	Router::handleGet()
 			this->_response.headers["Content-Length"] = lengthStream.str();
 			this->_response.headers["Content-Type"] 
 				= getContentType(this->_pathAbsolute);
-			//body
-				//populated by Router
-					//file contents, error page, CGI output
 			break;
 		}
 		case DIRECTORY_LISTING:
@@ -65,11 +62,10 @@ void	Router::handleGet()
 			this->_response = HttpResponse::make(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
-			//executeCGI(); //TODO
+			//impossible dans ce contexte
 			break;
 		case REDIRECT:
-			this->_response = HttpResponse::make(301, "Moved Permanently");
-			// TODO (JULES): FIX THIS SHIT
+			//impossible dans ce contexte
 			break;
 		case ERROR:
 			this->_response = HttpResponse::make(500, "Internal Server Error");

@@ -12,8 +12,8 @@ Router::Router(const HttpRequest &request, const ServerBlock &config) :
 ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
-	//TODO (jules) verifier avec alexi le format des redir
-	//TODO (alexis) le format a changé : location a un redirect.code & une redirect.url -> gestion du code?
+	//format redir a changer dans le parsing config
+	//mais pas pris en compte pour le router toute les redirections ont le meme code
 	if (this->_location && !this->_location->redirect_url.empty())
 	{
 		res = HttpResponse::make(301, "Moved Permanently");
@@ -32,7 +32,7 @@ ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
 		return (RESPONSE_READY);
 	}
 	if (this->_request.uri.empty() || this->_effconf.root.empty()
-			|| this->_effconf.path.empty()) //TODO jules check utile avant le post ???
+			|| this->_effconf.path.empty())
 	{
 		res = HttpResponse::make(500, "Internal Server Error");
 		return (RESPONSE_READY);
@@ -80,12 +80,3 @@ ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
 		res = HttpResponse::make(501, "Not Implemented");
 	return (RESPONSE_READY);
 }
-
-//router
-//	choisir la location la plus specifique 
-//resolver
-//	construire la config effective (root index autoindex method)
-//filesystem
-//	resoudre le chemin disque + stat/index/autoindex
-//responder
-//	construire la reponse

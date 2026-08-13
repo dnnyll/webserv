@@ -40,11 +40,10 @@ void	Router::handleDelete()
 			this->_response = HttpResponse::make(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
-			//executeCGI(); //TODO
+			//impossible dans ce contexte
 			break;
 		case REDIRECT:
-			this->_response = HttpResponse::make(301, "Moved Permanently");
-			// TODO (JULES): FIX THIS SHIT
+			//Impossible dans ce contexte
 			break;
 		case ERROR:
 			this->_response = HttpResponse::make(500, "Internal Server Error");

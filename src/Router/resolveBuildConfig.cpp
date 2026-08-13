@@ -1,4 +1,6 @@
 #include "Router.hpp"
+#include <iostream>
+#include <vector>
 
 static std::string	chooseBestValue(const std::string &official, const std::string
 						&fallback)
@@ -8,22 +10,18 @@ static std::string	chooseBestValue(const std::string &official, const std::strin
 	return official;
 }
 
-//#include <iostream>
-//#include <vector>
-//
-//static void printVector(const std::vector<std::string>& vec)
-//{
-//    std::vector<std::string>::const_iterator it;
-//
-//	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
-//    for (it = vec.begin(); it != vec.end(); ++it)
-//	{
-//        std::cout << *it << std::endl;
-//	}
-//	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
-//}
+void printVector(const std::vector<std::string>& vec)
+{
+    std::vector<std::string>::const_iterator it;
 
-//construction de la effconfig
+	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
+    for (it = vec.begin(); it != vec.end(); ++it)
+	{
+        std::cout << *it << std::endl;
+	}
+	std::cout << "PRINT VECTOR BUILD CONFIG" << std::endl;
+}
+
 void	Router::resolveBuildConfig()
 {
 	if (!this->_location)
@@ -48,6 +46,5 @@ void	Router::resolveBuildConfig()
 	this->_effconf.upload_store = this->_location->upload_store;
 	this->_effconf.client_max_body_size = this->_location->client_max_body_size;
 	this->_effconf.cgi_pass = this->_location->cgi_pass;
-	//TODO jules a supp ou non? debug?
 	//printVector(this->_effconf.methods);
 }

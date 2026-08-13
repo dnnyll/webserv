@@ -23,7 +23,6 @@ static bool	isValidFilename(const std::string &filename)
 
 void	Router::handlePost()
 {
-	//TODO si uri correspond a CGI extension letsgo executeCGI
 	if (this->_effconf.upload_store.empty())
 	{
 		this->_response = HttpResponse::make(403, "Forbidden");
