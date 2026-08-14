@@ -57,6 +57,7 @@ ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
 	}
 	else if (this->_effconf.status == REDIRECT)
 	{
+		//quand upload pass ici TODO (jules)
 		this->_response = HttpResponse::make(301, "Moved Permanently");
 		this->_response.headers["Location"] = this->_request.uri + "/";
 		res = this->_response;
