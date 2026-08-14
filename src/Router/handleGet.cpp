@@ -35,7 +35,7 @@ void	Router::handleGet()
 		
 			if (!file.is_open())
 			{
-				this->_response = HttpResponse::make(500, "Internal Server Error");
+				this->_response = makeError(500, "Internal Server Error");
 				break;
 			}
 			std::stringstream	buffer;
@@ -56,10 +56,10 @@ void	Router::handleGet()
 			directoryListing();
 			break;
 		case NOT_FOUND:
-			this->_response = HttpResponse::make(404, "Not Found");
+			this->_response = makeError(404, "Not Found");
 			break;
 		case FORBIDDEN:
-			this->_response = HttpResponse::make(403, "Forbidden");
+			this->_response = makeError(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
 			//impossible dans ce contexte
@@ -68,7 +68,7 @@ void	Router::handleGet()
 			//impossible dans ce contexte
 			break;
 		case ERROR:
-			this->_response = HttpResponse::make(500, "Internal Server Error");
+			this->_response = makeError(500, "Internal Server Error");
 			break;
 
 	}

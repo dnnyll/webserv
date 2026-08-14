@@ -18,7 +18,16 @@ void	HttpRequest::setMaxBodySize(size_t size)
 
 bool	HttpRequest::getData(const std::string& chunk)
 {
+	static const size_t	HEADER_MAX_SIZE = 16384;
+
 	_buffer += chunk;
+	if ((_state == REQUEST_LINE || _state == HEADERS)
+			&& _buffer.size() > HEADER_MAX_SIZE)
+	{
+		_state = ERROR_STATE;
+		_errorReason = HEADER_TOO_LARGE;
+		return (false);
+	}
 	while (_state != COMPLETE && _state != ERROR_STATE)
 	{
 		ParseState	prev = _state;

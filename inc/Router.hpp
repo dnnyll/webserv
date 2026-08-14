@@ -56,6 +56,7 @@ class	Router
 		int					getCgiInfo(CgiInfo &ret);
 
 		//responder
+		HttpResponse		makeError(int code, const std::string &message);
 		void				handleGet();
 		void				directoryListing();
 		void				handlePost();
@@ -63,6 +64,7 @@ class	Router
 
 	public:
 		static std::string			getFileTypeFromPath(const std::string &path);
+		static HttpResponse		makeError(int code, const std::string &message, const ServerBlock &config);
 		Router(const HttpRequest &request, const ServerBlock &config);
 
 		ResponseType				processRequest(HttpResponse &res, CgiInfo &cgi);

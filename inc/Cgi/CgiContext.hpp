@@ -4,6 +4,7 @@
 #include	<string>
 #include	<sys/types.h>
 #include	<ctime>
+#include	"../Config.hpp"
 
 /*
 	Shared "is the client still alive" flag.
@@ -41,6 +42,7 @@ struct	CgiContext
 	std::string		output;			//	raw CGI stdout, accumulated while the child runs
 	std::string		*outBuffer;		//	non-owning, points into ClientHandler::_outBuffer
 	CgiAlive		*clientAlive;	//	shared flag: alive=false once ClientHandler is destroyed
+	const ServerBlock	*config;	//	server block, for custom error pages
 
 	bool			writeDone;
 	bool			readDone;

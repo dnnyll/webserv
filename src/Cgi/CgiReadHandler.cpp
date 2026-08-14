@@ -1,5 +1,6 @@
 #include	"../inc/Cgi/CgiReadHandler.hpp"
 #include	"../inc/HttpResponse.hpp"
+#include	"../inc/Router.hpp"
 #include	<unistd.h>
 #include	<sys/wait.h>
 #include	<iostream>
@@ -159,7 +160,9 @@ bool	CgiReadHandler::getClosed() const
 			kill(_ctx->pid, SIGKILL);
 		reapChild(true);
 		if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
-			*(_ctx->outBuffer) = HttpResponse::make(504, "Gateway Timeout").serialize();
+			*(_ctx->outBuffer) = (_ctx->config
+				? Router::makeError(504, "Gateway Timeout", *_ctx->config)
+				: HttpResponse::make(504, "Gateway Timeout")).serialize();
 		_ctx->readDone = true;
 		return (true);
 	}
@@ -181,7 +184,9 @@ void	CgiReadHandler::setClosed()
 		kill(_ctx->pid, SIGKILL);
 	reapChild(true);
 	if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
-		*(_ctx->outBuffer) = HttpResponse::make(500, "Internal Server Error").serialize();
+		*(_ctx->outBuffer) = (_ctx->config
+			? Router::makeError(500, "Internal Server Error", *_ctx->config)
+			: HttpResponse::make(500, "Internal Server Error")).serialize();
 	_ctx->readDone = true;
 }
 
@@ -244,9 +249,13 @@ void	CgiReadHandler::handleRead()
 	if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
 	{
 		if (_ctx->exitStatus != -1 && !WIFEXITED(_ctx->exitStatus))
-			*(_ctx->outBuffer) = HttpResponse::make(502, "Bad Gateway").serialize();
+			*(_ctx->outBuffer) = (_ctx->config
+				? Router::makeError(502, "Bad Gateway", *_ctx->config)
+				: HttpResponse::make(502, "Bad Gateway")).serialize();
 		else if (_ctx->exitStatus != -1 && WEXITSTATUS(_ctx->exitStatus) != 0)
-			*(_ctx->outBuffer) = HttpResponse::make(500, "Internal Server Error").serialize();
+			*(_ctx->outBuffer) = (_ctx->config
+				? Router::makeError(500, "Internal Server Error", *_ctx->config)
+				: HttpResponse::make(500, "Internal Server Error")).serialize();
 		else
 			*(_ctx->outBuffer) = buildCgiResponse(_ctx->output);
 	}
