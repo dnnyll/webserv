@@ -43,7 +43,8 @@ void	Router::handleDelete()
 			//impossible dans ce contexte
 			break;
 		case REDIRECT:
-			//Impossible dans ce contexte
+			this->_response = HttpResponse::make(301, "Moved Permanently");
+			this->_response.headers["Location"] = this->_request.uri + "/";
 			break;
 		case ERROR:
 			this->_response = makeError(500, "Internal Server Error");
