@@ -1,6 +1,7 @@
 #include	"../inc/EventLoop.hpp"
 #include	"../inc/AcceptHandler.hpp"
 #include	"../inc/Config.hpp"
+#include	"../inc/check_path.hpp"
 #include	<iostream>
 
 int main(int argc, char **argv)
@@ -15,6 +16,7 @@ int main(int argc, char **argv)
 
 	try
 	{
+		check(argv[1]);
 		config.parse(argv[1]);
 	}
 	catch (std::exception &e)
@@ -23,15 +25,16 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	EventLoop reactor;
+	EventLoop	reactor;
 
 	const std::vector<ServerBlock> &servers = config.getServers();
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		AcceptHandler *listener = new AcceptHandler(servers[i], reactor);
+		AcceptHandler	*listener = new AcceptHandler(servers[i], reactor);
+
 		if (listener->getFd() < 0)
 		{
-			std::cerr << "Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
+			std::cerr << "[MAIN]Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
 			delete listener;
 			return (1);
 		}

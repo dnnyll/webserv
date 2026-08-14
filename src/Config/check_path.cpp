@@ -13,18 +13,20 @@
  * @param path The path to the configuration file
  * @exception Throw WrongFormatException if there is an error in the path
  */
-static void checkExtension(const std::string& path)
+static void	checkExtension(const std::string& path)
 {
 	size_t		pos;
 	std::string	str;
 
 	pos = path.rfind(".");
+	if (pos == std::string::npos || pos > path.size() - 5)
+		throw WrongFormatException();
 	str = path.substr(pos, 5);
 	if (str.compare(".conf") != 0)
 		throw WrongFormatException();
 }
 
-static void checkExist(const std::string& path)
+static void	checkExist(const std::string& path)
 {
 	struct stat buffer;
 
@@ -32,7 +34,7 @@ static void checkExist(const std::string& path)
 		throw ExistException();
 }
 
-static void checkIsRegular(const std::string& path)
+static void	checkIsRegular(const std::string& path)
 {
 	struct stat	buffer;
 
@@ -41,13 +43,13 @@ static void checkIsRegular(const std::string& path)
 		throw RegularException();
 }
 
-static void checkReadable(const std::string& path)
+static void	checkReadable(const std::string& path)
 {
 	if (access(path.c_str(), R_OK) != 0)
 		throw PermissionException();
 }
 
-static void checkNotEmpty(const std::string& path)
+static void	checkNotEmpty(const std::string& path)
 {
 	struct stat buffer;
 
@@ -56,7 +58,7 @@ static void checkNotEmpty(const std::string& path)
 		throw EmptyFileException();
 }
 
-void check(const std::string& path)
+void	check(const std::string& path)
 {
 	checkExtension(path);
 	checkExist(path);
@@ -65,27 +67,27 @@ void check(const std::string& path)
 	checkNotEmpty(path);
 }
 
-const char* WrongFormatException::what() const throw()
+const char*	WrongFormatException::what() const throw()
 {
 	return ("Wrong path format!");
 }
 
-const char* ExistException::what() const throw()
+const char*	ExistException::what() const throw()
 {
 	return ("File doesn't exist!");
 }
 
-const char* RegularException::what() const throw()
+const char*	RegularException::what() const throw()
 {
 	return ("This file is not a regular file!");
 }
 
-const char* PermissionException::what() const throw()
+const char*	PermissionException::what() const throw()
 {
 	return ("Impossible to read the file!");
 }
 
-const char* EmptyFileException::what() const throw()
+const char*	EmptyFileException::what() const throw()
 {
 	return ("The configuration file is empty!");
 }
