@@ -25,7 +25,7 @@ class	AcceptHandler : public	EventHandler
 		bool	isWritable() const;
 
 	private:
-		void	setupSocket(int port, const std::string &host);
+		bool	setupSocket(int port, const std::string &host);
 };
 
 #endif

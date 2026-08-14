@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 		{
 			std::cerr << "[MAIN]Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
 			delete listener;
-			return (1);
+			continue;
 		}
 		reactor.addHandler(listener);
 	}

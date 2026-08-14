@@ -14,13 +14,16 @@
 
 AcceptHandler::AcceptHandler(const ServerBlock &block, EventLoop &reactor) : _reactor(reactor), _serverBlock(block)
 {
-	setupSocket(block.port, block.host);
+	_fd = -1;
+	if (!setupSocket(block.port, block.host))
+		_fd = -1;
 	std::cout << "[ACCEPTHANDLER] _fd = " << _fd << std::endl;
 }
 
 AcceptHandler::~AcceptHandler()
 {
-	close(_fd);
+	if (_fd != -1)
+		close(_fd);
 }
 
 int	AcceptHandler::getFd() const
@@ -56,14 +59,14 @@ void	AcceptHandler::handleWrite()
 {
 }
 
-void AcceptHandler::setupSocket(int port, const std::string &host)
+bool AcceptHandler::setupSocket(int port, const std::string &host)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (_fd < 0)
 	{
 		std::cerr << "[SETUPSOCKET]Error: socket() failed: " << strerror(errno) << std::endl;
-		return ;
+		return false;
 	}
 
 	int opt = 1;
@@ -81,17 +84,22 @@ void AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
 	{
-		std::cerr << "[SETUPSOCKET]Bind() failed: " << strerror(errno) << std::endl;
-		return ;
+		std::cerr << "[SETUPSOCKET]Bind() failed: " << strerror(errno) << std::endl;	
+		close(_fd);
+		_fd = -1;
+		return false;
 	}
 
 	if (listen(_fd, 10) < 0)
 	{
 		std::cerr << "[SETUPSOCKET]Listen() failed: " << strerror(errno) << std::endl;
-		return ;
+		close(_fd);
+		_fd = -1;
+		return false;
 	}
 
 	std::cout << "[SETUPSOCKET]Listening on " << host << ":" << port << "..." << std::endl;
+	return true;
 }
 
 bool	AcceptHandler::isWritable() const
