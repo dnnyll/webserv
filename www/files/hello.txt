@@ -1,0 +1,2 @@
+This is a static file served from /files.
+If you can read this, GET on a static file works.
