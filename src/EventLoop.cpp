@@ -88,7 +88,7 @@ void	EventLoop::dispatch()
 
 	while (i < _pollfds.size())
 	{
-		short	rev = _pollfds[i].revents;
+		int	rev = _pollfds[i].revents;
 
 		//	POLLHUP is the EOF condition: the write end of the pipe was
 		//	closed (CGI child exited) or the peer hung up. Treat it as

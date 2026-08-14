@@ -101,11 +101,12 @@ void	ClientHandler::handleRead()
 
 		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
 
-		Router	createResponse(_request, _config);
+		Router			createResponse(_request, _config);
 		HttpResponse	res;
 		CgiInfo 		cgi;
 		
 		ResponseType type = createResponse.processRequest(res, cgi);
+		
 		switch (type)
 		{
 			case CGI_PENDING:

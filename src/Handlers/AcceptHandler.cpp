@@ -43,7 +43,7 @@ void	AcceptHandler::handleRead()
 		return ;
 	}
 
- 	fcntl(clientFd, F_SETFL, O_NONBLOCK); //	sets client socket non-blocking
+ 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	std::cout << "[HANDLEREAD] new client connected, fd=" << clientFd << std::endl;
 
@@ -62,15 +62,17 @@ void AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (_fd < 0)
 	{
-		std::cerr << "socket() failed: " << strerror(errno) << std::endl;
+		std::cerr << "[SETUPSOCKET]Error: socket() failed: " << strerror(errno) << std::endl;
 		return ;
 	}
 
 	int opt = 1;
+
 	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
+
 	if (host.empty() || host == "0.0.0.0")
 		addr.sin_addr.s_addr = INADDR_ANY;
 	else
@@ -79,17 +81,17 @@ void AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
 	{
-		std::cerr << "bind() failed: " << strerror(errno) << std::endl;
+		std::cerr << "[SETUPSOCKET]Bind() failed: " << strerror(errno) << std::endl;
 		return ;
 	}
 
 	if (listen(_fd, 10) < 0)
 	{
-		std::cerr << "listen() failed: " << strerror(errno) << std::endl;
+		std::cerr << "[SETUPSOCKET]Listen() failed: " << strerror(errno) << std::endl;
 		return ;
 	}
 
-	std::cout << "listening on " << host << ":" << port << "..." << std::endl;
+	std::cout << "[SETUPSOCKET]Listening on " << host << ":" << port << "..." << std::endl;
 }
 
 bool	AcceptHandler::isWritable() const

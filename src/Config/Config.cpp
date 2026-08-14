@@ -62,11 +62,13 @@ static Location parse_location(const std::vector<std::string> &tokens, size_t &i
 	Location loc;
 
 	expect_value(tokens, i, "location");
+
 	if (tokens[i].empty())
 		throw Config::ConfigException("Location path can't ne empty");
-	loc.path = tokens[i++]; //le path vient juste après "location"
 
+	loc.path = tokens[i++];
 	expect_value(tokens, i, "location path");
+
 	if (tokens[i++] != "{")
 		throw Config::ConfigException("Expected '{' after location path");
 	
