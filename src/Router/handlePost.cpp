@@ -25,25 +25,25 @@ void	Router::handlePost()
 {
 	if (this->_effconf.upload_store.empty())
 	{
-		this->_response = HttpResponse::make(403, "Forbidden");
+		this->_response = makeError(403, "Forbidden");
 		return ;
 	}
 	std::string filename = getFileNameFromUri(this->_request.uri);
 	if (!isValidFilename(filename))
 	{
-		this->_response = HttpResponse::make(400, "Bad Request");
+		this->_response = makeError(400, "Bad Request");
 		return ;
 	}
 	struct stat	dirStat;
 	if (stat(this->_effconf.upload_store.c_str(), &dirStat) == -1
 			|| !S_ISDIR(dirStat.st_mode))
 	{
-		this->_response = HttpResponse::make(500, "Internal Server Error");
+		this->_response = makeError(500, "Internal Server Error");
 		return ;
 	}
 	if (access(this->_effconf.upload_store.c_str(), W_OK) == -1)
 	{
-		this->_response = HttpResponse::make(403, "Forbidden");
+		this->_response = makeError(403, "Forbidden");
 		return ;
 	}
 	this->_pathAbsolute = this->_effconf.upload_store;
@@ -56,7 +56,7 @@ void	Router::handlePost()
 	std::ofstream	outFile(this->_pathAbsolute.c_str());
 	if (!outFile.is_open())
 	{
-		this->_response = HttpResponse::make(500, "Internal Server Error");
+		this->_response = makeError(500, "Internal Server Error");
 		return ;
 	}
 	outFile << this->_request.body;

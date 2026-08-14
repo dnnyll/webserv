@@ -37,7 +37,7 @@ void	Router::directoryListing()
 	DIR	*dir = opendir(_pathAbsolute.c_str());
 	if (!dir)
 	{
-		this->_response = HttpResponse::make(500, "Internal Server Error");
+		this->_response = makeError(500, "Internal Server Error");
 		return;
 	}
 
