@@ -1,0 +1,1 @@
+Second test file in /files, used to check that directory listing (autoindex) shows more than one entry.
