@@ -19,12 +19,12 @@ int Router::getCgiInfo(CgiInfo &ret)
 	struct stat statbuf;
 	if  (stat(this->_pathAbsolute.c_str(), &statbuf) == -1)
 	{
-		this->_response = HttpResponse::make(404, "Not Found");
+		this->_response = makeError(404, "Not Found");
 		return (1);
 	}
 	else if (access(this->_pathAbsolute.c_str(), X_OK) == -1)
 	{
-		this->_response = HttpResponse::make(403, "Forbidden");
+		this->_response = makeError(403, "Forbidden");
 		return (1);
 	}
 

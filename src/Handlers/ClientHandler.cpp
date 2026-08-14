@@ -76,13 +76,15 @@ void	ClientHandler::handleRead()
 		HttpResponse errorResponse;
 
 		if (_request.getErrorReason() == BODY_TOO_LARGE)
-			errorResponse = HttpResponse::make(413, "Payload Too Large");
+			errorResponse = Router::makeError(413, "Payload Too Large", _config);
+		else if (_request.getErrorReason() == HEADER_TOO_LARGE)
+			errorResponse = Router::makeError(431, "Request Header Fields Too Large", _config);
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
 		{
-			errorResponse = HttpResponse::make(501, "Not Implemented");
+			errorResponse = Router::makeError(501, "Not Implemented", _config);
 		}
 		else
-			errorResponse = HttpResponse::make(400, "Bad Request");
+			errorResponse = Router::makeError(400, "Bad Request", _config);
 
 		_outBuffer = errorResponse.serialize();
 		_keepAlive = false;
@@ -120,6 +122,7 @@ void	ClientHandler::handleRead()
 				ctx->requestBody = _request.body;
 				ctx->outBuffer   = &_outBuffer;
 				ctx->clientAlive = _clientAlive;
+				ctx->config      = &_config;
 				_clientAlive->addRef();	//	this CgiContext's reference
 
 				if (!launchCgi(cgi, ctx))
@@ -131,7 +134,7 @@ void	ClientHandler::handleRead()
 					ctx->clientAlive = NULL;
 					_clientAlive->release();
 					delete ctx;
-					HttpResponse errorResponse = HttpResponse::make(500, "Internal Server Error");
+					HttpResponse errorResponse = Router::makeError(500, "Internal Server Error", _config);
 					_outBuffer = errorResponse.serialize();
 					break ;
 				}

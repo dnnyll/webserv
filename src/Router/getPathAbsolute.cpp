@@ -12,5 +12,5 @@ std::string	Router::getPathAbsolute(std::string uri, std::string root)
 		return ("");
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
-	return (root + uri); // endrit + /files/hello.txt
+	return (root + uri);
 }

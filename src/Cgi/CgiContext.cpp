@@ -8,6 +8,7 @@ CgiContext::CgiContext()
 	bodySent(0),
 	outBuffer(NULL),
 	clientAlive(NULL),
+	config(NULL),
 	writeDone(false),
 	readDone(false),
 	startTime(time(NULL)),

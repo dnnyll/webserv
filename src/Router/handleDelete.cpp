@@ -21,23 +21,23 @@ void	Router::handleDelete()
 			std::string	parentDir = getParentDirectory(this->_pathAbsolute);
 			if (access(parentDir.c_str(), W_OK) == -1)
 			{
-				this->_response = HttpResponse::make(403, "Forbidden");
+				this->_response = makeError(403, "Forbidden");
 				break;
 			}
 			if (std::remove(this->_pathAbsolute.c_str()))
-				this->_response = HttpResponse::make(500, "Internal Server Error");
+				this->_response = makeError(500, "Internal Server Error");
 			else
 				this->_response = HttpResponse::make(204, "No Content");
 			break;
 		}
 		case DIRECTORY_LISTING: //normalement impossible
-			this->_response = HttpResponse::make(403, "Forbidden");
+			this->_response = makeError(403, "Forbidden");
 			break;
 		case NOT_FOUND:
-			this->_response = HttpResponse::make(404, "Not Found");
+			this->_response = makeError(404, "Not Found");
 			break;
 		case FORBIDDEN:
-			this->_response = HttpResponse::make(403, "Forbidden");
+			this->_response = makeError(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
 			//impossible dans ce contexte
@@ -46,7 +46,7 @@ void	Router::handleDelete()
 			//Impossible dans ce contexte
 			break;
 		case ERROR:
-			this->_response = HttpResponse::make(500, "Internal Server Error");
+			this->_response = makeError(500, "Internal Server Error");
 			break;
 	}
 }

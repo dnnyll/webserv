@@ -6,9 +6,7 @@
 <title>webserv</title>
 
 <style>
-	* {
-		box-sizing: border-box;
-	}
+	* { box-sizing: border-box; }
 
 	body {
 		margin: 0;
@@ -24,9 +22,7 @@
 		padding: 3rem 2rem 6rem;
 	}
 
-	header {
-		margin-bottom: 2.5rem;
-	}
+	header { margin-bottom: 2.5rem; }
 
 	h1 {
 		font-size: 1.6rem;
@@ -72,15 +68,9 @@
 		transition: background-color 0.15s, color 0.15s;
 	}
 
-	a.link-row:hover {
-		background: #000;
-		color: #fff;
-	}
+	a.link-row:hover { background: #000; color: #fff; }
 
-	a.link-row span.arrow {
-		color: inherit;
-		margin-left: 0.4rem;
-	}
+	a.link-row span.arrow { color: inherit; margin-left: 0.4rem; }
 
 	form {
 		display: flex;
@@ -105,10 +95,7 @@
 		font-size: 0.85rem;
 	}
 
-	input::placeholder {
-		color: #000;
-		opacity: 0.5;
-	}
+	input::placeholder { color: #000; opacity: 0.5; }
 
 	button {
 		background: #fff;
@@ -124,10 +111,7 @@
 		transition: background-color 0.15s, color 0.15s;
 	}
 
-	button:hover {
-		background: #000;
-		color: #fff;
-	}
+	button:hover { background: #000; color: #fff; }
 
 	pre.out {
 		background: #fff;
@@ -145,15 +129,11 @@
 		overflow-y: auto;
 	}
 
-	pre.out.ok,
-	pre.out.err {
-		color: #000;
-	}
+	pre.out.ok, pre.out.err { color: #000; }
 </style>
 </head>
 
 <body>
-
 <div class="wrap">
 
 	<header>
@@ -164,10 +144,7 @@
 	<!-- GET -->
 	<div class="card">
 		<h2>GET</h2>
-
-		<p class="desc">
-			Static files, directory listing, and a CGI script with a query string.
-		</p>
+		<p class="desc">Static files, directory listing, and a CGI script with a query string.</p>
 
 		<a class="link-row" href="/files/" target="_blank">
 			/files/ <span class="arrow">— directory listing</span>
@@ -186,19 +163,11 @@
 	<!-- POST -->
 	<div class="card">
 		<h2>POST</h2>
-
-		<p class="desc">
-			Posts a small text body to a CGI script.
-		</p>
+		<p class="desc">Posts a small text body to a CGI script.</p>
 
 		<form id="postForm">
 			<div class="row">
-				<input
-					type="text"
-					id="postBody"
-					value="hello from the browser"
-				/>
-
+				<input type="text" id="postBody" value="hello from the browser" />
 				<button type="submit">POST</button>
 			</div>
 		</form>
@@ -209,15 +178,11 @@
 	<!-- UPLOAD -->
 	<div class="card">
 		<h2>POST</h2>
-
-		<p class="desc">
-			Uploads to <code>/upload</code> (multipart form).
-		</p>
+		<p class="desc">Uploads to <code>/upload</code> (multipart form).</p>
 
 		<form id="uploadForm">
 			<div class="row">
 				<input type="file" id="uploadFile" />
-
 				<button type="submit">Upload</button>
 			</div>
 		</form>
@@ -228,19 +193,11 @@
 	<!-- DELETE -->
 	<div class="card">
 		<h2>DELETE</h2>
-
-		<p class="desc">
-			Deletes a file previously uploaded to <code>/upload</code> by name.
-		</p>
+		<p class="desc">Deletes a file previously uploaded to <code>/upload</code> by name.</p>
 
 		<form id="deleteForm">
 			<div class="row">
-				<input
-					type="text"
-					id="deleteName"
-					placeholder="filename.txt"
-				/>
-
+				<input type="text" id="deleteName" placeholder="filename.txt" />
 				<button type="submit">DELETE</button>
 			</div>
 		</form>
@@ -251,32 +208,91 @@
 </div>
 
 <script>
-function showResult(el, status, text, ok) {
-	el.textContent = "HTTP " + status + "\n" + text;
-	el.className = "out";
+function escapeForText(s) {
+	return String(s ?? "");
+}
+
+function stripHtmlToText(html) {
+	// Converts HTML into readable text preview (best-effort).
+	// If the response is already plain text, it will mostly return as-is.
+	const tmp = document.createElement("div");
+	tmp.innerHTML = html;
+	return tmp.textContent || tmp.innerText || "";
+}
+
+function formatHeaders(res) {
+	const lines = [];
+	// show a useful subset + also dump all if you want later
+	const ct = res.headers.get("content-type");
+	const cl = res.headers.get("content-length");
+	const lm = res.headers.get("last-modified");
+	lines.push("Content-Type: " + (ct || "(none)"));
+	lines.push("Content-Length: " + (cl || "(none)"));
+	if (lm) lines.push("Last-Modified: " + lm);
+
+	return lines.join("\n");
+}
+
+function showResult(el, status, bodyText, ok, extra) {
+	const safeBody = escapeForText(bodyText);
+
+	// Body preview
+	const rawLen = safeBody.length;
+	const bodyPreview = rawLen
+		? (rawLen > 2500 ? safeBody.slice(0, 2500) + "\n...(truncated)" : safeBody)
+		: "";
+
+	const readablePreview = rawLen
+		? stripHtmlToText(safeBody).trim().slice(0, 700) + (rawLen > 700 ? "… (text truncated)" : "")
+		: "";
+
+	let msg = "HTTP " + status + "\n";
+	if (extra) msg += extra + "\n";
+	msg += "\n--- body ---\n";
+	msg += rawLen ? bodyPreview : "(no body)";
+	msg += "\n\n--- body (readable text preview) ---\n";
+	msg += rawLen ? readablePreview : "(no body)";
+
+	el.textContent = msg;
+	el.className = "out" + (ok ? " ok" : " err");
+}
+
+async function fetchAndShow({ outEl, url, method, headers, body, modeLabel }) {
+	try {
+		const res = await fetch(url, { method, headers, body });
+
+		// Important: always read the body, even on errors
+		const text = await res.text();
+
+		const extra =
+			"== " + modeLabel + " ==\n" +
+			formatHeaders(res) +
+			"\nStatus ok? " + String(res.ok);
+
+		showResult(outEl, res.status, text, res.ok, extra);
+	} catch (err) {
+		const msg =
+			"fetch() failed\n" +
+			"URL: " + url + "\n" +
+			"Error: " + (err && err.message ? err.message : String(err));
+
+		showResult(outEl, "—", msg, false, "== JS/Network error ==");
+	}
 }
 
 document.getElementById("postForm").addEventListener("submit", async function (e) {
 	e.preventDefault();
-
 	const out = document.getElementById("postOut");
 	const body = document.getElementById("postBody").value;
 
-	try {
-		const res = await fetch("/cgi-bin/env.py", {
-			method: "POST",
-			headers: {
-				"Content-Type": "text/plain"
-			},
-			body: body
-		});
-
-		const text = await res.text();
-
-		showResult(out, res.status, text, res.ok);
-	} catch (err) {
-		showResult(out, "—", String(err), false);
-	}
+	await fetchAndShow({
+		outEl: out,
+		url: "/cgi-bin/env.py",
+		method: "POST",
+		headers: { "Content-Type": "text/plain" },
+		body,
+		modeLabel: "POST /cgi-bin/env.py"
+	});
 });
 
 document.getElementById("uploadForm").addEventListener("submit", async function (e) {
@@ -286,26 +302,20 @@ document.getElementById("uploadForm").addEventListener("submit", async function 
 	const fileInput = document.getElementById("uploadFile");
 
 	if (!fileInput.files.length) {
-		showResult(out, "—", "pick a file first", false);
+		showResult(out, "—", "pick a file first", false, "== Upload ==");
 		return;
 	}
 
 	const fd = new FormData();
-
 	fd.append("file", fileInput.files[0]);
 
-	try {
-		const res = await fetch("/upload", {
-			method: "POST",
-			body: fd
-		});
-
-		const text = await res.text();
-
-		showResult(out, res.status, text, res.ok);
-	} catch (err) {
-		showResult(out, "—", String(err), false);
-	}
+	await fetchAndShow({
+		outEl: out,
+		url: "/upload",
+		method: "POST",
+		body: fd,
+		modeLabel: "POST /upload (multipart)"
+	});
 });
 
 document.getElementById("deleteForm").addEventListener("submit", async function (e) {
@@ -315,29 +325,16 @@ document.getElementById("deleteForm").addEventListener("submit", async function 
 	const name = document.getElementById("deleteName").value.trim();
 
 	if (!name) {
-		showResult(out, "—", "enter a filename", false);
+		showResult(out, "—", "enter a filename", false, "== Delete ==");
 		return;
 	}
 
-	try {
-		const res = await fetch(
-			"/upload/" + encodeURIComponent(name),
-			{
-				method: "DELETE"
-			}
-		);
-
-		const text = await res.text();
-
-		showResult(
-			out,
-			res.status,
-			text || "(no body)",
-			res.ok
-		);
-	} catch (err) {
-		showResult(out, "—", String(err), false);
-	}
+	await fetchAndShow({
+		outEl: out,
+		url: "/upload/" + encodeURIComponent(name),
+		method: "DELETE",
+		modeLabel: "DELETE /upload/<name>"
+	});
 });
 </script>
 
