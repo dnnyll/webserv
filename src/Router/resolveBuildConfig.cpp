@@ -45,6 +45,8 @@ void	Router::resolveBuildConfig()
 	this->_effconf.autoindex = this->_location->autoindex;
 	this->_effconf.upload_store = this->_location->upload_store;
 	this->_effconf.client_max_body_size = this->_location->client_max_body_size;
+	std::cout << "LOCATION MAX BODY SIZE : " << this->_location->client_max_body_size
+		<< std::endl; //TODO (jules) a check quel max body size est pris
 	this->_effconf.cgi_pass = this->_location->cgi_pass;
 	//printVector(this->_effconf.methods);
 }
