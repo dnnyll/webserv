@@ -18,11 +18,17 @@ void	HttpRequest::setMaxBodySize(size_t size)
 
 bool	HttpRequest::getData(const std::string& chunk)
 {
+	static const size_t	REQUEST_LINE_MAX_SIZE = 8000;
 	static const size_t	HEADER_MAX_SIZE = 16384;
 
 	_buffer += chunk;
-	if ((_state == REQUEST_LINE || _state == HEADERS)
-			&& _buffer.size() > HEADER_MAX_SIZE)
+	if (_state == REQUEST_LINE && _buffer.size() > REQUEST_LINE_MAX_SIZE)
+	{
+		_state = ERROR_STATE;
+		_errorReason = URI_TOO_LONG;
+		return (false);
+	}
+	if (_state == HEADERS && _buffer.size() > HEADER_MAX_SIZE)
 	{
 		_state = ERROR_STATE;
 		_errorReason = HEADER_TOO_LARGE;

@@ -23,6 +23,8 @@ void	Router::resolveFileSystem()
 			this->_effconf.status = NOT_FOUND;
 		else if (errno == EACCES)
 			this->_effconf.status = FORBIDDEN;
+		else if (errno == ENAMETOOLONG)
+			this->_effconf.status = NOT_FOUND;
 		else
 			this->_effconf.status = ERROR;
 		return ;

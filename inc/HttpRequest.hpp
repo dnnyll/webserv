@@ -21,7 +21,8 @@ enum	ErrorReason
 	BODY_TOO_LARGE,
 	METHOD_NOT_ALLOWED,
 	MALFORMED_REQUEST,
-	HEADER_TOO_LARGE
+	HEADER_TOO_LARGE,
+	URI_TOO_LONG
 };
 
 class	HttpRequest :public HttpMessage

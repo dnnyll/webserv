@@ -79,6 +79,8 @@ void	ClientHandler::handleRead()
 			errorResponse = Router::makeError(413, "Payload Too Large", _config);
 		else if (_request.getErrorReason() == HEADER_TOO_LARGE)
 			errorResponse = Router::makeError(431, "Request Header Fields Too Large", _config);
+		else if (_request.getErrorReason() == URI_TOO_LONG)
+			errorResponse = Router::makeError(414, "URI Too Long", _config);
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
 		{
 			errorResponse = Router::makeError(501, "Not Implemented", _config);
