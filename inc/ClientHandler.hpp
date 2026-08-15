@@ -5,6 +5,7 @@
 #include	"../inc/EventHandler.hpp"
 #include	"../inc/Config.hpp"
 #include	"../inc/EventLoop.hpp"
+#include	<ctime>
 
 struct	CgiAlive;
 
@@ -46,9 +47,12 @@ class	ClientHandler : public	EventHandler
 		bool				_keepAlive;
 		bool				_getClosed;
 		CgiAlive			*_clientAlive;
+		time_t				_lastActivity;
 
 		bool	getClosed() const;
 		void	setClosed();
+		bool	shouldTimeout() const;
+		void	onTimeout();
 };
 
 #endif

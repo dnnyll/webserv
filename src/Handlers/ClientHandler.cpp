@@ -10,6 +10,9 @@
 #include	"../inc/Cgi/CgiReadHandler.hpp"
 #include	<unistd.h>
 #include	<sys/socket.h>
+#include	<ctime>
+
+static const time_t	IDLE_TIMEOUT = 30;
 
 ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reactor)
 	: _fd(fd),
@@ -19,6 +22,7 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 {
 	_keepAlive = true;
 	_getClosed = false;
+	_lastActivity = time(NULL);
 	_request.setMaxBodySize(block.client_max_body_size);
 }
 
@@ -52,6 +56,8 @@ void	ClientHandler::handleRead()
 		_getClosed = true;
 		return ;
 	}
+
+	_lastActivity = time(NULL);
 
 	//	temporary debug
 	std::cout << "Received " << bytesReceived << " bytes:\n";
@@ -168,6 +174,8 @@ void	ClientHandler::handleWrite()
 		return ;
 	}
 
+	_lastActivity = time(NULL);
+
 	_outBuffer.erase(0, bytesSent);
 
 	if (_outBuffer.empty())
@@ -197,4 +205,19 @@ bool	ClientHandler::isWritable() const
 void	ClientHandler::setClosed()
 {
 	_getClosed = true;
+}
+
+bool	ClientHandler::shouldTimeout() const
+{
+	return (!_request.isComplete()
+			&& _outBuffer.empty()
+			&& time(NULL) - _lastActivity >= IDLE_TIMEOUT);
+}
+
+void	ClientHandler::onTimeout()
+{
+	HttpResponse	errorResponse = Router::makeError(408, "Request Timeout", _config);
+
+	_outBuffer = errorResponse.serialize();
+	_keepAlive = false;
 }

@@ -58,6 +58,7 @@ void EventLoop::run()
 			break ;
 		}
 		dispatch();
+		checkTimeouts();
 		removeClosedHandlers();
 	}
 }
@@ -107,6 +108,18 @@ void	EventLoop::dispatch()
 		if (rev & (POLLERR | POLLNVAL))
 			_handlers[i]->setClosed();
 
+		i++;
+	}
+}
+
+void	EventLoop::checkTimeouts()
+{
+	size_t	i = 0;
+
+	while (i < _handlers.size())
+	{
+		if (_handlers[i]->shouldTimeout())
+			_handlers[i]->onTimeout();
 		i++;
 	}
 }

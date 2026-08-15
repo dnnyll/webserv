@@ -20,6 +20,7 @@ class	EventLoop
 
 		void			buildPollFds();
 		void			dispatch();
+		void			checkTimeouts();
 		void			removeClosedHandlers();
 };
 
