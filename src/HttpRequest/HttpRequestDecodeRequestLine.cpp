@@ -1,5 +1,6 @@
 #include	"../inc/HttpRequest.hpp"
 #include	"../inc/HttpRequestDecodeDebug.hpp"
+#include	<cctype>
 #include	<string>
 
 // CRLF = Carriage Return + Line Feed
@@ -67,6 +68,17 @@ bool	HttpRequest::validateRequestLine()
 	if (version != "HTTP/1.1")
 	{
 		_state = ERROR_STATE;
+
+		//	RFC 7230 §2.6: well-formed but unsupported version -> 505,
+		//	garbage that is not a version at all -> 400
+		if (version.size() == 8
+				&& version.compare(0, 5, "HTTP/") == 0
+				&& std::isdigit(static_cast<unsigned char>(version[5]))
+				&& version[6] == '.'
+				&& std::isdigit(static_cast<unsigned char>(version[7])))
+			_errorReason = HTTP_VERSION_NOT_SUPPORTED;
+		else
+			_errorReason = MALFORMED_REQUEST;
 		return (false);
 	}
 

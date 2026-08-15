@@ -87,6 +87,8 @@ void	ClientHandler::handleRead()
 			errorResponse = Router::makeError(431, "Request Header Fields Too Large", _config);
 		else if (_request.getErrorReason() == URI_TOO_LONG)
 			errorResponse = Router::makeError(414, "URI Too Long", _config);
+		else if (_request.getErrorReason() == HTTP_VERSION_NOT_SUPPORTED)
+			errorResponse = Router::makeError(505, "HTTP Version Not Supported", _config);
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
 		{
 			errorResponse = Router::makeError(501, "Not Implemented", _config);
