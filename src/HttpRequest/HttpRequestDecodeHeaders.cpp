@@ -32,16 +32,42 @@ bool    HttpRequest::extractHeaderLine(std::string &line, size_t &pos)
 
 bool	HttpRequest::splitHeaderLine(const std::string &line)
 {
-	size_t	separator = line.find(": ");
+	size_t	colon = line.find(':');
 
-	if (separator == std::string::npos)
+	if (colon == std::string::npos)
 	{
 		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
 		return (false);
 	}
 
-	std::string	key = line.substr(0, separator);
-	std::string	value = line.substr(separator + 2);
+	std::string	key = line.substr(0, colon);
+	std::string	value = line.substr(colon + 1);
+
+	//	RFC 7230 §3.2.4: no whitespace allowed between field-name and colon
+	if (key.empty() || key.find_first_of(" \t") != std::string::npos)
+	{
+		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
+		return (false);
+	}
+
+	size_t	first = value.find_first_not_of(" \t");
+	size_t	last = value.find_last_not_of(" \t");
+
+	if (first == std::string::npos)
+		value.clear();
+	else
+		value = value.substr(first, last - first + 1);
+
+	//	duplicate field name -> reject (Host, Content-Length, ... must be single)
+	if (headers.count(key) > 0)
+	{
+		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
+		return (false);
+	}
+
 	headers[key] = value;
 
 	return (true);
@@ -117,6 +143,15 @@ void	HttpRequest::decodeHeaders()
 		if (pos == 0)
 		{
 			_buffer.erase(0, 2);
+
+			//	RFC 7230 §5.4: Host is mandatory in HTTP/1.1
+			if (!headers.count("Host"))
+			{
+				_state = ERROR_STATE;
+				_errorReason = MALFORMED_REQUEST;
+				return ;
+			}
+
 			resolveBodyState();
 			return ;
 		}
