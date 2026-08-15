@@ -65,7 +65,7 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (_fd < 0)
 	{
-		std::cerr << "[SETUPSOCKET]Error: socket() failed: " << strerror(errno) << std::endl;
+		std::cerr << "[SETUPSOCKET] Error: socket() failed: " << strerror(errno) << std::endl;
 		return false;
 	}
 
@@ -84,7 +84,7 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (bind(_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
 	{
-		std::cerr << "[SETUPSOCKET]Bind() failed: " << strerror(errno) << std::endl;	
+		std::cerr << "[SETUPSOCKET] Bind() failed: " << strerror(errno) << std::endl;	
 		close(_fd);
 		_fd = -1;
 		return false;
@@ -92,13 +92,13 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 
 	if (listen(_fd, 10) < 0)
 	{
-		std::cerr << "[SETUPSOCKET]Listen() failed: " << strerror(errno) << std::endl;
+		std::cerr << "[SETUPSOCKET] Listen() failed: " << strerror(errno) << std::endl;
 		close(_fd);
 		_fd = -1;
 		return false;
 	}
 
-	std::cout << "[SETUPSOCKET]Listening on " << host << ":" << port << "..." << std::endl;
+	std::cout << "[SETUPSOCKET] Listening on " << host << ":" << port << "..." << std::endl;
 	return true;
 }
 

@@ -38,6 +38,8 @@ class	ClientHandler : public	EventHandler
 		int		getFd() const;
 		bool	isWritable() const;
 		private:
+
+		void	processRequest();
 		
 		int					_fd;
 		const ServerBlock	&_config;
@@ -46,6 +48,7 @@ class	ClientHandler : public	EventHandler
 		std::string			_outBuffer;
 		bool				_keepAlive;
 		bool				_getClosed;
+		bool				_readClosed;
 		CgiAlive			*_clientAlive;
 		time_t				_lastActivity;
 

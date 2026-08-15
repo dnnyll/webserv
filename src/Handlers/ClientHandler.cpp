@@ -22,6 +22,7 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 {
 	_keepAlive = true;
 	_getClosed = false;
+	_readClosed = false;
 	_lastActivity = time(NULL);
 	_request.setMaxBodySize(block.client_max_body_size);
 }
@@ -53,29 +54,52 @@ void	ClientHandler::handleRead()
 
 	if (bytesReceived <= 0)
 	{
+		//	recv() == 0 is a FIN (half-close): the peer has stopped sending
+		//	but may still be reading, so flush queued/pipelined responses
+		//	before closing. Also defer closing while a CGI is still running
+		//	(the CGI output lands in _outBuffer later). Only treat recv() < 0
+		//	as a fatal error.
+		if (bytesReceived == 0
+			&& (!_outBuffer.empty()
+				|| _request.hasPendingData()
+				|| (_clientAlive && _clientAlive->refs > 1)))
+		{
+			if (_outBuffer.empty() && _request.hasPendingData())
+			{
+				_request.getData("");
+				processRequest();
+			}
+			_readClosed = true;
+			return ;
+		}
 		_getClosed = true;
 		return ;
 	}
 
 	_lastActivity = time(NULL);
 
-	//	temporary debug
-	std::cout << "Received " << bytesReceived << " bytes:\n";
-	for (ssize_t i = 0; i < bytesReceived; ++i)
-	{
-		unsigned char c = buffer[i];
+	// //	temporary debug
+	// std::cout << "Received " << bytesReceived << " bytes:\n";
+	// for (ssize_t i = 0; i < bytesReceived; ++i)
+	// {
+	// 	unsigned char c = buffer[i];
 
-		if (c == '\r')
-			std::cout << "\\r";
-		else if (c == '\n')
-			std::cout << "\\n\n";
-		else
-			std::cout << c;
-	}
-	std::cout << "\n----- END OF CHUNK -----\n" << std::endl;
+	// 	if (c == '\r')
+	// 		std::cout << "\\r";
+	// 	else if (c == '\n')
+	// 		std::cout << "\\n\n";
+	// 	else
+	// 		std::cout << c;
+	// }
+	// std::cout << "\n----- END OF CHUNK -----\n" << std::endl;
 
 	_request.getData(std::string (buffer, bytesReceived));
 
+	processRequest();
+}
+
+void	ClientHandler::processRequest()
+{
 	if (_request.hasError())
 	{
 		
@@ -90,9 +114,7 @@ void	ClientHandler::handleRead()
 		else if (_request.getErrorReason() == HTTP_VERSION_NOT_SUPPORTED)
 			errorResponse = Router::makeError(505, "HTTP Version Not Supported", _config);
 		else if (_request.getErrorReason() == METHOD_NOT_ALLOWED)
-		{
 			errorResponse = Router::makeError(501, "Not Implemented", _config);
-		}
 		else
 			errorResponse = Router::makeError(400, "Bad Request", _config);
 
@@ -183,7 +205,19 @@ void	ClientHandler::handleWrite()
 	if (_outBuffer.empty())
 	{
 		if (_keepAlive)
+		{
 			_request.reset();
+
+			//	a pipelined request may already be sitting in the parser's
+			//	buffer — feed it back instead of waiting for the next recv()
+			if (_request.hasPendingData())
+			{
+				_request.getData("");
+				processRequest();
+			}
+			else if (_readClosed)
+				_getClosed = true;
+		}
 		else
 			_getClosed = true;
 	}

@@ -109,3 +109,8 @@ ErrorReason	HttpRequest::getErrorReason() const
 {
 	return (_errorReason);
 }
+
+bool	HttpRequest::hasPendingData() const
+{
+	return (!_buffer.empty());
+}

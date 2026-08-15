@@ -51,6 +51,7 @@ class	HttpRequest :public HttpMessage
 		bool		isComplete() const;
 		bool		hasError() const;
 		ErrorReason	getErrorReason() const;
+		bool		hasPendingData() const;
 		
 	private:
 		//	DecodeRequestLine
