@@ -4,7 +4,7 @@
 #include	"../inc/check_path.hpp"
 #include	<iostream>
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
 	if (argc != 2)
 	{
@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	Config config;
+	Config	config;
 
 	try
 	{
@@ -27,7 +27,8 @@ int main(int argc, char **argv)
 
 	EventLoop	reactor;
 
-	const std::vector<ServerBlock> &servers = config.getServers();
+	const std::vector<ServerBlock>	&servers = config.getServers();
+
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		AcceptHandler	*listener = new AcceptHandler(servers[i], reactor);

@@ -3,15 +3,27 @@
 #include	<sstream>
 #include	<string>
 
-bool	HttpRequest::extractHeaderLine(std::string &line, size_t &pos)
+bool    HttpRequest::extractHeaderLine(std::string &line, size_t &pos)
 {
-	pos = _buffer.find("\r\n");
+	size_t crlf_pos = _buffer.find("\r\n");
+	size_t lf_pos = _buffer.find('\n');
+
+	if (lf_pos != std::string::npos
+		&& (crlf_pos == std::string::npos || lf_pos < crlf_pos))
+	{
+		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
+		return (false);
+	}
+
+	pos = crlf_pos;
 
 	if (pos == std::string::npos)
 		return (false);
 
 	if (pos == 0)
 		return (true);
+
 	line = _buffer.substr(0, pos);
 
 	return (true);
@@ -36,12 +48,21 @@ bool	HttpRequest::splitHeaderLine(const std::string &line)
 
 void	HttpRequest::resolveBodyState()
 {
-	if (headers.count("Transfer-Encoding") && headers["Transfer-Encoding"] == "chunked")
+	bool	hasTE = headers.count("Transfer-Encoding") && headers["Transfer-Encoding"] == "chunked";
+	bool	hasCL = headers.count("Content-Length");
+
+	if (hasTE && hasCL)
+	{
+		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
+		return ;
+	}
+	if (hasTE)
 	{
 		isChunked = true;
 		_state = CHUNKED;
 	}
-	else if (headers.count("Content-Length"))
+	else if (hasCL)
 	{
 		std::istringstream ss(headers["Content-Length"]);
 		ss >> contentLength;

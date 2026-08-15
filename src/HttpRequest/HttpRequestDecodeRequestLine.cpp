@@ -2,15 +2,25 @@
 #include	"../inc/HttpRequestDecodeDebug.hpp"
 #include	<string>
 
+// CRLF = Carriage Return + Line Feed
+// LF = Line Feed only
 bool	HttpRequest::extractRequestLine(std::string &line)
 {
-	size_t	pos = _buffer.find("\r\n");
+	size_t	crlf_pos = _buffer.find("\r\n");
+	size_t	lf_pos = _buffer.find('\n');
 
-	if (pos == std::string::npos)
+	if (lf_pos != std::string::npos && (crlf_pos == std::string::npos || lf_pos < crlf_pos))
+	{
+		_state = ERROR_STATE;
+		_errorReason = MALFORMED_REQUEST;
+		return (false);
+	}
+
+	if (crlf_pos == std::string::npos)
 		return (false);
 
-	line = _buffer.substr(0, pos);
-	_buffer.erase(0, pos + 2);
+	line = _buffer.substr(0, crlf_pos);
+	_buffer.erase(0, crlf_pos + 2);
 
 	return (true);
 }
