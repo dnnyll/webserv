@@ -1,5 +1,6 @@
 #include	"../inc/HttpRequest.hpp"
 #include	"../inc/HttpRequestDecodeDebug.hpp"
+#include	<cctype>
 #include	<sstream>
 #include	<string>
 
@@ -57,17 +58,41 @@ void	HttpRequest::resolveBodyState()
 		_errorReason = MALFORMED_REQUEST;
 		return ;
 	}
+
 	if (hasTE)
 	{
 		isChunked = true;
 		_state = CHUNKED;
 	}
+	
 	else if (hasCL)
 	{
-		std::istringstream ss(headers["Content-Length"]);
+		std::string	cl = headers["Content-Length"];
+		size_t		first = cl.find_first_not_of(" \t");
+		size_t		last = cl.find_last_not_of(" \t");
+
+		if (first == std::string::npos)
+		{
+			_state = ERROR_STATE;
+			_errorReason = MALFORMED_REQUEST;
+			return ;
+		}
+		cl = cl.substr(first, last - first + 1);
+
+		for (size_t i = 0; i < cl.size(); ++i)
+		{
+			if (!std::isdigit(static_cast<unsigned char>(cl[i])))
+			{
+				_state = ERROR_STATE;
+				_errorReason = MALFORMED_REQUEST;
+				return ;
+			}
+		}
+
+		std::istringstream ss(cl);
 		ss >> contentLength;
 
-		if (contentLength > _maxBodySize)
+		if (ss.fail() || contentLength > _maxBodySize)
 		{
 			_state = ERROR_STATE;
 			_errorReason = BODY_TOO_LARGE;
