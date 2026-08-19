@@ -7,7 +7,29 @@
 
 <title>webserv — HTTP test suite</title>
 
+<link rel=""preconnect" href="https://fonts.googleapis.com">
+<link rel=""preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&displ
+ay=swap" rel="stylesheet">
+
 <style>
+
+	:root {
+		--bg: #14171a;
+		--bg-grid: #1a1e22;
+		--panel: #1c2024;
+		--panel-bar: #22262b;
+		--border: #2c3238;
+		--border-soft: #262b30;
+		--text: #e7e5e0;
+		--text-dim: #8b9298;
+		--text-faint: #5b6167;
+		--accent-2xx: #6fcf97;
+		--accent-4xx: #e6b566;
+		--accent-5xx: #e2726a;
+		--accent-neutral: #6f9bd1;
+		--mono: 'JetBrain Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	}
 
 	* {
 		box-sizing: border-box;
@@ -15,128 +37,271 @@
 
 	body {
 		margin: 0;
-		background: #fff;
-		color: #000;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-		line-height: 1.5;
+		background: 
+			radial-gradient(circle at 1px 1px, var(--bg-grid) 1px, transparent 1px) 0 0 / 28px 28px,
+			var(--bg);
+		color: vat(--text);
+		font-family: var(--mono);
+		line-height: 1.55;
 	}
 
-	.wrap {
-		max-width: 960px;
-		margin: 0;
-		padding: 3rem 2rem 6rem;
+	.page {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 3.5rem 1.5rem 6rem;
 	}
+
+	/* ---------- header ----------- */
 
 	header {
-		margin-bottom: 2.5rem;
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.prompt {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		color: var(--text-faint);
+		margin-bottom: 0.9rem;
+	}
+
+	.prompt::before {
+		content: "";
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--accent-2xx);
+		box-shadow: 0 0 6px var(--accent-2xx);
 	}
 
 	h1 {
-		font-size: 1.6rem;
-		margin: 0 0 0.4rem;
-		letter-spacing: -0.02em;
+		font-size: 1.7rem;
+		font-weight: 700;
+		margin: 0 0 0.6rem;
+		letter-spacing: -0.01em;
+	}
+
+	h1.dim {
+		color: var(--text-faint);
+		font-weight: 500;
 	}
 
 	header p {
-		margin: 0;
-		font-size: 0.92rem;
+		max-width: 560px;
+		margin: 0 auto;
+		font-size: 0.85rem;
+		color: var(--text-dim);
 	}
+
+	header code {
+		color: var(--text);
+		background: var(--panel);
+		border: 1px solid var(--border);
+		padding: 0.05rem 0.35rem;
+		border-radius: 4px;
+	}
+
+	/* -------------- section dividers ---------------- */
 
 	.section-divider {
-		border-top: 2px solid #000;
-		margin: 3rem 0 1.5rem;
-		padding-top: 1rem;
+		display: flex;
+		align-items: center;
+		gap: 0.9rem;
+		margin: 3.2rem 0 1.4rem;
 	}
 
-	.section-divider span {
-		font-family: monospace;
-		font-size: 0.8rem;
-		font-weight: 600;
+	.section-divider:first-of-type {
+		margin-top: 0;
+	}
+
+	.method-chip {
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		padding: 0.3rem 0.65rem;
+		border-radius: 5px;
+		border: 1px solid var(--border);
+		background: var(--panel);
+		color: var(var(--text-dim));
+	}
+
+	.section-divider .rule {
+		flex: 1;
+		height: 1px;
+		background: var(--border-soft);
+	}
+
+	.section-note {
+		font-size: 0.78rem;
+		color: var(--text-dim);
+		margin: -0.6rem 0 1.4rem;
+		text-align: center;
+	}
+
+	/* --------------- grid of test cards ------------- */
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1rem;
+		justify-content: center;
 	}
 
 	.card {
-		border: 1px solid #000;
-		padding: 1.4rem 1.5rem;
-		margin-bottom: 1.2rem;
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		background: var(--panel);
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
 	}
 
-	.card h2 {
-		font-size: 0.95rem;
-		margin: 0 0 0.3rem;
+	.card-bar {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.6rem 0.85rem;
+		background: var(--panel-bar);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.dot {
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		flex-shrink: 0;
+		background: var(--accent-neutral);
+	}
+
+	.dot.c2xx { background: var(--accent-2xx); }
+	.dot.c4xx { background: var(--accent-4xx); }
+	.dot.c5xx { background: var(--accent-5xx); }
+
+	.card-bar h2 {
+		font-size: 0.82rem;
+		font-weight: 600;
+		margin: 0;
+		color: var(--text);
+	}
+
+	.card-body {
+		padding: 1rem 1.1rem 1.15rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		flex: 1;
 	}
 
 	.desc {
-		font-size: 0.85rem;
-		margin: 0 0 1rem;
+		font-size: 0.82rem;
+		color: var(--text-dim);
+		margin: 0;
 	}
+
+	.desc code {
+		color: var(--text);
+	}
+
+	.exchange {
+		font-size: 0.76rem;
+		background: #101316;
+		border: 1px solid var(--border-soft);
+		border-radius: 6px;
+		padding: 0.55rem 0.7rem;
+	}
+
+	.exchange .req {
+		color: var(--text);
+	}
+
+	.exchange .req .method {
+		font-weight: 700;
+		color: var(--accent-neutral);
+	}
+
+	.exchange .res {
+		margin-top: 0.3rem;
+		color: var(--text-dim);
+	}
+
+	.exchange .res .code-2xx { color: var(--accent-2xx); font-weight: 600; }
+	.exchange .res .code-4xx { color: var(--accent-4xx); font-weight: 600; }
+	.exchange .res .code-5xx { color: var(--accent-5xx); font-weight: 600; }
 
 	.row {
 		display: flex;
-		gap: 0.6rem;
+		gap: 0.5rem;
 		align-items: center;
-	}
-
-	button {
-		background: #fff;
-		color: #000;
-		border: 1px solid #000;
-		padding: 0.55rem 1rem;
-		font-family: monospace;
-		font-size: 0.8rem;
-		font-weight: 600;
-		cursor: pointer;
-		white-space: nowrap;
-	}
-
-	button:hover {
-		background: #000;
-		color: #fff;
+		margin-top: auto;
 	}
 
 	input[type="text"],
 	input[type="url"] {
-		background: #fff;
-		color: #000;
-		border: 1px solid #000;
-		padding: 0.55rem 0.7rem;
-		font-family: monospace;
-		font-size: 0.8rem;
-		flex: 1;
-	}
-
-	.test-path {
-		font-family: monospace;
+		background: #101316;
+		color: var(--text);
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		padding: 0.5rem 0.65rem;
+		font-family: var(--mono);
 		font-size: 0.78rem;
 		flex: 1;
+		min-width: 0;
 	}
 
-	.expected {
-		font-family: monospace;
-		font-size: 0.75rem;
+	input[type="text"]:focus-visible,
+	input[type="url"]:focus-visible,
+	button:focus-visible {
+		outline: 2px solid var(--accent-neutral);
+		outline-offset: 2px;
+	}
+
+	button {
+		background: transparent;
+		color: var(--text);
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		padding: 0.5rem 0.85rem;
+		font-family: var(--mono);
+		font-size: 0.74rem;
+		font-weight: 600;
+		letter-spacing: 0.02rem;
+		cursor: pointer;
 		white-space: nowrap;
+		transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+	}
+
+	button::before {
+		content: "> ";
+		color: var(--text-faint);
+	}
+
+	button:hover {
+		background: var(--text);
+		color: var(--bg);
+		border-color: var(--text);
+	}
+
+	button:hover::before {
+		color: var(--bg);
 	}
 
 	.note {
-		font-family: monospace;
-		font-size: 0.78rem;
-		border-left: 2px solid #000;
-		padding-left: 0.8rem;
-		margin-top: 1rem;
+		font-size: 0.76rem;
+		color: var(--text-dim);
+		border-left: 2px solid var(--border);
+		padding-left: 0.7rem;
 	}
 
-	.raw {
-		background: #000;
-		color: #fff;
-		padding: 1rem;
-		font-family: monospace;
-		font-size: 0.78rem;
-		white-space: pre-wrap;
-		overflow-x: auto;
-		margin: 0.8rem 0 0;
+	.note a {
+		color: var(--accent-neutral);
 	}
 
-	code {
-		font-family: monospace;
+	@media (prefers-reduced-motion: reduce) {
+		button {
+			transition: none;
+		}
 	}
 
 </style>
@@ -146,12 +311,14 @@
 
 <body>
 
-<div class="wrap">
+<div class="page">
 
 
 <header>
 
-	<h1>webserv — HTTP test suite</h1>
+	<div class="prompt">webserv // suite active</div>
+
+	<h1>HTTP test suite <span class="dim">-- webserv</span></h1>
 
 	<p>
 		Tests: GET, POST, DELETE, UPLOAD and errors
@@ -167,69 +334,62 @@
      ============================================================ -->
 
 <div class="section-divider">
-	<span>GET</span>
+	<span class="method-chip">GET</span>
+	<div class="rule"></div>
 </div>
 
 
-<div class="card">
+<div class="grid">
 
-	<h2>GET — static page</h2>
-
-	<p class="desc">
-		Fetch a static HTML page that says <em>hello and welcome</em>.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /hello.html</div>
-
-		<div class="expected">expected: 200</div>
-
-		<button onclick="openResult('/hello.html')">TEST</button>
-
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>Static page</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Fetch a static HTML page that says <em>hello and welcome</em>.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span>/hello.html</div>
+				<div class="res">-> <span class="code-2xx">200</span></div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/hello.html')">TEST</button>
+			</div>
+		</div>
 	</div>
 
-</div>
-
-
-<div class="card">
-
-	<h2>GET — static file</h2>
-
-	<p class="desc">
-		Fetch a plain text file served by the <code>/files</code> location.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /files/hello.txt</div>
-
-		<div class="expected">expected: 200</div>
-
-		<button onclick="openResult('/files/hello.txt')">TEST</button>
-
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>Static file</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Fetch a plain text file served by the <code>/files</code> location.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span>/files/hello.txt</div>
+				<div class="res">-> <span class="code-2xx">200</span></div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/files/hello.txt')">TEST</button>
+			</div>
+		</div>
 	</div>
 
-</div>
-
-
-<div class="card">
-
-	<h2>GET — CGI with query string</h2>
-
-	<p class="desc">
-		Execute a CGI script (<code>env.py</code>) using GET with query
-		parameters.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /cgi-bin/env.py?foo=bar&amp;x=42</div>
-
-		<div class="expected">expected: 200</div>
-
-		<button onclick="openResult('/cgi-bin/env.py?foo=bar&amp;x=42')">TEST</button>
-
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>CGI with query string</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Execute a CGI script (<code>env.py</code>) using GET with query parameters.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /cgi-bin/env.py?foo=bar&amp;x=42</div>
+				<div class="res">-> <span class="code-2xx">200</span></div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/cgi-bin/env.py?foo=bar&amp;x=42')">TEST</button>
+			</div>
+		</div>
 	</div>
 
 </div>
@@ -240,60 +400,64 @@
      ============================================================ -->
 
 <div class="section-divider">
-	<span>POST</span>
+	<span class="method-chip">POST</span>
+	<div class="rule"></div>
 </div>
 
+<div class="grid">
 
-<div class="card">
-
-	<h2>POST — CGI with body</h2>
-
-	<p class="desc">
-		Send a request body to a CGI script.
-	</p>
-
-	<div class="row">
-
-		<input type="text" id="postData" value="hello from browser">
-
-		<button onclick="openResult('/cgi-bin/env.py', 'POST', document.getElementById('postData').value)">TEST</button>
-
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>CGI with body</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Send a request body to a CGI script</p>
+			<div class="exchange">
+				<div class="req"><span class="method">POST</span> /cgi-bin/env.py</div>
+				<div class="res">-> <span class="code-2xx">200</span></div>
+			</div>
+			<div class="row">
+				<input type="text" id="postData" value="hello from browser">
+				<button onclick="openResult('/cgi-bin/env.py', 'POST', document.getElementById('postData').value)">TEST</button>
+			</div>
+		</div>
 	</div>
 
 </div>
-
 
 <!-- ============================================================
      UPLOAD
      ============================================================ -->
 
 <div class="section-divider">
-	<span>UPLOAD</span>
+	<span class="method-chip">UPLOAD</span>
+	<div class="rule"></div>
 </div>
 
+<div class="grid">
 
-<div class="card">
-
-	<h2>File upload</h2>
-
-	<p class="desc">
-		Send a raw body to <code>POST /upload/&lt;filename&gt;</code> —
-		the server saves the request body into the upload directory.
-	</p>
-
-	<div class="row">
-
-		<input type="text" id="uploadFilename" value="test.txt">
-
-		<input type="text" id="uploadContent" value="hello from upload">
-
-		<button onclick="openResult('/upload/' + encodeURIComponent(document.getElementById('uploadFilename').value), 'POST', document.getElementById('uploadContent').value)">UPLOAD</button>
-
-	</div>
-
-	<div class="note">
-		The uploaded file is served back at
-		<a href="/upload">/upload</a> (autoindex on).
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>File upload</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Send a raw body to <code>POST /upload/&lt;filename&gt;</code> —
+		the server saves the request body into the upload directory.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">POST</span> /upload/&lt;filename&gt;</div>
+				<div class="res">-> <span class="code-2xx">200</span></div>
+			</div>
+			<div class="row">
+				<input type="text" id="uploadFilename" value="test.txt">
+				<input type="text" id="uploadContent" value="hello from upload">
+				<button onclick="openResult('/upload/' + encodeURIComponent(document.getElementById('uploadFilename').value), 'POST', document.getElementById('uploadContent').value)">UPLOAD</button>
+			</div>
+			<div class="note">
+				The uploaded file is served back at <a href="/upload">/upload</a> (autoindex on).
+			</div>
+		</div>
 	</div>
 
 </div>
@@ -304,303 +468,240 @@
      ============================================================ -->
 
 <div class="section-divider">
-	<span>DELETE</span>
+	<span class="method-chip">DELETE</span>
+	<div class="rule"></div>
 </div>
 
+<div class="grid">
 
-<div class="card">
-
-	<h2>DELETE file</h2>
-
-	<p class="desc">
-		Delete a file from the upload directory.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">DELETE /upload/&lt;filename&gt;</div>
-
-		<div class="expected">expected: 204</div>
-
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c2xx"></span>
+			<h2>DELETE file</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Delete a file from the upload directory.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">DELETE</span> /upload/&lt;filename&gt;</div>
+				<div class="res">-> <span class="code-2xx">204</span></div>
+			</div>
+			<div class="row">
+				<input type="text" id="deleteFilename" value="test.txt">
+				<button onclick="openResult('/upload/' + encodeURIComponent(document.getElementById('deleteFilename').value), 'DELETE')">DELETE</button>
+			</div>
+			<div class="note">
+				Upload a file first, then delete it here by name.
+			</div>
+		</div>
 	</div>
-
-	<div class="row" style="margin-top: 0.6rem;">
-
-		<input type="text" id="deleteFilename" value="test.txt">
-
-		<button onclick="openResult('/upload/' + encodeURIComponent(document.getElementById('deleteFilename').value), 'DELETE')">DELETE</button>
-
-	</div>
-
-	<div class="note">
-		Upload a file first, then delete it here by name.
-	</div>
-
+	
 </div>
-
 
 <!-- ============================================================
      ERRORS
      ============================================================ -->
 
 <div class="section-divider">
-	<span>ERRORS</span>
+	<span class="method-chip">ERRORS</span>
+	<div class="rule"></div>
 </div>
 
-<p class="desc">
-	Each error opens the matching custom page from <code>www/errors</code>
-	in a new window.
+<p class="section-note">Each error opens the matching custom page 
+	from <code>www/errors</code> in a new window.
 </p>
 
+<div class="grid">
 
-<!-- 400 -->
+	<!-- 400 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>400 — Bad Request</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">POST an empty filename to the upload location: the URI is
+		<code>/upload/</code> with no file name.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">POST</span> /upload/ - filename vide</div>
+				<div class="res">-> <span class="code-4xx">400</span> + www/errors/400.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/upload/', 'POST')">TEST</button>
+			</div>
+		</div>
+	</div>
 
-<div class="card">
+	<!-- 403 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>403 — Forbidden</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Read a file that has no read permission. Lock the file, then TEST.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /files/hello.txt</div>
+				<div class="res">-> <span class="code-4xx">403</span> + www/errors/403.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/cgi-bin/chmod.py?mode=000')">LOCK</button>
+				<button onclick="openResult('/files/hello.txt')">TEST</button>
+				<button onclick="openResult('/cgi-bin/chmod.py?mode=644')">UNLOCK</button>
+			</div>
+		</div>
+	</div>
 
-	<h2>400 — Bad Request</h2>
+		<!-- 404 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>404 — Page Not Found</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Request a resource which does not exist.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /does-not-exist.txt</div>
+				<div class="res">-> <span class="code-4xx">404</span> + www/errors/404.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/does-not-exist.html')">TEST</button>
+			</div>
+		</div>
+	</div>
 
-	<p class="desc">
-		POST an empty filename to the upload location: the URI is
-		<code>/upload/</code> with no file name.
-	</p>
+	<!-- 405 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>405 — Method Not Allowed</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc"><code>/</code> only allows GET, so DELETE is rejected.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">DELETE</span> /</div>
+				<div class="res">-> <span class="code-4xx">405</span> + www/errors/405.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/', 'DELETE')">TEST</button>
+			</div>
+		</div>
+	</div>
 
-	<div class="row">
+	<!-- 413 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>413 — Payload Too Large</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">POST a 1000-byte body to <code>/tiny</code>, which allows at most
+		100 bytes.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">POST</span> /tiny - 1000 octets</div>
+				<div class="res">-> <span class="code-4xx">413</span> + www/errors/413.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/tiny', 'POST', 'A'.repeat(1000))">TEST</button>
+			</div>
+		</div>
+	</div>
 
-		<div class="test-path">POST /upload/ — empty filename</div>
+	<!-- 431 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c4xx"></span>
+			<h2>431 — Request Header Fields Too Large</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Send a GET request with a 20 KB custom header. The server caps
+		headers at 16 KB, so the request is rejected.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> / + X-Big: 20000 x 'a'</div>
+				<div class="res">-> <span class="code-4xx">431</span> + www/errors/431.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/', undefined, undefined, { 'X-Big': 'a'.repeat(20000) })">TEST</button>
+			</div>
+		</div>
+	</div>
 
-		<div class="expected">expected: 400 + www/errors/400.html</div>
+	<!-- 500 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c5xx"></span>
+			<h2>500 — Internal Server Error</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Execute a CGI script (<code>crash.py</code>) which exits with an error.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /cgi-bin/crash.py</div>
+				<div class="res">-> <span class="code-5xx">500</span> + www/errors/500.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/cgi-bin/crash.py')">TEST</button>
+			</div>
+		</div>
+	</div>
 
-		<button onclick="openResult('/upload/', 'POST')">TEST</button>
+	<!-- 501 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c5xx"></span>
+			<h2>501 — Not Implemented</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Send a method webserv does not implement.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">PATCH</span> /</div>
+				<div class="res">-> <span class="code-5xx">501</span> + www/errors/501.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/', 'PATCH')">TEST</button>
+			</div>
+		</div>
+	</div>
 
+	<!-- 502 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c5xx"></span>
+			<h2>502 — Bad Gateway</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Execute a CGI script (<code>sigsegv.py</code>) which dies from a signal.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /cgi-bin/sigsegv.py</div>
+				<div class="res">-> <span class="code-5xx">502</span> + www/errors/502.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/cgi-bin/sigsegv.py')">TEST</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- 504 -->
+	<div class="card">
+		<div class="card-bar">
+			<span class="dot c5xx"></span>
+			<h2>504 — Gateway Timeout</h2>
+		</div>
+		<div class="card-body">
+			<p class="desc">Execute a CGI script (<code>slow.py</code>) which sleeps longer
+		than the CGI timeout.</p>
+			<div class="exchange">
+				<div class="req"><span class="method">GET</span> /cgi-bin/slow.py</div>
+				<div class="res">-> <span class="code-5xx">504</span> + www/errors/504.html</div>
+			</div>
+			<div class="row">
+				<button onclick="openResult('/cgi-bin/slow.py')">TEST</button>
+			</div>
+			<div class="note">
+				This test takes about 30 seconds (server CGI timeout).
+			</div>
+		</div>
 	</div>
 
 </div>
-
-
-<!-- 403 -->
-
-<div class="card">
-
-	<h2>403 — Forbidden</h2>
-
-	<p class="desc">
-		Read a file that has no read permission. Lock the file, then TEST.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /files/hello.txt</div>
-
-		<div class="expected">expected: 403 + www/errors/403.html</div>
-
-		<button onclick="openResult('/files/hello.txt')">TEST</button>
-
-	</div>
-
-	<div class="row" style="margin-top: 0.6rem;">
-
-		<button onclick="openResult('/cgi-bin/chmod.py?mode=000')">LOCK (chmod 000)</button>
-
-		<button onclick="openResult('/cgi-bin/chmod.py?mode=644')">UNLOCK (chmod 644)</button>
-
-	</div>
-
-</div>
-
-
-<!-- 404 -->
-
-<div class="card">
-
-	<h2>404 — Page Not Found</h2>
-
-	<p class="desc">
-		Request a resource which does not exist. The error page says
-		<em>404 Page Not Found</em>.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /does-not-exist.html</div>
-
-		<div class="expected">expected: 404 + www/errors/404.html</div>
-
-		<button onclick="openResult('/does-not-exist.html')">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 405 -->
-
-<div class="card">
-
-	<h2>405 — Method Not Allowed</h2>
-
-	<p class="desc">
-		<code>/</code> only allows GET, so DELETE is rejected.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">DELETE /</div>
-
-		<div class="expected">expected: 405 + www/errors/405.html</div>
-
-		<button onclick="openResult('/', 'DELETE')">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 413 -->
-
-<div class="card">
-
-	<h2>413 — Payload Too Large</h2>
-
-	<p class="desc">
-		POST a 1000-byte body to <code>/tiny</code>, which allows at most
-		100 bytes.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">POST /tiny — 1000 bytes</div>
-
-		<div class="expected">expected: 413 + www/errors/413.html</div>
-
-		<button onclick="openResult('/tiny', 'POST', 'A'.repeat(1000))">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 431 -->
-
-<div class="card">
-
-	<h2>431 — Request Header Fields Too Large</h2>
-
-	<p class="desc">
-		Send a GET request with a 20 KB custom header. The server caps
-		headers at 16 KB, so the request is rejected.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET / + X-Big: 20000 × 'a'</div>
-
-		<div class="expected">expected: 431 + www/errors/431.html</div>
-
-		<button onclick="openResult('/', undefined, undefined, { 'X-Big': 'a'.repeat(20000) })">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 500 -->
-
-<div class="card">
-
-	<h2>500 — Internal Server Error</h2>
-
-	<p class="desc">
-		Execute a CGI script (<code>crash.py</code>) which exits with an
-		error.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /cgi-bin/crash.py</div>
-
-		<div class="expected">expected: 500 + www/errors/500.html</div>
-
-		<button onclick="openResult('/cgi-bin/crash.py')">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 501 -->
-
-<div class="card">
-
-	<h2>501 — Not Implemented</h2>
-
-	<p class="desc">
-		Send a method webserv does not implement.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">PATCH /</div>
-
-		<div class="expected">expected: 501 + www/errors/501.html</div>
-
-		<button onclick="openResult('/', 'PATCH')">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 502 -->
-
-<div class="card">
-
-	<h2>502 — Bad Gateway</h2>
-
-	<p class="desc">
-		Execute a CGI script (<code>sigsegv.py</code>) which dies from a
-		signal.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /cgi-bin/sigsegv.py</div>
-
-		<div class="expected">expected: 502 + www/errors/502.html</div>
-
-		<button onclick="openResult('/cgi-bin/sigsegv.py')">TEST</button>
-
-	</div>
-
-</div>
-
-
-<!-- 504 -->
-
-<div class="card">
-
-	<h2>504 — Gateway Timeout</h2>
-
-	<p class="desc">
-		Execute a CGI script (<code>slow.py</code>) which sleeps longer
-		than the CGI timeout.
-	</p>
-
-	<div class="row">
-
-		<div class="test-path">GET /cgi-bin/slow.py</div>
-
-		<div class="expected">expected: 504 + www/errors/504.html</div>
-
-		<button onclick="openResult('/cgi-bin/slow.py')">TEST</button>
-
-	</div>
-
-	<div class="note">
-		This test takes about 30 seconds (server CGI timeout).
-	</div>
-
-</div>
-
 
 <!-- ============================================================
      JAVASCRIPT
@@ -677,15 +778,12 @@ function openResult(url, method, body, headers)
 		.catch(function (error) {
 			const doc = win.document;
 			doc.open();
-			doc.write("<pre>NETWORK ERROR\n" + error.message + "</pre>");
+			doc.write("<pre style=\"background:#14171a;color:#e2726a;font-family:monospace;padding:1rem\">NETWORK ERROR\n" + error.message + "</pre>");
 			doc.close();
 		});
 }
 
 </script>
-
-
-</div>
 
 </body>
 </html>
