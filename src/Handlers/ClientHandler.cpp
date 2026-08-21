@@ -137,9 +137,9 @@ void	ClientHandler::processRequest()
 
 		Router			createResponse(_request, _config);
 		HttpResponse	res;
-		CgiInfo 		cgi;
+		CgiInfo 		cgiInfo;
 		
-		ResponseType type = createResponse.processRequest(res, cgi);
+		ResponseType type = createResponse.processRequest(res, cgiInfo);
 		
 		switch (type)
 		{
@@ -157,7 +157,7 @@ void	ClientHandler::processRequest()
 				ctx->config      = &_config;
 				_clientAlive->addRef();	//	this CgiContext's reference
 
-				if (!launchCgi(cgi, ctx))
+				if (!launchCgi(cgiInfo, ctx))
 				{
 					//	setup failed before fork/pipes could be handed
 					//	to any handler — nothing has taken ownership of

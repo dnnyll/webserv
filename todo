@@ -1,6 +1,8 @@
-->etudier Cgi et EventLoop
-->leak cgi
+2 fonctions mm nom -> processRequest
+suppr cgiHandler?
+changer ternaire cgiReadHandler
 
-->refaire tester.conf avec www/ de test
+buildCgiResponse -> serialize?
 
--> ajouter  page html 204 pour le test delete
+lire rfc cgi
+reactor pattern
