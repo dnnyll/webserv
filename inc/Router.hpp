@@ -67,7 +67,7 @@ class	Router
 		static HttpResponse		makeError(int code, const std::string &message, const ServerBlock &config);
 		Router(const HttpRequest &request, const ServerBlock &config);
 
-		ResponseType				processRequest(HttpResponse &res, CgiInfo &cgi);
+		ResponseType				routingResponse(HttpResponse &res, CgiInfo &cgi);
 };
 
 #endif

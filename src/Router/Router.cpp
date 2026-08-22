@@ -45,7 +45,7 @@ HttpResponse	Router::makeError(int code, const std::string &message)
 	return (makeError(code, message, _config));
 }
 
-ResponseType Router::processRequest(HttpResponse &res, CgiInfo &cgi)
+ResponseType Router::routingResponse(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
 	//format redir a changer dans le parsing config

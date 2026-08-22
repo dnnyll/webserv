@@ -6,3 +6,6 @@ buildCgiResponse -> serialize?
 
 lire rfc cgi
 reactor pattern
+
+pas le meme format entre makeError et makeResponse??
+en fait que fait makeError ?

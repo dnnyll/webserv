@@ -139,7 +139,7 @@ void	ClientHandler::processRequest()
 		HttpResponse	res;
 		CgiInfo 		cgiInfo;
 		
-		ResponseType type = createResponse.processRequest(res, cgiInfo);
+		ResponseType type = createResponse.routingResponse(res, cgiInfo);
 		
 		switch (type)
 		{
