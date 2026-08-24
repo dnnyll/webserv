@@ -30,7 +30,7 @@ void	Router::handleDelete()
 				this->_response = HttpResponse::make(204, "No Content");
 			break;
 		}
-		case DIRECTORY_LISTING: //normalement impossible
+		case DIRECTORY_LISTING:
 			this->_response = makeError(403, "Forbidden");
 			break;
 		case NOT_FOUND:
@@ -40,7 +40,6 @@ void	Router::handleDelete()
 			this->_response = makeError(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
-			//impossible dans ce contexte
 			break;
 		case REDIRECT:
 			this->_response = HttpResponse::make(301, "Moved Permanently");

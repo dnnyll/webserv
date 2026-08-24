@@ -62,7 +62,6 @@ void	Router::handleGet()
 			this->_response = makeError(403, "Forbidden");
 			break;
 		case CGI_NEEDED:
-			//impossible dans ce contexte
 			break;
 		case REDIRECT:
 			this->_response = HttpResponse::make(301, "Moved Permanently");

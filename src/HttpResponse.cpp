@@ -1,7 +1,6 @@
 #include	"HttpResponse.hpp"
 #include	<sstream>
 
-//TODO revoir constructeur de httpResponse
 HttpResponse::HttpResponse(): statusCode("200"), statusMessage("OK"){}
 
 std::string	HttpResponse::serialize() const

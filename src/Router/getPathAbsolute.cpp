@@ -2,7 +2,7 @@
 
 std::string	Router::getPathAbsolute(std::string uri, std::string root)
 {
-	//query string si cgi
+	//query string if cgi
 	size_t	npos = uri.find('?');
 	if (npos != std::string::npos)
 		uri = uri.substr(0, npos);

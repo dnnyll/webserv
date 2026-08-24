@@ -1,6 +1,5 @@
 #include "Router.hpp"
 #include "HttpResponse.hpp"
-// #include "CgiHandler.hpp"
 #include "../inc/Cgi/CgiLaunch.hpp"
 #include <fstream>
 #include <sstream>
@@ -48,8 +47,6 @@ HttpResponse	Router::makeError(int code, const std::string &message)
 ResponseType Router::routingResponse(HttpResponse &res, CgiInfo &cgi)
 {
 	this->_location = getLocation();
-	//format redir a changer dans le parsing config
-	//mais pas pris en compte pour le router toute les redirections ont le meme code
 	if (this->_location && !this->_location->redirect_url.empty())
 	{
 		res = HttpResponse::make(301, "Moved Permanently");
