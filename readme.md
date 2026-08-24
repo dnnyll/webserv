@@ -83,16 +83,71 @@ server {
 
 ### Configuration directives
 
+**Server block**
+
+| Directive             | Description                          | Example                  |
+|------------------------|---------------------------------------|---------------------------|
+| `listen`               | Port the server listens on            | `listen 8080;`             |
+| `server_name`          | Virtual host name                     | `server_name webinterface;`|
+| `client_max_body_size` | Max size of a request body (bytes)    | `client_max_body_size 10000000;` |
+| `root`                 | Default document root for the server  | `root www;`                |
+| `error_page`           | Custom error page for a status code   | `error_page 400 /errors/400.html;` |
+
+**Location block**
+
+| Directive   | Description                              | Example              |
+|-------------|--------------------------------------------|------------------------|
+| `root`      | Document root for this location            | `root www/index;`      |
+| `index`     | Default file served for a directory request | `index index.html;`   |
+| `autoindex` | Enable/disable directory listing            | `autoindex off;`       |
+| `methods`   | HTTP methods allowed on this location       | `methods GET;`         |
+
 ## 🖥️ Usage
 
 ### Start the server
 
+```bash
+# Use the default configuration file
+./webserv config_files/webinterface.conf
+
+# Use a custom configuration file
+./webserv config_files/<custom.conf>
+```
+
 ### Testing with commands
 
-## 📁 Project structure
+```bash
+# GET request
+curl http://localhost:8080/
+
+# POST request
+curl -v -X POST -d "hello from curl" http://localhost:8080/upload/<filename>
+
+# DELETE request
+curl -v -X DELETE http://localhost:8080/www/upload/<filename>
+```
 
 ## 📄 Resources
 
 ### References
 
+- https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+- https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+- https://hackmd.io/@laian/SJZHcOsmT
+- https://nginx.org/en/docs/
+- https://datatracker.ietf.org/doc/html/rfc7230
+- https://datatracker.ietf.org/doc/html/rfc7231
+- https://datatracker.ietf.org/doc/html/rfc3875
+- https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview
+- https://www.dre.vanderbilt.edu/~schmidt/PDF/reactor-siemens.pdf
+
 ### IA Usage
+
+AI was used during this project for the following tasks:
+
+- Debugging Git workflow issues
+- Designing the manual test suite page
+- ReadMe structuring
+- Help to solve problems during the development part
+
+AI was not used to write the core C++ server logic.
