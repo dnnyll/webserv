@@ -36,7 +36,7 @@ static bool is_valid_ip(const std::string &ip)
 		if (pos == ip.size() || ip[pos] == '.')
 		{
 			if (pos == start)
-				return (false); //segment vide
+				return (false);
 			
 			std::string segment = ip.substr(start, pos - start);
 			if (segment.size() > 3)
@@ -309,7 +309,6 @@ static std::vector<std::string> tokenize(const std::string &filepath)
 
 	while (std::getline(file, line))
 	{
-		//suppression des commentaires
 		size_t	comment = line.find('#');
 		if (comment != std::string::npos)
 			line = line.substr(0, comment);
@@ -336,7 +335,6 @@ static std::vector<std::string> tokenize(const std::string &filepath)
 	return tokens;
 }
 
-//TODO (alexis) : fonction coherente ??
 static void validate_inheritance(std::vector<ServerBlock> &servers)
 {
 	for (size_t i = 0; i < servers.size(); ++i)
@@ -371,7 +369,6 @@ static void validate_no_duplicate_servers(const std::vector<ServerBlock> &server
 	}
 }
 
-//a ajouter, check si deux serveur ont le meme host, port, name -> exception !!
 void Config::parse(const std::string &filepath)
 {
 	std::vector<std::string> tokens = tokenize(filepath);
