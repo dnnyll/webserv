@@ -32,7 +32,7 @@ void	EventLoop::addHandler(EventHandler *handler)
 	_handlers.push_back(handler);
 }
 
-void EventLoop::run()
+void	EventLoop::run()
 {
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
@@ -51,11 +51,6 @@ void EventLoop::run()
 		{
 			if (!g_isRunning)
 				break ;
-
-			if (errno == EINTR)
-				continue ;
-
-			break ;
 		}
 		dispatch();
 		checkTimeouts();

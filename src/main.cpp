@@ -29,17 +29,24 @@ int	main(int argc, char **argv)
 
 	const std::vector<ServerBlock>	&servers = config.getServers();
 
-	for (size_t i = 0; i < servers.size(); i++)
+	size_t	i = 0;
+
+	while (i < servers.size())
 	{
-		AcceptHandler	*listener = new AcceptHandler(servers[i], reactor);
+		AcceptHandler *listener = new AcceptHandler(servers[i], reactor);
 
 		if (listener->getFd() < 0)
 		{
-			std::cerr << "[MAIN]Failed to setup listener for " << servers[i].host << ":" << servers[i].port << std::endl;
+			std::cerr << "[MAIN]Failed to setup listener for "
+					<< servers[i].host << ":"
+					<< servers[i].port << std::endl;
 			delete listener;
-			continue;
+			++i;
+			continue ;
 		}
+
 		reactor.addHandler(listener);
+		++i;
 	}
 	reactor.run();
 	return (0);
