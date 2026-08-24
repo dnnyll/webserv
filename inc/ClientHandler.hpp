@@ -9,24 +9,6 @@
 
 struct	CgiAlive;
 
-/*
-** ClientHandler
-**
-** Represents one connected client.
-**
-** Responsibilities:
-** - receive bytes from the socket
-** - feed data into the HTTP request parser
-** - detect when a request is complete
-** - store serialized HTTP responses
-** - send responses back to the client
-** - manage connection persistence (keep-alive)
-** - own a shared "am I still alive" flag consumed by any in-flight
-**   CgiReadHandler, so a client disconnecting mid-CGI doesn't leave
-**   the CGI side writing into freed memory
-**
-** One ClientHandler instance exists per connected client socket.
-*/
 class	ClientHandler : public	EventHandler
 {
 	public:

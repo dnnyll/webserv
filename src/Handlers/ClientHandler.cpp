@@ -18,7 +18,7 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 	: _fd(fd),
 	_config(block),
 	_reactor(reactor),
-	_clientAlive(NULL)	//	only allocated if/when a CGI request actually starts
+	_clientAlive(NULL)
 {
 	_keepAlive = true;
 	_getClosed = false;
@@ -27,13 +27,6 @@ ClientHandler::ClientHandler(int fd, const ServerBlock &block, EventLoop &reacto
 	_request.setMaxBodySize(block.client_max_body_size);
 }
 
-/*
-	_clientAlive is refcounted: this handler holds one reference, and
-	each in-flight CgiContext holds one. We flip alive=false so any
-	surviving CgiReadHandler stops touching _outBuffer (about to be
-	destroyed), then drop our reference. The flag object itself is
-	only freed once the last CgiContext also releases it.
-*/
 ClientHandler::~ClientHandler()
 {
 	if (_clientAlive)
@@ -54,11 +47,6 @@ void	ClientHandler::handleRead()
 
 	if (bytesReceived <= 0)
 	{
-		//	recv() == 0 is a FIN (half-close): the peer has stopped sending
-		//	but may still be reading, so flush queued/pipelined responses
-		//	before closing. Also defer closing while a CGI is still running
-		//	(the CGI output lands in _outBuffer later). Only treat recv() < 0
-		//	as a fatal error.
 		if (bytesReceived == 0
 			&& (!_outBuffer.empty()
 				|| _request.hasPendingData()
@@ -132,9 +120,6 @@ void	ClientHandler::processRequest()
 		std::cout << "  uri: "				<< _request.uri << std::endl;
 		std::cout << "  body: "				<< _request.body << std::endl;
 
-
-		// TODO(danny + jules): decide where status/flag CGI or RESPONSE is coming from!!
-
 		Router			createResponse(_request, _config);
 		HttpResponse	res;
 		CgiInfo 		cgiInfo;
@@ -155,14 +140,10 @@ void	ClientHandler::processRequest()
 				ctx->outBuffer   = &_outBuffer;
 				ctx->clientAlive = _clientAlive;
 				ctx->config      = &_config;
-				_clientAlive->addRef();	//	this CgiContext's reference
+				_clientAlive->addRef();
 
 				if (!launchCgi(cgiInfo, ctx))
 				{
-					//	setup failed before fork/pipes could be handed
-					//	to any handler — nothing has taken ownership of
-					//	ctx yet, so drop its reference on the flag and
-					//	free it directly here
 					ctx->clientAlive = NULL;
 					_clientAlive->release();
 					delete ctx;
@@ -208,8 +189,6 @@ void	ClientHandler::handleWrite()
 		{
 			_request.reset();
 
-			//	a pipelined request may already be sitting in the parser's
-			//	buffer — feed it back instead of waiting for the next recv()
 			if (_request.hasPendingData())
 			{
 				_request.getData("");

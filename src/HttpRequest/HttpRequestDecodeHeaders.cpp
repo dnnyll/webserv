@@ -44,7 +44,6 @@ bool	HttpRequest::splitHeaderLine(const std::string &line)
 	std::string	key = line.substr(0, colon);
 	std::string	value = line.substr(colon + 1);
 
-	//	RFC 7230 §3.2.4: no whitespace allowed between field-name and colon
 	if (key.empty() || key.find_first_of(" \t") != std::string::npos)
 	{
 		_state = ERROR_STATE;
@@ -60,7 +59,6 @@ bool	HttpRequest::splitHeaderLine(const std::string &line)
 	else
 		value = value.substr(first, last - first + 1);
 
-	//	duplicate field name -> reject (Host, Content-Length, ... must be single)
 	if (headers.count(key) > 0)
 	{
 		_state = ERROR_STATE;
@@ -144,7 +142,6 @@ void	HttpRequest::decodeHeaders()
 		{
 			_buffer.erase(0, 2);
 
-			//	RFC 7230 §5.4: Host is mandatory in HTTP/1.1
 			if (!headers.count("Host"))
 			{
 				_state = ERROR_STATE;

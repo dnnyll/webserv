@@ -21,7 +21,6 @@ bool	HttpRequest::parseChunkSize()
 
 	std::string sizeLine = _buffer.substr(0, crlf_pos);
 
-	// strip chunk extensions (";foo=bar") before parsing size
 	size_t	ext_pos = sizeLine.find(';');
 
 	if (ext_pos != std::string::npos)
