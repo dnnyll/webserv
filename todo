@@ -1,4 +1,3 @@
-2 fonctions mm nom -> processRequest
 suppr cgiHandler?
 changer ternaire cgiReadHandler
 

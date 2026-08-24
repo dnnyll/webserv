@@ -124,6 +124,16 @@ static std::string	buildCgiResponse(const std::string &output)
 	return (response);
 }
 
+void	CgiReadHandler::setErrorResponse(int code, const std::string &message) const
+{
+	if (!(_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer))
+		return ;
+	if (_ctx->config)
+		*(_ctx->outBuffer) = Router::makeError(code, message, *_ctx->config).serialize();
+	else
+		*(_ctx->outBuffer) = HttpResponse::make(code, message).serialize();
+}
+
 CgiReadHandler::CgiReadHandler(CgiContext *ctx) : _ctx(ctx)
 {
 	_ctx->addRef();
@@ -159,10 +169,7 @@ bool	CgiReadHandler::getClosed() const
 		if (_ctx->pid > 0)
 			kill(_ctx->pid, SIGKILL);
 		reapChild(true);
-		if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
-			*(_ctx->outBuffer) = (_ctx->config
-				? Router::makeError(504, "Gateway Timeout", *_ctx->config)
-				: HttpResponse::make(504, "Gateway Timeout")).serialize();
+		setErrorResponse(504, "Gateway Timeout");
 		_ctx->readDone = true;
 		return (true);
 	}
@@ -183,10 +190,7 @@ void	CgiReadHandler::setClosed()
 	if (_ctx->pid > 0)
 		kill(_ctx->pid, SIGKILL);
 	reapChild(true);
-	if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
-		*(_ctx->outBuffer) = (_ctx->config
-			? Router::makeError(500, "Internal Server Error", *_ctx->config)
-			: HttpResponse::make(500, "Internal Server Error")).serialize();
+	setErrorResponse(500, "Internal Server Error");
 	_ctx->readDone = true;
 }
 
@@ -209,8 +213,13 @@ void	CgiReadHandler::reapChild(bool block) const
 	if (_ctx->pid <= 0)
 		return ;
 
+	int	waitFlag;
 	int	status;
-	if (waitpid(_ctx->pid, &status, block ? 0 : WNOHANG) > 0)
+	if (block)
+		waitFlag = 0;
+	else
+		waitFlag = WNOHANG;
+	if (waitpid(_ctx->pid, &status, waitFlag) > 0)
 		_ctx->exitStatus = status;
 	_ctx->pid = -1;
 }
@@ -249,13 +258,9 @@ void	CgiReadHandler::handleRead()
 	if (_ctx->clientAlive && _ctx->clientAlive->alive && _ctx->outBuffer)
 	{
 		if (_ctx->exitStatus != -1 && !WIFEXITED(_ctx->exitStatus))
-			*(_ctx->outBuffer) = (_ctx->config
-				? Router::makeError(502, "Bad Gateway", *_ctx->config)
-				: HttpResponse::make(502, "Bad Gateway")).serialize();
+			setErrorResponse(502, "Bad Gateway");
 		else if (_ctx->exitStatus != -1 && WEXITSTATUS(_ctx->exitStatus) != 0)
-			*(_ctx->outBuffer) = (_ctx->config
-				? Router::makeError(500, "Internal Server Error", *_ctx->config)
-				: HttpResponse::make(500, "Internal Server Error")).serialize();
+			setErrorResponse(500, "Internal Server Error");
 		else
 			*(_ctx->outBuffer) = buildCgiResponse(_ctx->output);
 	}

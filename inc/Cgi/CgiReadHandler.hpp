@@ -42,6 +42,7 @@ class	CgiReadHandler : public	EventHandler
 
 		bool	hasTimedOut() const;
 		void	reapChild(bool block) const;
+		void	setErrorResponse(int code, const std::string& message) const;
 };
 
 #endif
