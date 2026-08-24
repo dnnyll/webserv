@@ -86,17 +86,9 @@ void	EventLoop::dispatch()
 	{
 		int	rev = _pollfds[i].revents;
 
-		//	POLLHUP is the EOF condition: the write end of the pipe was
-		//	closed (CGI child exited) or the peer hung up. Treat it as
-		//	readable so handleRead() processes the EOF / reap instead of
-		//	leaving the handler to spin until its timeout.
 		if ((rev & (POLLIN | POLLHUP)) && _pollfds[i].fd >= 0)
 			_handlers[i]->handleRead();
 
-		//	only write when poll() actually reported the fd writable.
-		//	(An isWritable() short-circuit here could run a write before
-		//	the fd is ready, which is forbidden by the subject and would
-		//	force an errno/EAGAIN check we are not allowed to make.)
 		if (rev & POLLOUT)
 			_handlers[i]->handleWrite();
 

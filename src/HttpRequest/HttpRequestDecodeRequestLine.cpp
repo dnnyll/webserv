@@ -3,8 +3,6 @@
 #include	<cctype>
 #include	<string>
 
-// CRLF = Carriage Return + Line Feed
-// LF = Line Feed only
 bool	HttpRequest::extractRequestLine(std::string &line)
 {
 	size_t	crlf_pos = _buffer.find("\r\n");
@@ -69,8 +67,6 @@ bool	HttpRequest::validateRequestLine()
 	{
 		_state = ERROR_STATE;
 
-		//	RFC 7230 §2.6: well-formed but unsupported version -> 505,
-		//	garbage that is not a version at all -> 400
 		if (version.size() == 8
 				&& version.compare(0, 5, "HTTP/") == 0
 				&& std::isdigit(static_cast<unsigned char>(version[5]))

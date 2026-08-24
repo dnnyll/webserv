@@ -34,19 +34,6 @@ static void	freeEnvp(char **envp)
 	delete[] envp;
 }
 
-/*
-	launchCgi
-
-	Sets up the two pipes, forks, and execve()s the CGI script in the
-	child. On success, ctx->pid / ctx->pipeInWrite / ctx->pipeOutRead
-	are filled in for the parent side.
-
-	If the request has no body (GET, or empty POST), pipeInWrite is
-	closed immediately and ctx->writeDone is set to true right away,
-	so CgiWriteHandler never gets registered stuck waiting to send
-	nothing (which would leave it unwritable forever and never
-	removed by the EventLoop).
-*/
 bool	launchCgi(const CgiInfo &info, CgiContext *ctx)
 {
 	int	pipeIn[2];
@@ -100,7 +87,6 @@ bool	launchCgi(const CgiInfo &info, CgiContext *ctx)
 
 		execve(info.interpreterPath.c_str(), argv, envp);
 
-		//	execve only returns on failure
 		std::cerr << "[CGI] execve() failed: " << strerror(errno) << std::endl;
 		freeEnvp(envp);
 		std::exit(1);

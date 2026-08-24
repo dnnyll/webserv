@@ -199,15 +199,6 @@ bool	CgiReadHandler::hasTimedOut() const
 	return (time(NULL) - _ctx->startTime > TIMEOUT_SECONDS);
 }
 
-/*
-	Reap the child and record its exit status. With block=false we wait
-	with WNOHANG so this never blocks the reactor thread on the normal
-	EOF path, where the child may have merely closed its stdout while
-	still running. After a SIGKILL (timeout / POLLERR), block=true is
-	used: the child is guaranteed to die promptly, and a blocking
-	waitpid guarantees it is actually reaped instead of being lost to
-	the non-blocking race.
-*/
 void	CgiReadHandler::reapChild(bool block) const
 {
 	if (_ctx->pid <= 0)
@@ -233,24 +224,13 @@ void	CgiReadHandler::handleRead()
 	{
 		if (_ctx->clientAlive && _ctx->clientAlive->alive)
 			_ctx->output.append(buf, n);
-		//	if the client is gone, drop the bytes on the floor —
-		//	we still need to keep draining the pipe so the child
-		//	doesn't block on a full stdout buffer before exiting
+
 		return ;
 	}
 
 	if (n < 0)
-	{
-		//	No errno inspection here: the subject forbids checking errno
-		//	after a read/write. EAGAIN cannot occur because handleRead()
-		//	is only dispatched when poll() reported POLLIN/POLLHUP; a
-		//	transient error (e.g. EINTR) is retried on the next readiness
-		//	event, and a persistent one surfaces as POLLERR/POLLNVAL and
-		//	is handled by setClosed().
 		return ;
-	}
 
-	//	n == 0 (EOF): the child closed stdout or exited — this side is done
 	std::cout << "[CGIREAD] CGI output finished (fd=" << _ctx->pipeOutRead << ")" << std::endl;
 	close(_ctx->pipeOutRead);
 	_ctx->pipeOutRead = -1;
@@ -269,5 +249,4 @@ void	CgiReadHandler::handleRead()
 
 void	CgiReadHandler::handleWrite()
 {
-	//	this handler is only ever polled for POLLIN; nothing to do here
 }

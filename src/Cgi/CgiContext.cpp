@@ -21,14 +21,6 @@ void	CgiContext::addRef()
 	refCount++;
 }
 
-/*
-	Once the last handler (write or read side, whichever finishes
-	last) releases its reference, the context drops its reference on
-	the shared clientAlive flag (the ClientHandler still holds one),
-	then deletes itself. Pipes are expected to already be closed by
-	whichever handler finished (see CgiWriteHandler/CgiReadHandler) —
-	this is just a defensive double-check.
-*/
 void	CgiContext::release()
 {
 	refCount--;
