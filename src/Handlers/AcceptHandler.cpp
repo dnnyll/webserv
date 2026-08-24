@@ -42,7 +42,7 @@ void	AcceptHandler::handleRead()
 
 	if (clientFd < 0)
 	{
-		std::cout << "[HANDLEREAD] accept() failed" << std::endl;
+		std::cout << "[HANDLEREAD] cccept() failed" << std::endl;
 		return ;
 	}
 
@@ -69,7 +69,7 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 		return false;
 	}
 
-	int opt = 1;
+	int	opt = 1;
 
 	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -87,7 +87,7 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 		std::cerr << "[SETUPSOCKET] Bind() failed: " << strerror(errno) << std::endl;	
 		close(_fd);
 		_fd = -1;
-		return false;
+		return (false);
 	}
 
 	if (listen(_fd, 10) < 0)
@@ -95,13 +95,14 @@ bool AcceptHandler::setupSocket(int port, const std::string &host)
 		std::cerr << "[SETUPSOCKET] Listen() failed: " << strerror(errno) << std::endl;
 		close(_fd);
 		_fd = -1;
-		return false;
+		return (false);
 	}
 
 	std::cout << "[SETUPSOCKET] Listening on " << host << ":" << port << "..." << std::endl;
-	return true;
+	return (true);
 }
 
+//	a listening socket never has outgoing data, it always returns isWritable false
 bool	AcceptHandler::isWritable() const
 {
 	return (false);
